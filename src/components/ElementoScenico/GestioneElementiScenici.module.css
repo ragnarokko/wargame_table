@@ -1,0 +1,66 @@
+.pannello {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.intestazione {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.intestazione h3 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+}
+
+.intestazione button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.riga {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto auto;
+  gap: 4px;
+  align-items: center;
+}
+
+.nomeInput {
+  min-width: 0;
+  font-size: 12px;
+}
+
+.numeroInput {
+  width: 42px;
+  font-size: 12px;
+}
+
+.riga select {
+  font-size: 11px;
+  max-width: 74px;
+}
+
+.rimuoviBtn {
+  color: var(--colore-pericolo);
+  padding: 2px 6px;
+}
+
+.vuoto {
+  font-size: 12px;
+  color: var(--colore-testo-secondario);
+  font-style: italic;
+}

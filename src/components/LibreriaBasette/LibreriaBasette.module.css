@@ -1,0 +1,129 @@
+.pannello {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.intestazione {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.intestazione h3 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+}
+
+.azioniIntestazione {
+  display: flex;
+  gap: 4px;
+}
+
+.azioniIntestazione button,
+.importaLabel {
+  font-size: 12px;
+  padding: 3px 7px;
+  cursor: pointer;
+}
+
+.lista {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.riga {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 2px;
+  border-radius: 4px;
+}
+
+.riga:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pallino {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nome {
+  flex: 1;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.azioni {
+  display: flex;
+  gap: 2px;
+}
+
+.azioni button {
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+.vuoto {
+  font-size: 12px;
+  color: var(--colore-testo-secondario);
+  font-style: italic;
+}
+
+.nuovaBtn {
+  width: 100%;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: var(--radius);
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+}
+
+.form input,
+.form select,
+.form textarea {
+  font-size: 12px;
+}
+
+.anteprima {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.formAzioni {
+  display: flex;
+  gap: 6px;
+}
+
+.formAzioni button {
+  flex: 1;
+}

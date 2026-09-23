@@ -1,0 +1,27 @@
+.staging {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--colore-staging),
+    var(--colore-staging) 10px,
+    #2c2c36 10px,
+    #2c2c36 20px
+  );
+  border: 2px dashed #4a4a58;
+  border-radius: 4px;
+}
+
+.etichetta {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--colore-testo-secondario);
+  pointer-events: none;
+}

@@ -1,0 +1,19 @@
+.elemento {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(0, 0, 0, 0.4);
+  opacity: 0.85;
+  touch-action: none;
+  user-select: none;
+}
+
+.etichetta {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  text-align: center;
+  padding: 2px;
+}

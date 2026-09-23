@@ -1,0 +1,16 @@
+.pannello {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--colore-pannello);
+  border-right: 1px solid var(--colore-bordo);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.titolo {
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--colore-bordo);
+}

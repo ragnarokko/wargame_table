@@ -1,0 +1,24 @@
+.basetta {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(0, 0, 0, 0.55);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  touch-action: none;
+  user-select: none;
+}
+
+.nome {
+  font-size: 9px;
+  font-weight: 700;
+  color: #0e0e12;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35);
+  text-align: center;
+  padding: 0 2px;
+  pointer-events: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}

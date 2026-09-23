@@ -1,0 +1,7 @@
+Puoi avviarlo in due modi:
+
+1. Dal terminale (nella cartella del progetto):
+
+npm run dev
+
+poi apri http://localhost:5173 nel browser.
