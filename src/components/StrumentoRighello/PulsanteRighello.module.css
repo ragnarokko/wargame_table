@@ -1,0 +1,23 @@
+.pannello {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.pulsante {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.icona {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.attivo,
+.attivo:hover {
+  background: var(--colore-accento-hover);
+  outline: 2px solid var(--colore-accento);
+}

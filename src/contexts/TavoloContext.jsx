@@ -6,7 +6,7 @@ const PX_PER_POLLICE = 14;
 const MARGINE_STAGING_POLLICI = 12;
 
 export function TavoloProvider({ children }) {
-  const [dimensioni, setDimensioniState] = useState({ larghezza: 44, altezza: 60 });
+  const [dimensioni, setDimensioniState] = useState({ larghezza: 60, altezza: 44 });
   const [sfondo, setSfondo] = useState(null);
 
   const setDimensioni = useCallback((larghezza, altezza) => {
