@@ -42,6 +42,12 @@ export function LibreriaProvider({ children }) {
     setBasette((prev) => prev.filter((b) => b.id !== id));
   }, []);
 
+  // Sostituisce tutte le unità esercito (basette con campo `esercito`) con quelle indicate,
+  // preservando gli id originali (usato dall'import degli eserciti) e lasciando intatta la libreria generica.
+  const sostituisciUnitaEserciti = useCallback((nuoveUnita) => {
+    setBasette((prev) => [...prev.filter((b) => !b.esercito), ...nuoveUnita]);
+  }, []);
+
   const esportaJSON = useCallback(() => {
     const blob = new Blob([JSON.stringify(basette, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -60,6 +66,7 @@ export function LibreriaProvider({ children }) {
           const dati = JSON.parse(reader.result);
           if (!Array.isArray(dati)) throw new Error('atteso un array di basette');
           const normalizzate = dati.map((b) => ({
+            ...b,
             id: b.id || generaId(),
             nome: b.nome || 'Senza nome',
             colore: b.colore || '#999999',
@@ -82,8 +89,16 @@ export function LibreriaProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta, esportaJSON, importaJSON }),
-    [basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta, esportaJSON, importaJSON],
+    () => ({
+      basette,
+      aggiungiBasetta,
+      modificaBasetta,
+      rimuoviBasetta,
+      sostituisciUnitaEserciti,
+      esportaJSON,
+      importaJSON,
+    }),
+    [basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta, sostituisciUnitaEserciti, esportaJSON, importaJSON],
   );
 
   return <LibreriaContext.Provider value={value}>{children}</LibreriaContext.Provider>;

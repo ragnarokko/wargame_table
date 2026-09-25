@@ -64,3 +64,50 @@
   color: var(--colore-testo-secondario);
   font-style: italic;
 }
+
+.formCompatto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 10px;
+  border-radius: var(--radius);
+}
+
+.rigaCompatta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.rigaCompatta select,
+.rigaCompatta input,
+.rigaCompatta button {
+  font-size: 12px;
+}
+
+.avanzateBtn {
+  padding: 3px 6px;
+  line-height: 1;
+}
+
+.avanzatePannello {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--colore-bordo);
+}
+
+.avanzatePannello label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+}
+
+.avanzatePannello input {
+  font-size: 12px;
+}

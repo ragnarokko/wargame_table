@@ -3,6 +3,7 @@ import LibreriaBasette from '../LibreriaBasette/LibreriaBasette';
 import GestioneElementiScenici from '../ElementoScenico/GestioneElementiScenici';
 import PulsanteRighello from '../StrumentoRighello/PulsanteRighello';
 import SelettoreLayout from '../SelettoreLayout/SelettoreLayout';
+import CreazioneEsercito from '../CreazioneEsercito/CreazioneEsercito';
 import styles from './PannelloLaterale.module.css';
 
 function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
@@ -12,6 +13,7 @@ function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
       <CaricaSfondo />
       <SelettoreLayout />
       <PulsanteRighello attivo={righelloAttivo} onToggle={onToggleRighello} />
+      <CreazioneEsercito />
       <LibreriaBasette />
       <GestioneElementiScenici />
     </aside>

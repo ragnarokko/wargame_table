@@ -10,7 +10,8 @@ Architettura modulare: ogni funzionalità è un componente indipendente in `src/
 src/
   contexts/       stato condiviso (Context API)
   hooks/          hook riusabili
-  utils/          funzioni pure (conversioni, id)
+  utils/          funzioni pure (conversioni, id, eventi custom)
+  config/         dati di configurazione statici (eserciti, dimensioni basette)
   components/     un componente = una funzionalità = una cartella
 ```
 
@@ -18,28 +19,36 @@ src/
 
 | Cartella | Cosa fa |
 |---|---|
-| `AreaLavoro/` | Contenitore principale: monta `Staging` + `Tavolo` come sfondo visivo e sopra un livello interattivo assoluto dove vengono renderizzate `Basetta` ed `ElementoScenico`. Possiede il `containerRef` usato come sistema di coordinate condiviso per il drag & drop. |
+| `AreaLavoro/` | Contenitore principale: monta `Staging` + `Tavolo` come sfondo visivo e sopra un livello interattivo assoluto dove vengono renderizzate `Basetta` ed `ElementoScenico`, oltre a `SelezioneMultipla` e `StrumentoRighello`. Possiede il `containerRef` usato come sistema di coordinate condiviso per il drag & drop, e gestisce la rotazione dell'intera area (tasti A/S, 90° per volta) passata come `rotazioneArea` ai figli. |
 | `Tavolo/` | Solo visuale: rettangolo del tavolo di gioco (bordo, sfondo immagine stretchato, etichetta dimensioni). Nessuna logica interattiva. |
 | `Staging/` | Solo visuale: area tratteggiata che circonda il tavolo, dove si preparano le basette prima di schierarle. |
-| `Basetta/` | Miniatura trascinabile. Gestisce drag (via `useDraggable`), calcolo distanza percorsa quando il movimento avviene interamente sul tavolo, hover+Ctrl per mostrare `BasettaTooltip`, doppio click per rimuovere. |
+| `Basetta/` | Miniatura trascinabile. Gestisce drag (via `useDraggable`), calcolo distanza percorsa quando il movimento avviene interamente sul tavolo, hover+Ctrl per mostrare `BasettaTooltip`, doppio click per rimuovere, rotazione con Q/E e selezione singola/multipla con trascinamento di gruppo (sincronizzate tra le istanze via eventi custom su `window`, vedi `src/utils/selezioneEventi.js`), evidenziazione al hover di un'unità nella lista eserciti (`CreazioneEsercito`). |
 | `BasettaTooltip/` | Popup con immagine + statistiche del template, mostrato da `Basetta`. |
 | `MisuraDistanza/` | Piccolo badge che mostra l'ultima distanza percorsa (in pollici), renderizzato da `Basetta`. |
-| `ElementoScenico/` | `ElementoScenico.jsx`: elemento scenico trascinabile sul campo (drag via `useDraggable`, doppio click per rimuovere). `GestioneElementiScenici.jsx`: pannello laterale con lista/form per aggiungere, modificare (nome, forma, dimensioni, colore) e rimuovere elementi scenici. |
-| `LibreriaBasette/` | `LibreriaBasette.jsx`: pannello laterale con elenco basette in libreria, azioni schiera/modifica/rimuovi, export/import JSON. `BasettaForm.jsx`: form di creazione/modifica template basetta. |
+| `SelezioneMultipla/` | Overlay invisibile su `AreaLavoro`: trascinamento per selezionare più basette con un rettangolo di gomma; emette l'evento `EVENTO_SELEZIONE_MULTIPLA` con gli id selezionati, consumato da ogni `Basetta`. |
+| `StrumentoRighello/` | `StrumentoRighello.jsx`: overlay di misura libera tra due punti qualsiasi del tavolo (click-trascina, mostra la distanza in pollici), attivabile in alternativa alla selezione multipla. `PulsanteRighello.jsx`: pulsante toggle nel pannello laterale che ne controlla lo stato attivo/disattivo (stato tenuto in `App.jsx`). |
+| `ElementoScenico/` | `ElementoScenico.jsx`: elemento scenico trascinabile sul campo (drag via `useDraggable`, doppio click per rimuovere). `GestioneElementiScenici.jsx`: pannello laterale con lista (righe editabili inline) ed elemento espandibile `NuovoElementoForm.jsx` per aggiungere nuovi elementi (forma, dimensioni, nome, colore). |
+| `LibreriaBasette/` | `LibreriaBasette.jsx`: pannello laterale con elenco basette in libreria, azioni schiera/modifica/rimuovi, export/import JSON. `BasettaForm.jsx`: form compatto (riga con cascata forma→dimensione, dettagli avanzati espandibili) di creazione/modifica template basetta, avvolto in `PannelloEspandibile`. |
+| `CreazioneEsercito/` | `CreazioneEsercito.jsx`: pannello laterale con selezione tra due eserciti (Blu/Rosso), creazione unità multi-modello e due liste ad accordion (una per esercito, via `PannelloEspandibile`) con le unità create. Riusa `Basetta`/`LibreriaContext` (ogni unità è un template esteso con `esercito`, `numeroModelli` e stat opzionali MOV/RES/W/TS/TS+/OC/FNP/RANGE1-3/NOTE) e `TavoloStateContext.schieraBasette` per posizionare automaticamente tutti i modelli in staging su una fila (1" tra i centri, ≥2" dalle altre unità già presenti). `UnitaForm.jsx`: form di creazione unità, con dimensioni basetta lette da `src/config/dimensioniBasette.js` (lista tonde/ovali facilmente estendibile) e colore di default preso da `src/utils/colori.js` (primo colore libero nella palette per l'esercito scelto). `UnitaListItem.jsx`: voce dell'accordion per una singola unità (nome/dettagli espandibili, rimuovi), evidenzia le basette corrispondenti sul campo al passaggio del mouse sul nome (evento `EVENTO_EVIDENZIA_UNITA`). |
+| `PersistenzaEserciti/` | Sotto-componente montato da `CreazioneEsercito`: pulsanti per esportare/importare in JSON lo stato completo dei due eserciti (unità + istanze posizionate in staging/tavolo). Ogni export/import salva anche una copia in `localStorage`, ricaricata automaticamente all'avvio del sito se presente. |
 | `CaricaSfondo/` | Pannello laterale: form dimensioni tavolo (pollici) + upload immagine di sfondo. |
-| `PannelloLaterale/` | Compone la sidebar: `CaricaSfondo` + `LibreriaBasette` + `GestioneElementiScenici`. |
+| `SelettoreLayout/` | Pannello laterale "Force disposition": due select per i "codici" dei due giocatori + numero layout (1-3), risolve l'immagine di sfondo corrispondente tra gli asset in `src/assets/layouts/` (import.meta.glob) e la imposta via `TavoloContext.setSfondo`. |
+| `PannelloEspandibile/` | Contenitore riutilizzabile generico (non legato a un dominio specifico): riga singola collassata con titolo + freccia (▶/▼), controllata dall'esterno (`aperto`/`onToggle`), che espande mostrando i `children` (un form o una lista) senza conoscerne la logica interna. Usato da `LibreriaBasette`, `GestioneElementiScenici`/`NuovoElementoForm` e `CreazioneEsercito` (accordion per esercito). |
+| `PannelloLaterale/` | Compone la sidebar: `CaricaSfondo` + `SelettoreLayout` + `PulsanteRighello` + `CreazioneEsercito` + `LibreriaBasette` + `GestioneElementiScenici`. |
 
 ## Comunicazione tra moduli
 
 Stato condiviso via **Context API**, tre provider indipendenti montati in `App.jsx` (`TavoloProvider` > `LibreriaProvider` > `TavoloStateProvider`):
 
 - **`TavoloContext`** (`src/contexts/TavoloContext.jsx`) — dimensioni tavolo (pollici), immagine di sfondo, scala fissa `PX_PER_POLLICE = 14`, rettangoli calcolati (`tavoloRect`, `campoGiocoPx`, `margineStagingPx`), helper `puntoNelTavolo(x, y)`. È la fonte di verità per la conversione px↔pollici: cambiare dimensioni o sfondo ricalcola tutto automaticamente (il tavolo è sempre stirato a `larghezza*scala × altezza*scala`, indipendentemente dalla risoluzione dell'immagine caricata).
-- **`LibreriaContext`** (`src/contexts/LibreriaContext.jsx`) — array di template basette (CRUD + `esportaJSON`/`importaJSON`). Un template = forma/dimensione/colore/immagine/statistiche di un "tipo" di basetta, non un'istanza sul campo.
-- **`TavoloStateContext`** (`src/contexts/TavoloStateContext.jsx`) — istanze posizionate: `istanze` (basette effettivamente sul campo, con `templateId`, posizione `x/y` in px relativi al `containerRef` di `AreaLavoro`, `zona: 'staging'|'tavolo'`, `ultimaDistanza`) ed `elementiScenici`.
+- **`LibreriaContext`** (`src/contexts/LibreriaContext.jsx`) — array di template basette (CRUD + `esportaJSON`/`importaJSON`, più `sostituisciUnitaEserciti` usato dall'import degli eserciti per rimpiazzare solo le basette con campo `esercito`). Un template = forma/dimensione/colore/immagine/statistiche di un "tipo" di basetta, non un'istanza sul campo.
+- **`TavoloStateContext`** (`src/contexts/TavoloStateContext.jsx`) — istanze posizionate: `istanze` (basette effettivamente sul campo, con `templateId`, posizione `x/y` in px relativi al `containerRef` di `AreaLavoro`, `zona: 'staging'|'tavolo'`, `ultimaDistanza`) ed `elementiScenici`. Espone anche `impostaIstanzePerTemplates` (sostituzione mirata per template, usata dall'import eserciti) e `rimuoviIstanzePerTemplate`.
 
-Punto di ingresso di ogni modulo: il componente principale della cartella (stesso nome del folder) importa solo gli hook `useTavolo()` / `useLibreria()` / `useTavoloState()` di cui ha bisogno — non riceve quasi nulla via props tranne `containerRef` (passato da `AreaLavoro` a `Basetta`/`ElementoScenico` per calcolare posizioni relative durante il drag) e i dati dell'istanza/template correnti (`istanza`, `template`, `elemento`).
+Punto di ingresso di ogni modulo: il componente principale della cartella (stesso nome del folder) importa solo gli hook `useTavolo()` / `useLibreria()` / `useTavoloState()` di cui ha bisogno — non riceve quasi nulla via props tranne `containerRef` (passato da `AreaLavoro` a `Basetta`/`ElementoScenico`/`SelezioneMultipla`/`StrumentoRighello` per calcolare posizioni relative durante il drag/la misura, ruotate secondo `rotazioneArea`) e i dati dell'istanza/template correnti (`istanza`, `template`, `elemento`).
 
-Il drag & drop è centralizzato nell'hook `src/hooks/useDraggable.js`: dato un `containerRef` e una `posizione {x,y}`, gestisce Pointer Events e restituisce `posizioneVisualizzata`, `handlers`, `inTrascinamento`. Sia `Basetta` che `ElementoScenico` lo usano; la logica di business (calcolo distanza, cambio zona) resta nel componente chiamante tramite il callback `onSposta`.
+Oltre alla Context API, alcune interazioni trasversali tra `Basetta` e i pannelli laterali passano per **eventi custom su `window`** (`src/utils/selezioneEventi.js`), per evitare di introdurre un Context condiviso solo per queste: `EVENTO_SELEZIONE_MULTIPLA`/`EVENTO_TRASCINAMENTO_GRUPPO` (selezione e drag di gruppo, emessi da `Basetta`/`SelezioneMultipla`) ed `EVENTO_EVIDENZIA_UNITA` (hover su un'unità in `CreazioneEsercito` → bagliore sulle basette corrispondenti in `Basetta`).
+
+Il drag & drop è centralizzato nell'hook `src/hooks/useDraggable.js`: dato un `containerRef` e una `posizione {x,y}`, gestisce Pointer Events e restituisce `posizioneVisualizzata`, `handlers`, `inTrascinamento`. Sia `Basetta` che `ElementoScenico` lo usano; la logica di business (calcolo distanza, cambio zona) resta nel componente chiamante tramite il callback `onSposta`. Il calcolo dei punti relativi al `containerRef` tenendo conto della rotazione dell'area (`rotazioneArea`) è centralizzato in `src/utils/coordinate.js` (`puntoRelativoRuotato`), usato da `Basetta`, `SelezioneMultipla` e `StrumentoRighello`.
 
 ## Convenzioni
 
@@ -54,6 +63,9 @@ Il drag & drop è centralizzato nell'hook `src/hooks/useDraggable.js`: dato un `
 
 **Modulo 1 — Mappa e Basette: completo e funzionante.**
 Testato manualmente: ridimensionamento tavolo, upload sfondo, drag & drop basette (staging↔tavolo e movimento sul tavolo), calcolo distanza, tooltip Ctrl+hover, form aggiungi/modifica basetta, gestione elementi scenici, export libreria JSON.
+
+**Modulo 2 — Eserciti, selezione e strumenti da tavolo: completo e funzionante.**
+Testato manualmente: creazione unità multi-modello per i due eserciti con schieramento automatico in staging, liste ad accordion per esercito con dettagli unità ed evidenziazione delle basette al hover, export/import JSON dello stato completo dei due eserciti con auto-caricamento da `localStorage` all'avvio, selezione singola/multipla delle basette con trascinamento di gruppo e rotazione (Q/E), rotazione dell'intera area di lavoro (A/S), strumento righello per misure libere, selettore layout "Force disposition" con caricamento automatico dello sfondo, form basetta/elemento scenico compattati in pannelli espandibili.
 
 Per avviare: `npm run dev` (Vite, porta 5173).
 

@@ -1,24 +1,29 @@
+import { useState } from 'react';
 import { useTavolo } from '../../contexts/TavoloContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
+import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
+import NuovoElementoForm from './NuovoElementoForm';
 import styles from './GestioneElementiScenici.module.css';
 
 function GestioneElementiScenici() {
   const { elementiScenici, aggiungiElementoScenico, modificaElementoScenico, rimuoviElementoScenico } =
     useTavoloState();
   const { tavoloRect } = useTavolo();
+  const [formAperto, setFormAperto] = useState(false);
 
-  const handleAggiungi = () => {
+  const handleAggiungi = (dati) => {
     aggiungiElementoScenico({
+      ...dati,
       x: tavoloRect.left + tavoloRect.width / 2,
       y: tavoloRect.top + tavoloRect.height / 2,
     });
+    setFormAperto(false);
   };
 
   return (
     <div className={styles.pannello}>
       <div className={styles.intestazione}>
         <h3>Elementi scenici</h3>
-        <button onClick={handleAggiungi}>+ Aggiungi</button>
       </div>
 
       <ul className={styles.lista}>
@@ -66,6 +71,14 @@ function GestioneElementiScenici() {
         ))}
         {elementiScenici.length === 0 && <li className={styles.vuoto}>Nessun elemento scenico</li>}
       </ul>
+
+      <PannelloEspandibile
+        titolo="+ Aggiungi elemento"
+        aperto={formAperto}
+        onToggle={() => setFormAperto((v) => !v)}
+      >
+        <NuovoElementoForm onAggiungi={handleAggiungi} onAnnulla={() => setFormAperto(false)} />
+      </PannelloEspandibile>
     </div>
   );
 }

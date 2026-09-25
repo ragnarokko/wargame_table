@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
+import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import BasettaForm from './BasettaForm';
 import styles from './LibreriaBasette.module.css';
 
@@ -13,14 +14,18 @@ function LibreriaBasette() {
   const [formAperto, setFormAperto] = useState(false);
   const [basettaInModifica, setBasettaInModifica] = useState(null);
 
+  const handleChiudi = () => {
+    setFormAperto(false);
+    setBasettaInModifica(null);
+  };
+
   const handleSalva = (dati) => {
     if (basettaInModifica) {
       modificaBasetta(basettaInModifica.id, dati);
     } else {
       aggiungiBasetta(dati);
     }
-    setFormAperto(false);
-    setBasettaInModifica(null);
+    handleChiudi();
   };
 
   const handleModifica = (basetta) => {
@@ -90,20 +95,13 @@ function LibreriaBasette() {
         {basette.length === 0 && <li className={styles.vuoto}>Nessuna basetta in libreria</li>}
       </ul>
 
-      {formAperto ? (
-        <BasettaForm
-          basettaIniziale={basettaInModifica}
-          onSalva={handleSalva}
-          onAnnulla={() => {
-            setFormAperto(false);
-            setBasettaInModifica(null);
-          }}
-        />
-      ) : (
-        <button className={styles.nuovaBtn} onClick={handleNuova}>
-          + Nuova basetta
-        </button>
-      )}
+      <PannelloEspandibile
+        titolo={basettaInModifica ? '✎ Modifica basetta' : '+ Nuova basetta'}
+        aperto={formAperto}
+        onToggle={() => (formAperto ? handleChiudi() : handleNuova())}
+      >
+        <BasettaForm basettaIniziale={basettaInModifica} onSalva={handleSalva} onAnnulla={handleChiudi} />
+      </PannelloEspandibile>
     </div>
   );
 }

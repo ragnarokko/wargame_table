@@ -1,0 +1,224 @@
+.pannello {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.pannello h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+}
+
+.tabEserciti {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.tabBtn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--colore-testo-secondario);
+  font-size: 12px;
+  padding: 6px 4px;
+}
+
+.tabBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tabAttivo {
+  background: var(--colore-accento);
+  color: white;
+}
+
+.tabAttivo:hover {
+  background: var(--colore-accento-hover);
+}
+
+.lista {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.riga {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 2px;
+  border-radius: 4px;
+}
+
+.riga:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pallino {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nome {
+  flex: 1;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contatore {
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+  flex-shrink: 0;
+}
+
+.azioni {
+  display: flex;
+  gap: 2px;
+}
+
+.azioni button {
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+.vuoto {
+  font-size: 12px;
+  color: var(--colore-testo-secondario);
+  font-style: italic;
+}
+
+.nuovaBtn {
+  width: 100%;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: var(--radius);
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+}
+
+.form input,
+.form select,
+.form textarea {
+  font-size: 12px;
+}
+
+.rigaCampi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.separatore {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+  border-top: 1px solid var(--colore-bordo);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.grigliaStatistiche {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.formAzioni {
+  display: flex;
+  gap: 6px;
+}
+
+.formAzioni button {
+  flex: 1;
+}
+
+.unitaItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.nomeUnita {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  background: none;
+  color: var(--colore-testo);
+  padding: 0;
+  font-size: 12px;
+  text-align: left;
+}
+
+.nomeUnita:hover {
+  background: none;
+  color: var(--colore-accento);
+}
+
+.nomeTesto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.freccia {
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.dettagliUnita {
+  padding: 4px 8px 8px 30px;
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+}
+
+.statGriglia {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.statVoce {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.statEtichetta {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--colore-testo-secondario);
+}
+
+.note {
+  font-style: italic;
+  white-space: pre-wrap;
+}

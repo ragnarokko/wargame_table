@@ -85,20 +85,51 @@
   font-style: italic;
 }
 
-.nuovaBtn {
-  width: 100%;
-}
-
-.form {
+.formCompatto {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   background: rgba(255, 255, 255, 0.03);
-  padding: 10px;
+  padding: 8px 10px;
   border-radius: var(--radius);
 }
 
-.form label {
+.rigaCompatta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.rigaCompatta select,
+.rigaCompatta input,
+.rigaCompatta button {
+  font-size: 12px;
+}
+
+.nomeCompatto {
+  flex: 1 1 72px;
+  min-width: 72px;
+}
+
+.numeroCompatto {
+  width: 52px;
+}
+
+.avanzateBtn {
+  padding: 3px 6px;
+  line-height: 1;
+}
+
+.avanzatePannello {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--colore-bordo);
+}
+
+.avanzatePannello label {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -106,9 +137,8 @@
   color: var(--colore-testo-secondario);
 }
 
-.form input,
-.form select,
-.form textarea {
+.avanzatePannello input,
+.avanzatePannello textarea {
   font-size: 12px;
 }
 
@@ -117,13 +147,4 @@
   height: 80px;
   object-fit: cover;
   border-radius: 4px;
-}
-
-.formAzioni {
-  display: flex;
-  gap: 6px;
-}
-
-.formAzioni button {
-  flex: 1;
 }

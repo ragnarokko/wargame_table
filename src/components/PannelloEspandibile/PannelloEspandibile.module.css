@@ -1,0 +1,27 @@
+.contenitore {
+  margin-top: 10px;
+}
+
+.intestazione {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+}
+
+.freccia {
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.titolo {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contenuto {
+  margin-top: 6px;
+}

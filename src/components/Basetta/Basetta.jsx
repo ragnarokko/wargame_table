@@ -3,7 +3,12 @@ import { useTavolo } from '../../contexts/TavoloContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { calcolaDimensioniBasettaPx } from '../../utils/basetta';
 import { puntoRelativoRuotato } from '../../utils/coordinate';
-import { EVENTO_SELEZIONE_MULTIPLA, EVENTO_TRASCINAMENTO_GRUPPO } from '../../utils/selezioneEventi';
+import {
+  EVENTO_EVIDENZIA_UNITA,
+  EVENTO_SELEZIONE_MULTIPLA,
+  EVENTO_TRASCINAMENTO_GRUPPO,
+  EVENTO_ROTAZIONE_GRUPPO,
+} from '../../utils/selezioneEventi';
 import BasettaTooltip from '../BasettaTooltip/BasettaTooltip';
 import MisuraDistanza from '../MisuraDistanza/MisuraDistanza';
 import styles from './Basetta.module.css';
@@ -19,8 +24,11 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
   const [posizioneTemp, setPosizioneTemp] = useState(null);
   const [selezionata, setSelezionata] = useState(false);
   const [selezioneGruppo, setSelezioneGruppo] = useState([]);
+  const [evidenziata, setEvidenziata] = useState(false);
   const [rotazione, setRotazione] = useState(0);
   const [rotazioneFantasma, setRotazioneFantasma] = useState(0);
+  const [offsetRotazioneGruppo, setOffsetRotazioneGruppo] = useState({ dx: 0, dy: 0 });
+  const [rotazioneGruppoAttiva, setRotazioneGruppoAttiva] = useState(false);
   const draggingRef = useRef(false);
   const offsetRef = useRef({ dx: 0, dy: 0 });
   const elementoRef = useRef(null);
@@ -72,6 +80,13 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
     return () => window.removeEventListener(EVENTO_SELEZIONE_MULTIPLA, onSelezione);
   }, [istanza.id]);
 
+  // Hover su un'unità nella lista eserciti: illumina tutte le basette con lo stesso templateId.
+  useEffect(() => {
+    const onEvidenzia = (e) => setEvidenziata(e.detail.templateId === istanza.templateId);
+    window.addEventListener(EVENTO_EVIDENZIA_UNITA, onEvidenzia);
+    return () => window.removeEventListener(EVENTO_EVIDENZIA_UNITA, onEvidenzia);
+  }, [istanza.templateId]);
+
   // Riceve lo spostamento di gruppo quando un'altra basetta selezionata viene trascinata.
   useEffect(() => {
     const onTrascinamentoGruppo = (e) => {
@@ -90,17 +105,50 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
       }
 
       setPosizioneTemp(null);
+      const posizioneFinale = {
+        x: nuovaPosizione.x + offsetRotazioneGruppo.dx,
+        y: nuovaPosizione.y + offsetRotazioneGruppo.dy,
+      };
       const zonaPartenza = istanza.zona;
-      const zonaArrivo = puntoNelTavolo(nuovaPosizione.x, nuovaPosizione.y) ? 'tavolo' : 'staging';
+      const zonaArrivo = puntoNelTavolo(posizioneFinale.x, posizioneFinale.y) ? 'tavolo' : 'staging';
       const distanza =
-        zonaPartenza === 'tavolo' && zonaArrivo === 'tavolo' ? Math.hypot(dx, dy) / pxPerPollice : null;
-      spostaIstanza(istanza.id, nuovaPosizione.x, nuovaPosizione.y, zonaArrivo, distanza);
+        zonaPartenza === 'tavolo' && zonaArrivo === 'tavolo'
+          ? Math.hypot(posizioneFinale.x - istanza.x, posizioneFinale.y - istanza.y) / pxPerPollice
+          : null;
+      spostaIstanza(istanza.id, posizioneFinale.x, posizioneFinale.y, zonaArrivo, distanza);
     };
     window.addEventListener(EVENTO_TRASCINAMENTO_GRUPPO, onTrascinamentoGruppo);
     return () => window.removeEventListener(EVENTO_TRASCINAMENTO_GRUPPO, onTrascinamentoGruppo);
-  }, [gruppoAttivo, istanza, pxPerPollice, puntoNelTavolo, spostaIstanza]);
+  }, [gruppoAttivo, istanza, pxPerPollice, puntoNelTavolo, spostaIstanza, offsetRotazioneGruppo]);
 
-  // Q/E ruotano la basetta selezionata attorno al proprio centro; disattivati durante la selezione multipla.
+  // Riceve lo spostamento live dovuto alla rotazione di gruppo (Q/W su SelezioneMultipla) mentre
+  // un trascinamento di gruppo è in corso: si somma alla posizione trascinata corrente per mostrare
+  // la rotazione "sul posto" in tempo reale, senza toccare lo stato condiviso (che viene scritto solo
+  // al rilascio del mouse, vedi onPointerUp/onTrascinamentoGruppo).
+  useEffect(() => {
+    const onRotazioneGruppo = (e) => {
+      if (!gruppoAttivo) return;
+      const offset = e.detail.offsets.find((o) => o.id === istanza.id);
+      if (offset) {
+        setOffsetRotazioneGruppo({ dx: offset.dx, dy: offset.dy });
+        setRotazioneGruppoAttiva(true);
+      }
+    };
+    window.addEventListener(EVENTO_ROTAZIONE_GRUPPO, onRotazioneGruppo);
+    return () => window.removeEventListener(EVENTO_ROTAZIONE_GRUPPO, onRotazioneGruppo);
+  }, [gruppoAttivo, istanza.id]);
+
+  // Al termine del trascinamento (per qualunque via: rilascio, annullo con Esc, o l'evento di
+  // gruppo che lo chiude) l'offset di rotazione live torna a zero: è già stato incorporato nella
+  // posizione finale scritta sullo stato condiviso da chi ha gestito il rilascio.
+  useEffect(() => {
+    if (posizioneTemp === null) {
+      setOffsetRotazioneGruppo({ dx: 0, dy: 0 });
+      setRotazioneGruppoAttiva(false);
+    }
+  }, [posizioneTemp]);
+
+  // Q/W ruotano la basetta selezionata attorno al proprio centro; disattivati durante la selezione multipla.
   useEffect(() => {
     if (!selezionata || gruppoAttivo) return undefined;
     const onKeyDown = (e) => {
@@ -109,7 +157,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
       if (e.key === 'q' || e.key === 'Q') {
         e.preventDefault();
         setRotazione((r) => (r - INCREMENTO_ROTAZIONE + 360) % 360);
-      } else if (e.key === 'e' || e.key === 'E') {
+      } else if (e.key === 'w' || e.key === 'W') {
         e.preventDefault();
         setRotazione((r) => (r + INCREMENTO_ROTAZIONE) % 360);
       }
@@ -176,11 +224,11 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
     setPosizioneTemp(null);
 
     const spostamento = Math.hypot(finale.x - istanza.x, finale.y - istanza.y);
-    if (spostamento < SOGLIA_CLICK_PX) {
+    if (spostamento < SOGLIA_CLICK_PX && offsetRotazioneGruppo.dx === 0 && offsetRotazioneGruppo.dy === 0) {
       selezionaBasetta();
       return;
     }
-    handleSposta(finale);
+    handleSposta({ x: finale.x + offsetRotazioneGruppo.dx, y: finale.y + offsetRotazioneGruppo.dy });
 
     if (gruppoAttivo) {
       const dx = finale.x - istanza.x;
@@ -192,11 +240,17 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
   };
 
   const inTrascinamento = posizioneTemp !== null;
-  const posizioneVisualizzata = posizioneTemp || { x: istanza.x, y: istanza.y };
+  const posizioneBase = posizioneTemp || { x: istanza.x, y: istanza.y };
+  // La rotazione di gruppo live (Q/W durante un trascinamento di gruppo) si somma alla posizione
+  // trascinata corrente, così la basetta ruota visivamente "sul posto" in tempo reale.
+  const posizioneVisualizzata = {
+    x: posizioneBase.x + offsetRotazioneGruppo.dx,
+    y: posizioneBase.y + offsetRotazioneGruppo.dy,
+  };
   const dimensionePx = calcolaDimensioniBasettaPx(template, pxPerPollice);
 
   const distanzaLive = inTrascinamento
-    ? Math.sqrt((posizioneTemp.x - istanza.x) ** 2 + (posizioneTemp.y - istanza.y) ** 2) / pxPerPollice
+    ? Math.hypot(posizioneVisualizzata.x - istanza.x, posizioneVisualizzata.y - istanza.y) / pxPerPollice
     : 0;
 
   const style = {
@@ -213,10 +267,10 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
 
   return (
     <>
-      {inTrascinamento && (!gruppoAttivo || isReferenzaGruppo) && (
+      {inTrascinamento && (!gruppoAttivo || (isReferenzaGruppo && !rotazioneGruppoAttiva)) && (
         <MisuraDistanza
           origine={{ x: istanza.x, y: istanza.y }}
-          destinazione={posizioneTemp}
+          destinazione={posizioneVisualizzata}
           dimensionePx={dimensionePx}
           forma={template.forma}
           colore={template.colore}
@@ -226,7 +280,9 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
       )}
       <div
         ref={elementoRef}
-        className={`${styles.basetta} ${selezionata ? styles.selezionata : ''}`}
+        className={`${styles.basetta} ${selezionata ? styles.selezionata : ''} ${
+          evidenziata ? styles.evidenziata : ''
+        }`}
         style={style}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -234,7 +290,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onDoubleClick={() => rimuoviIstanza(istanza.id)}
-        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/E per ruotare. Ctrl+hover per i dettagli. Doppio click per rimuovere."
+        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare. Ctrl+hover per i dettagli. Doppio click per rimuovere."
       >
         <div className={styles.indicatoreFronte} />
         <span className={styles.nome}>{template.nome}</span>
