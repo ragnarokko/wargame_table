@@ -4,7 +4,10 @@
   align-items: center;
   justify-content: center;
   border: 2px solid rgba(0, 0, 0, 0.55);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  /* Anello colore squadra (inset, non cambia le dimensioni) + ombra di base. */
+  box-shadow:
+    inset 0 0 0 3px var(--colore-squadra, transparent),
+    0 2px 6px rgba(0, 0, 0, 0.5);
   touch-action: none;
   user-select: none;
 }
@@ -15,7 +18,13 @@
 }
 
 .evidenziata {
-  box-shadow: 0 0 0 3px #ffd166, 0 0 16px 5px rgba(255, 209, 102, 0.85);
+  /* Ridichiara l'intero stack (anello squadra + ombra base + glow): il box-shadow
+     non è additivo tra le classi, quindi va ripetuto per non perdere l'anello. */
+  box-shadow:
+    inset 0 0 0 3px var(--colore-squadra, transparent),
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 0 0 3px #ffd166,
+    0 0 16px 5px rgba(255, 209, 102, 0.85);
   z-index: 40;
 }
 
@@ -34,6 +43,7 @@
 
 .nome {
   font-size: 9px;
+  line-height: 1.05;
   font-weight: 700;
   color: #0e0e12;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35);
@@ -41,7 +51,10 @@
   padding: 0 2px;
   pointer-events: none;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
   max-width: 100%;
+  max-height: 100%;
 }

@@ -16,6 +16,16 @@ import styles from './Basetta.module.css';
 const INCREMENTO_ROTAZIONE = 15;
 const SOGLIA_CLICK_PX = 3;
 
+const COLORE_SQUADRA = {
+  blu: '#3b82f6',
+  rosso: '#ef4444',
+};
+
+// Debounce condiviso tra tutte le istanze: passando da una basetta all'altra (stesso
+// gruppo o adiacenti) l'"enter" della nuova annulla lo spegnimento in sospeso della
+// precedente, evitando che l'evidenziazione lampeggi nel breve istante di passaggio.
+let timeoutSpegniEvidenziaHover = null;
+
 function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
   const { spostaIstanza, rimuoviIstanza } = useTavoloState();
@@ -263,6 +273,23 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
     cursor: inTrascinamento ? 'grabbing' : 'grab',
     zIndex: inTrascinamento ? 50 : 10,
     transform: `rotate(${rotazione}deg)`,
+    '--colore-squadra': COLORE_SQUADRA[template.esercito] || 'transparent',
+  };
+
+  // Hover sulla basetta: evidenzia (via EVENTO_EVIDENZIA_UNITA) la voce corrispondente
+  // nella lista laterale e le altre basette della stessa unità, speculare all'hover
+  // sulla lista che già evidenzia le basette sul campo.
+  const onMouseEnterBasetta = () => {
+    clearTimeout(timeoutSpegniEvidenziaHover);
+    setHover(true);
+    window.dispatchEvent(new CustomEvent(EVENTO_EVIDENZIA_UNITA, { detail: { templateId: istanza.templateId } }));
+  };
+
+  const onMouseLeaveBasetta = () => {
+    setHover(false);
+    timeoutSpegniEvidenziaHover = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent(EVENTO_EVIDENZIA_UNITA, { detail: { templateId: null } }));
+    }, 60);
   };
 
   return (
@@ -287,8 +314,8 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
+        onMouseEnter={onMouseEnterBasetta}
+        onMouseLeave={onMouseLeaveBasetta}
         onDoubleClick={() => rimuoviIstanza(istanza.id)}
         title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare. Ctrl+hover per i dettagli. Doppio click per rimuovere."
       >

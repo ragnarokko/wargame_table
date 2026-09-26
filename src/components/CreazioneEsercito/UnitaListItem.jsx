@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EVENTO_EVIDENZIA_UNITA } from '../../utils/selezioneEventi';
 import styles from './CreazioneEsercito.module.css';
 
@@ -21,6 +21,15 @@ function UnitaListItem({ unita, numeroModelli, onRimuovi, onRinomina }) {
   const [dettagliAperti, setDettagliAperti] = useState(false);
   const [rinominaAperta, setRinominaAperta] = useState(false);
   const [nuovoNome, setNuovoNome] = useState(unita.nome);
+  const [evidenziataDalCampo, setEvidenziataDalCampo] = useState(false);
+
+  // Speculare all'evidenziazione lista→basette: l'hover su una basetta sul campo
+  // (o su una sua "sorella" della stessa unità) evidenzia questa riga.
+  useEffect(() => {
+    const onEvidenzia = (e) => setEvidenziataDalCampo(e.detail.templateId === unita.id);
+    window.addEventListener(EVENTO_EVIDENZIA_UNITA, onEvidenzia);
+    return () => window.removeEventListener(EVENTO_EVIDENZIA_UNITA, onEvidenzia);
+  }, [unita.id]);
 
   const evidenzia = () =>
     window.dispatchEvent(new CustomEvent(EVENTO_EVIDENZIA_UNITA, { detail: { templateId: unita.id } }));
@@ -42,7 +51,7 @@ function UnitaListItem({ unita, numeroModelli, onRimuovi, onRinomina }) {
 
   return (
     <li className={styles.unitaItem}>
-      <div className={styles.riga}>
+      <div className={`${styles.riga} ${evidenziataDalCampo ? styles.rigaEvidenziata : ''}`}>
         <span className={styles.pallino} style={{ backgroundColor: unita.colore }} />
         {rinominaAperta ? (
           <form className={styles.rinominaForm} onSubmit={confermaRinomina}>

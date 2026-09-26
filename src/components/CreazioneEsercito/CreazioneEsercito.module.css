@@ -61,6 +61,11 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.rigaEvidenziata {
+  background: rgba(255, 209, 102, 0.18);
+  box-shadow: inset 0 0 0 1px #ffd166;
+}
+
 .pallino {
   width: 12px;
   height: 12px;
