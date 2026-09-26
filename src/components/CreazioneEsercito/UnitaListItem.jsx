@@ -17,13 +17,26 @@ const CAMPI_STATISTICHE = [
 
 // Voce dell'accordion per una singola unità: il nome, al passaggio del mouse, evidenzia
 // tutte le basette sul campo appartenenti a questa unità (stesso templateId).
-function UnitaListItem({ unita, numeroModelli, onRimuovi }) {
+function UnitaListItem({ unita, numeroModelli, onRimuovi, onRinomina }) {
   const [dettagliAperti, setDettagliAperti] = useState(false);
+  const [rinominaAperta, setRinominaAperta] = useState(false);
+  const [nuovoNome, setNuovoNome] = useState(unita.nome);
 
   const evidenzia = () =>
     window.dispatchEvent(new CustomEvent(EVENTO_EVIDENZIA_UNITA, { detail: { templateId: unita.id } }));
   const spegniEvidenza = () =>
     window.dispatchEvent(new CustomEvent(EVENTO_EVIDENZIA_UNITA, { detail: { templateId: null } }));
+
+  const apriRinomina = () => {
+    setNuovoNome(unita.nome);
+    setRinominaAperta(true);
+  };
+
+  const confermaRinomina = (e) => {
+    e.preventDefault();
+    onRinomina(nuovoNome);
+    setRinominaAperta(false);
+  };
 
   const statistiche = CAMPI_STATISTICHE.filter(([campo]) => unita[campo]);
 
@@ -31,19 +44,34 @@ function UnitaListItem({ unita, numeroModelli, onRimuovi }) {
     <li className={styles.unitaItem}>
       <div className={styles.riga}>
         <span className={styles.pallino} style={{ backgroundColor: unita.colore }} />
-        <button
-          type="button"
-          className={styles.nomeUnita}
-          onMouseEnter={evidenzia}
-          onMouseLeave={spegniEvidenza}
-          onClick={() => setDettagliAperti((v) => !v)}
-          title="Passa il mouse per evidenziare sul tavolo, clicca per i dettagli"
-        >
-          <span className={styles.freccia}>{dettagliAperti ? '▼' : '▶'}</span>
-          <span className={styles.nomeTesto}>{unita.nome}</span>
-        </button>
+        {rinominaAperta ? (
+          <form className={styles.rinominaForm} onSubmit={confermaRinomina}>
+            <input
+              className={styles.rinominaInput}
+              value={nuovoNome}
+              autoFocus
+              onChange={(e) => setNuovoNome(e.target.value)}
+              onBlur={confermaRinomina}
+            />
+          </form>
+        ) : (
+          <button
+            type="button"
+            className={styles.nomeUnita}
+            onMouseEnter={evidenzia}
+            onMouseLeave={spegniEvidenza}
+            onClick={() => setDettagliAperti((v) => !v)}
+            title="Passa il mouse per evidenziare sul tavolo, clicca per i dettagli"
+          >
+            <span className={styles.freccia}>{dettagliAperti ? '▼' : '▶'}</span>
+            <span className={styles.nomeTesto}>{unita.nome}</span>
+          </button>
+        )}
         <span className={styles.contatore}>{numeroModelli} mod.</span>
         <div className={styles.azioni}>
+          <button onClick={apriRinomina} title="Rinomina unità">
+            ✎
+          </button>
           <button onClick={onRimuovi} title="Rimuovi unità">
             ✕
           </button>

@@ -180,6 +180,17 @@
   color: var(--colore-accento);
 }
 
+.rinominaForm {
+  flex: 1;
+  min-width: 0;
+}
+
+.rinominaInput {
+  width: 100%;
+  font-size: 12px;
+  padding: 1px 4px;
+}
+
 .nomeTesto {
   overflow: hidden;
   text-overflow: ellipsis;

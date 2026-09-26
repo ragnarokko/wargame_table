@@ -3,8 +3,8 @@ import { useTavolo } from '../../contexts/TavoloContext';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { ESERCITI } from '../../config/eserciti';
-import { trovaDimensione } from '../../config/dimensioniBasette';
 import { coloreDisponibile } from '../../utils/colori';
+import { determinaFormaEDimensioni, generaNomeUnivoco } from './csvUnitaImport';
 import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
@@ -14,7 +14,7 @@ import styles from './CreazioneEsercito.module.css';
 
 function CreazioneEsercito() {
   const { pxPerPollice, campoGiocoPx } = useTavolo();
-  const { basette, aggiungiBasetta, rimuoviBasetta } = useLibreria();
+  const { basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta } = useLibreria();
   const { istanze, schieraBasette, rimuoviIstanzePerTemplate } = useTavoloState();
   const [esercitoSelezionato, setEsercitoSelezionato] = useState(ESERCITI[0].id);
   const [formAperto, setFormAperto] = useState(false);
@@ -30,11 +30,12 @@ function CreazioneEsercito() {
     setAccordionAperti((prev) => ({ ...prev, [esercitoId]: !prev[esercitoId] }));
 
   const handleCrea = (dati) => {
-    const dimensione = trovaDimensione(dati.forma, dati.dimensioneId);
+    const dimensione = determinaFormaEDimensioni(dati.baseSize);
+    const nomiEsistenti = unitaTutte.filter((u) => u.esercito === esercitoSelezionato).map((u) => u.nome);
+    const nomeUnivoco = generaNomeUnivoco(dati.nomeBase, nomiEsistenti);
     const templateData = {
-      nome: dati.nomeUnita,
+      nome: nomeUnivoco,
       colore: dati.colore,
-      forma: dati.forma,
       esercito: esercitoSelezionato,
       numeroModelli: dati.numeroModelli,
       immagine: '',
@@ -49,9 +50,7 @@ function CreazioneEsercito() {
       range2: dati.range2,
       range3: dati.range3,
       note: dati.note,
-      ...(dati.forma === 'tonda'
-        ? { diametroMm: dimensione.diametroMm }
-        : { larghezzaMm: dimensione.cortoMm, lunghezzaMm: dimensione.lungoMm }),
+      ...dimensione,
     };
 
     const nuovoTemplate = aggiungiBasetta(templateData);
@@ -76,6 +75,10 @@ function CreazioneEsercito() {
   const handleRimuovi = (templateId) => {
     rimuoviIstanzePerTemplate(templateId);
     rimuoviBasetta(templateId);
+  };
+
+  const handleRinomina = (templateId, nuovoNome) => {
+    if (nuovoNome.trim()) modificaBasetta(templateId, { nome: nuovoNome.trim() });
   };
 
   return (
@@ -128,6 +131,7 @@ function CreazioneEsercito() {
                   unita={u}
                   numeroModelli={contaModelli(u.id)}
                   onRimuovi={() => handleRimuovi(u.id)}
+                  onRinomina={(nuovoNome) => handleRinomina(u.id, nuovoNome)}
                 />
               ))}
             {unitaTutte.filter((u) => u.esercito === es.id).length === 0 && (
