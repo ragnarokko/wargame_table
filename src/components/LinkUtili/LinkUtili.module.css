@@ -1,0 +1,23 @@
+.pulsante {
+  width: calc(100% - 32px);
+  margin: 0 16px 10px;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lista a {
+  color: var(--colore-accento);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.lista a:hover {
+  text-decoration: underline;
+}
