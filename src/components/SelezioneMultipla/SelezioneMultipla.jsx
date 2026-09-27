@@ -82,7 +82,7 @@ function direzionePrincipale(punti, centro) {
   return 0.5 * Math.atan2(2 * sxy, sxx - syy);
 }
 
-function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0 }) {
+function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
   const { istanze, spostaIstanza } = useTavoloState();
   const { basette } = useLibreria();
@@ -93,7 +93,7 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0 }) {
   const trascinamentoAttivoRef = useRef(false);
 
   const puntoRelativo = (clientX, clientY) =>
-    puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea);
+    puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea, zoom);
 
   const emettiSelezione = (ids) => {
     window.dispatchEvent(new CustomEvent(EVENTO_SELEZIONE_MULTIPLA, { detail: { ids } }));
@@ -261,6 +261,8 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0 }) {
   }, [selezioneCorrente, ruotaGruppo]);
 
   const onPointerDown = (e) => {
+    // Solo tasto sinistro: il destro è riservato al pan dell'intera area (vedi AreaLavoro).
+    if (e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     const punto = puntoRelativo(e.clientX, e.clientY);
     setRettangolo({ origine: punto, corrente: punto });

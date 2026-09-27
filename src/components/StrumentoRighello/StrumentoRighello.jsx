@@ -3,7 +3,7 @@ import { useTavolo } from '../../contexts/TavoloContext';
 import { puntoRelativoRuotato } from '../../utils/coordinate';
 import styles from './StrumentoRighello.module.css';
 
-function StrumentoRighello({ containerRef, attivo, rotazioneArea = 0 }) {
+function StrumentoRighello({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice } = useTavolo();
   const [misurazione, setMisurazione] = useState(null);
 
@@ -12,11 +12,13 @@ function StrumentoRighello({ containerRef, attivo, rotazioneArea = 0 }) {
   }, [attivo]);
 
   const puntoRelativo = useCallback(
-    (clientX, clientY) => puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea),
-    [containerRef, rotazioneArea],
+    (clientX, clientY) => puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea, zoom),
+    [containerRef, rotazioneArea, zoom],
   );
 
   const onPointerDown = (e) => {
+    // Solo tasto sinistro: il destro è riservato al pan dell'intera area (vedi AreaLavoro).
+    if (e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     const punto = puntoRelativo(e.clientX, e.clientY);
     setMisurazione({ origine: punto, corrente: punto });

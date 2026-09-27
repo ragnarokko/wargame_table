@@ -26,7 +26,7 @@ const COLORE_SQUADRA = {
 // precedente, evitando che l'evidenziazione lampeggi nel breve istante di passaggio.
 let timeoutSpegniEvidenziaHover = null;
 
-function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
+function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
   const { spostaIstanza, rimuoviIstanza } = useTavoloState();
   const [hover, setHover] = useState(false);
@@ -191,9 +191,12 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0 }) {
   };
 
   const puntoRelativo = (clientX, clientY) =>
-    puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea);
+    puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea, zoom);
 
   const onPointerDown = (e) => {
+    // Solo tasto sinistro: il destro è riservato al pan dell'intera area (vedi AreaLavoro),
+    // e deve poter risalire (bubbling) senza che qui iniziamo un trascinamento/selezione.
+    if (e.button !== 0) return;
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
     const punto = puntoRelativo(e.clientX, e.clientY);

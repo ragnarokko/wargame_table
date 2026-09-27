@@ -4,6 +4,11 @@
   background: #111116;
   display: flex;
   padding: 40px;
+  touch-action: none;
+}
+
+.inPan {
+  cursor: grabbing;
 }
 
 .campoGioco {
