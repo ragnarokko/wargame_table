@@ -13,10 +13,9 @@ const SCORCIATOIE = [
   { tasti: 'Tasto destro (trascina)', descrizione: "Sposta la visuale (pan) di mappa e staging, seguendo il movimento del mouse." },
   { tasti: 'Tasto sinistro (trascina)', descrizione: 'Sposta una basetta o un elemento scenico; su un\'area vuota disegna un rettangolo di selezione multipla, oppure misura una distanza libera se lo strumento righello è attivo.' },
   { tasti: '1 / 2 / 3', descrizione: 'Dispone le basette selezionate su 1, 2 o 3 file, distanziate di almeno 1" (richiede almeno 2 basette selezionate).' },
-  { tasti: 'Canc / Backspace', descrizione: 'Elimina tutte le basette attualmente selezionate.' },
+  { tasti: 'Canc / Backspace', descrizione: 'Seleziona una o più unità e premi Canc/Delete per eliminarle.' },
   { tasti: 'Esc', descrizione: 'Annulla un trascinamento in corso: la basetta (e l\'eventuale gruppo) torna alla posizione di partenza.' },
   { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine e statistiche della basetta.' },
-  { tasti: 'Doppio click', descrizione: "Rimuove la basetta o l'elemento scenico sotto il cursore." },
 ];
 
 // Tasto "Aiuto": apre una finestra con l'elenco completo delle scorciatoie usate nell'app.

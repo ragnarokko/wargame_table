@@ -28,7 +28,7 @@ let timeoutSpegniEvidenziaHover = null;
 
 function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
-  const { spostaIstanza, ruotaIstanza, rimuoviIstanza } = useTavoloState();
+  const { spostaIstanza, ruotaIstanza } = useTavoloState();
   const [hover, setHover] = useState(false);
   const [ctrlPremuto, setCtrlPremuto] = useState(false);
   const [posizioneTemp, setPosizioneTemp] = useState(null);
@@ -320,8 +320,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
         onPointerUp={onPointerUp}
         onMouseEnter={onMouseEnterBasetta}
         onMouseLeave={onMouseLeaveBasetta}
-        onDoubleClick={() => rimuoviIstanza(istanza.id)}
-        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare. Ctrl+hover per i dettagli. Doppio click per rimuovere."
+        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare. Ctrl+hover per i dettagli."
       >
         <div className={styles.indicatoreFronte} />
         <span className={styles.nome}>{template.nome}</span>
