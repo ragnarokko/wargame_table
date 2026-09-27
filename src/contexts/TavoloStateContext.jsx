@@ -8,7 +8,7 @@ export function TavoloStateProvider({ children }) {
   const [elementiScenici, setElementiScenici] = useState([]);
 
   const schieraBasetta = useCallback((templateId, x, y, zona = 'staging') => {
-    const nuova = { id: generaId(), templateId, x, y, zona, ultimaDistanza: null };
+    const nuova = { id: generaId(), templateId, x, y, zona, ultimaDistanza: null, rotazione: 0 };
     setIstanze((prev) => [...prev, nuova]);
     return nuova;
   }, []);
@@ -22,6 +22,7 @@ export function TavoloStateProvider({ children }) {
       y: p.y,
       zona,
       ultimaDistanza: null,
+      rotazione: 0,
     }));
     setIstanze((prev) => [...prev, ...nuove]);
     return nuove;
@@ -31,6 +32,12 @@ export function TavoloStateProvider({ children }) {
     setIstanze((prev) =>
       prev.map((ist) => (ist.id === id ? { ...ist, x, y, zona, ultimaDistanza: distanza } : ist)),
     );
+  }, []);
+
+  // Orientamento (Q/W) della singola basetta: persistito qui (anziché come stato locale del
+  // componente Basetta) così da poter essere letto da un salvataggio completo della partita.
+  const ruotaIstanza = useCallback((id, rotazione) => {
+    setIstanze((prev) => prev.map((ist) => (ist.id === id ? { ...ist, rotazione } : ist)));
   }, []);
 
   const rimuoviIstanza = useCallback((id) => {
@@ -45,6 +52,13 @@ export function TavoloStateProvider({ children }) {
   // rimuove le istanze correnti di quei template e aggiunge quelle nuove, senza toccare il resto del tavolo.
   const impostaIstanzePerTemplates = useCallback((templateIds, nuoveIstanze) => {
     setIstanze((prev) => [...prev.filter((ist) => !templateIds.includes(ist.templateId)), ...nuoveIstanze]);
+  }, []);
+
+  // Sostituisce interamente istanze ed elementi scenici (usato dal ripristino di un salvataggio
+  // completo della partita, a differenza di impostaIstanzePerTemplates che è mirato per template).
+  const ripristinaTavolo = useCallback((nuoveIstanze, nuoviElementiScenici) => {
+    setIstanze(nuoveIstanze);
+    setElementiScenici(nuoviElementiScenici);
   }, []);
 
   const aggiungiElementoScenico = useCallback((dati) => {
@@ -77,9 +91,11 @@ export function TavoloStateProvider({ children }) {
       schieraBasetta,
       schieraBasette,
       spostaIstanza,
+      ruotaIstanza,
       rimuoviIstanza,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,
+      ripristinaTavolo,
       elementiScenici,
       aggiungiElementoScenico,
       modificaElementoScenico,
@@ -90,9 +106,11 @@ export function TavoloStateProvider({ children }) {
       schieraBasetta,
       schieraBasette,
       spostaIstanza,
+      ruotaIstanza,
       rimuoviIstanza,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,
+      ripristinaTavolo,
       elementiScenici,
       aggiungiElementoScenico,
       modificaElementoScenico,

@@ -48,6 +48,11 @@ export function LibreriaProvider({ children }) {
     setBasette((prev) => [...prev.filter((b) => !b.esercito), ...nuoveUnita]);
   }, []);
 
+  // Sostituisce l'intera libreria (usato dal ripristino di un salvataggio completo della partita).
+  const impostaBasette = useCallback((nuoveBasette) => {
+    setBasette(nuoveBasette);
+  }, []);
+
   const esportaJSON = useCallback(() => {
     const blob = new Blob([JSON.stringify(basette, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -95,10 +100,20 @@ export function LibreriaProvider({ children }) {
       modificaBasetta,
       rimuoviBasetta,
       sostituisciUnitaEserciti,
+      impostaBasette,
       esportaJSON,
       importaJSON,
     }),
-    [basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta, sostituisciUnitaEserciti, esportaJSON, importaJSON],
+    [
+      basette,
+      aggiungiBasetta,
+      modificaBasetta,
+      rimuoviBasetta,
+      sostituisciUnitaEserciti,
+      impostaBasette,
+      esportaJSON,
+      importaJSON,
+    ],
   );
 
   return <LibreriaContext.Provider value={value}>{children}</LibreriaContext.Provider>;

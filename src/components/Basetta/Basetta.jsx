@@ -28,14 +28,15 @@ let timeoutSpegniEvidenziaHover = null;
 
 function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
-  const { spostaIstanza, rimuoviIstanza } = useTavoloState();
+  const { spostaIstanza, ruotaIstanza, rimuoviIstanza } = useTavoloState();
   const [hover, setHover] = useState(false);
   const [ctrlPremuto, setCtrlPremuto] = useState(false);
   const [posizioneTemp, setPosizioneTemp] = useState(null);
   const [selezionata, setSelezionata] = useState(false);
   const [selezioneGruppo, setSelezioneGruppo] = useState([]);
   const [evidenziata, setEvidenziata] = useState(false);
-  const [rotazione, setRotazione] = useState(0);
+  // Persistito su istanza (non stato locale) così un salvataggio completo della partita può leggerlo.
+  const rotazione = istanza.rotazione ?? 0;
   const [rotazioneFantasma, setRotazioneFantasma] = useState(0);
   const [offsetRotazioneGruppo, setOffsetRotazioneGruppo] = useState({ dx: 0, dy: 0 });
   const [rotazioneGruppoAttiva, setRotazioneGruppoAttiva] = useState(false);
@@ -166,15 +167,15 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
       if (e.key === 'q' || e.key === 'Q') {
         e.preventDefault();
-        setRotazione((r) => (r - INCREMENTO_ROTAZIONE + 360) % 360);
+        ruotaIstanza(istanza.id, (rotazione - INCREMENTO_ROTAZIONE + 360) % 360);
       } else if (e.key === 'w' || e.key === 'W') {
         e.preventDefault();
-        setRotazione((r) => (r + INCREMENTO_ROTAZIONE) % 360);
+        ruotaIstanza(istanza.id, (rotazione + INCREMENTO_ROTAZIONE) % 360);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selezionata, gruppoAttivo]);
+  }, [selezionata, gruppoAttivo, rotazione, ruotaIstanza, istanza.id]);
 
   const handleSposta = (puntoFinale) => {
     const zonaPartenza = istanza.zona;

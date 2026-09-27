@@ -1,0 +1,15 @@
+.azioni {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.azioni button,
+.importaLabel {
+  flex: 1;
+  font-size: 12px;
+  padding: 7px 4px;
+  text-align: center;
+  cursor: pointer;
+}
