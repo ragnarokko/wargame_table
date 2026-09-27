@@ -68,3 +68,11 @@
   pointer-events: none;
   white-space: nowrap;
 }
+
+.aura {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1.5px solid #e11d2a;
+  pointer-events: none;
+  z-index: 5;
+}

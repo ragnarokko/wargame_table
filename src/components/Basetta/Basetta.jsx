@@ -3,6 +3,7 @@ import { useTavolo } from '../../contexts/TavoloContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { calcolaDimensioniBasettaPx } from '../../utils/basetta';
 import { puntoRelativoRuotato } from '../../utils/coordinate';
+import { polliciAPx } from '../../utils/scala';
 import {
   EVENTO_EVIDENZIA_UNITA,
   EVENTO_SELEZIONE_MULTIPLA,
@@ -29,7 +30,7 @@ let timeoutSpegniEvidenziaHover = null;
 
 function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
-  const { spostaIstanza, ruotaIstanza, impostaFeriteIstanza } = useTavoloState();
+  const { spostaIstanza, ruotaIstanza, impostaFeriteIstanza, impostaAuraIstanza } = useTavoloState();
   const [hover, setHover] = useState(false);
   const [ctrlPremuto, setCtrlPremuto] = useState(false);
   const [posizioneTemp, setPosizioneTemp] = useState(null);
@@ -43,6 +44,9 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
   const feriteMassime = Number(template.w);
   const haFerite = Number.isFinite(feriteMassime) && feriteMassime > 0;
   const ferite = istanza.ferite ?? feriteMassime;
+  // Offset (in pollici) dell'aura attiva, 0 = nessuna. Cresce di 1" ad ogni Z, si riduce di 1" ad
+  // ogni X (spegnendosi del tutto sotto 1").
+  const auraOffsetPollici = istanza.auraOffset ?? 0;
   const [rotazioneFantasma, setRotazioneFantasma] = useState(0);
   const [offsetRotazioneGruppo, setOffsetRotazioneGruppo] = useState({ dx: 0, dy: 0 });
   const [rotazioneGruppoAttiva, setRotazioneGruppoAttiva] = useState(false);
@@ -203,6 +207,26 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [selezionata, gruppoAttivo, haFerite, ferite, feriteMassime, impostaFeriteIstanza, istanza.id]);
 
+  // Z/X con la basetta selezionata (singola, non in gruppo): gestiscono l'aura. Z senza aura
+  // attiva la crea a 1"; con l'aura già attiva la fa "crescere" di 1" in più rispetto all'offset
+  // corrente. X riduce l'offset di 1", spegnendo l'aura quando scende sotto 1".
+  useEffect(() => {
+    if (!selezionata || gruppoAttivo) return undefined;
+    const onKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (e.key === 'z' || e.key === 'Z') {
+        e.preventDefault();
+        impostaAuraIstanza(istanza.id, auraOffsetPollici + 1);
+      } else if (e.key === 'x' || e.key === 'X') {
+        e.preventDefault();
+        impostaAuraIstanza(istanza.id, Math.max(0, auraOffsetPollici - 1));
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selezionata, gruppoAttivo, auraOffsetPollici, impostaAuraIstanza, istanza.id]);
+
   const handleSposta = (puntoFinale) => {
     const zonaPartenza = istanza.zona;
     const zonaArrivo = puntoNelTavolo(puntoFinale.x, puntoFinale.y) ? 'tavolo' : 'staging';
@@ -289,6 +313,19 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
   };
   const dimensionePx = calcolaDimensioniBasettaPx(template, pxPerPollice);
 
+  // Anello aura: stessa forma della basetta (cerchio per "tonda", ellisse/rettangolo arrotondato
+  // per le altre), concentrico, con ogni lato "gonfiato" dell'offset corrente — segue posizione e
+  // rotazione correnti della basetta perché usa le stesse posizioneVisualizzata/rotazione.
+  const auraOffsetPx = polliciAPx(auraOffsetPollici, pxPerPollice);
+  const auraStyle = auraOffsetPollici > 0 && {
+    left: posizioneVisualizzata.x - (dimensionePx.larghezza / 2 + auraOffsetPx),
+    top: posizioneVisualizzata.y - (dimensionePx.altezza / 2 + auraOffsetPx),
+    width: dimensionePx.larghezza + 2 * auraOffsetPx,
+    height: dimensionePx.altezza + 2 * auraOffsetPx,
+    borderRadius: template.forma === 'rettangolare' ? 4 : '50%',
+    transform: `rotate(${rotazione}deg)`,
+  };
+
   const distanzaLive = inTrascinamento
     ? Math.hypot(posizioneVisualizzata.x - istanza.x, posizioneVisualizzata.y - istanza.y) / pxPerPollice
     : 0;
@@ -324,6 +361,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
 
   return (
     <>
+      {auraStyle && <div className={styles.aura} style={auraStyle} />}
       {inTrascinamento && (!gruppoAttivo || (isReferenzaGruppo && !rotazioneGruppoAttiva)) && (
         <MisuraDistanza
           origine={{ x: istanza.x, y: istanza.y }}
@@ -346,7 +384,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
         onPointerUp={onPointerUp}
         onMouseEnter={onMouseEnterBasetta}
         onMouseLeave={onMouseLeaveBasetta}
-        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare, +/- per le ferite. Ctrl+hover per i dettagli."
+        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare, +/- per le ferite, Z/X per l'aura. Ctrl+hover per i dettagli."
       >
         <div className={styles.indicatoreFronte} />
         <span className={styles.nome}>{template.nome}</span>

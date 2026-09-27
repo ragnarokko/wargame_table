@@ -46,6 +46,12 @@ export function TavoloStateProvider({ children }) {
     setIstanze((prev) => prev.map((ist) => (ist.id === id ? { ...ist, ferite } : ist)));
   }, []);
 
+  // Offset (in pollici) dell'aura della singola basetta, 0 = nessuna aura attiva. Persistito qui
+  // (come rotazione e ferite) così un salvataggio completo della partita può ripristinarlo.
+  const impostaAuraIstanza = useCallback((id, auraOffset) => {
+    setIstanze((prev) => prev.map((ist) => (ist.id === id ? { ...ist, auraOffset } : ist)));
+  }, []);
+
   const rimuoviIstanza = useCallback((id) => {
     setIstanze((prev) => prev.filter((ist) => ist.id !== id));
   }, []);
@@ -99,6 +105,7 @@ export function TavoloStateProvider({ children }) {
       spostaIstanza,
       ruotaIstanza,
       impostaFeriteIstanza,
+      impostaAuraIstanza,
       rimuoviIstanza,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,
@@ -115,6 +122,7 @@ export function TavoloStateProvider({ children }) {
       spostaIstanza,
       ruotaIstanza,
       impostaFeriteIstanza,
+      impostaAuraIstanza,
       rimuoviIstanza,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,
