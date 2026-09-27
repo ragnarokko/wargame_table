@@ -11,6 +11,7 @@ const PASSO_STAGING = 34;
 function LibreriaBasette() {
   const { basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta, esportaJSON, importaJSON } = useLibreria();
   const { istanze, schieraBasetta } = useTavoloState();
+  const [aperto, setAperto] = useState(false);
   const [formAperto, setFormAperto] = useState(false);
   const [basettaInModifica, setBasettaInModifica] = useState(null);
 
@@ -61,46 +62,45 @@ function LibreriaBasette() {
 
   return (
     <div className={styles.pannello}>
-      <div className={styles.intestazione}>
-        <h3>Libreria basette</h3>
+      <PannelloEspandibile titolo="Libreria basette" aperto={aperto} onToggle={() => setAperto((v) => !v)}>
         <div className={styles.azioniIntestazione}>
           <button onClick={esportaJSON} title="Esporta libreria in JSON">
-            ⬇
+            ⬇ Esporta
           </button>
           <label className={styles.importaLabel} title="Importa libreria da JSON">
-            ⬆
+            ⬆ Importa
             <input type="file" accept="application/json" onChange={handleImporta} hidden />
           </label>
         </div>
-      </div>
 
-      <ul className={styles.lista}>
-        {basette.map((b) => (
-          <li key={b.id} className={styles.riga}>
-            <span className={styles.pallino} style={{ backgroundColor: b.colore }} />
-            <span className={styles.nome}>{b.nome}</span>
-            <div className={styles.azioni}>
-              <button onClick={() => handleSchiera(b)} title="Schiera in staging">
-                + Tavolo
-              </button>
-              <button onClick={() => handleModifica(b)} title="Modifica">
-                ✎
-              </button>
-              <button onClick={() => rimuoviBasetta(b.id)} title="Rimuovi dalla libreria">
-                ✕
-              </button>
-            </div>
-          </li>
-        ))}
-        {basette.length === 0 && <li className={styles.vuoto}>Nessuna basetta in libreria</li>}
-      </ul>
+        <ul className={styles.lista}>
+          {basette.map((b) => (
+            <li key={b.id} className={styles.riga}>
+              <span className={styles.pallino} style={{ backgroundColor: b.colore }} />
+              <span className={styles.nome}>{b.nome}</span>
+              <div className={styles.azioni}>
+                <button onClick={() => handleSchiera(b)} title="Schiera in staging">
+                  + Tavolo
+                </button>
+                <button onClick={() => handleModifica(b)} title="Modifica">
+                  ✎
+                </button>
+                <button onClick={() => rimuoviBasetta(b.id)} title="Rimuovi dalla libreria">
+                  ✕
+                </button>
+              </div>
+            </li>
+          ))}
+          {basette.length === 0 && <li className={styles.vuoto}>Nessuna basetta in libreria</li>}
+        </ul>
 
-      <PannelloEspandibile
-        titolo={basettaInModifica ? '✎ Modifica basetta' : '+ Nuova basetta'}
-        aperto={formAperto}
-        onToggle={() => (formAperto ? handleChiudi() : handleNuova())}
-      >
-        <BasettaForm basettaIniziale={basettaInModifica} onSalva={handleSalva} onAnnulla={handleChiudi} />
+        <PannelloEspandibile
+          titolo={basettaInModifica ? '✎ Modifica basetta' : '+ Nuova basetta'}
+          aperto={formAperto}
+          onToggle={() => (formAperto ? handleChiudi() : handleNuova())}
+        >
+          <BasettaForm basettaIniziale={basettaInModifica} onSalva={handleSalva} onAnnulla={handleChiudi} />
+        </PannelloEspandibile>
       </PannelloEspandibile>
     </div>
   );

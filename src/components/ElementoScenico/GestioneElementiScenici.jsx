@@ -9,6 +9,7 @@ function GestioneElementiScenici() {
   const { elementiScenici, aggiungiElementoScenico, modificaElementoScenico, rimuoviElementoScenico } =
     useTavoloState();
   const { tavoloRect } = useTavolo();
+  const [aperto, setAperto] = useState(false);
   const [formAperto, setFormAperto] = useState(false);
 
   const handleAggiungi = (dati) => {
@@ -22,62 +23,60 @@ function GestioneElementiScenici() {
 
   return (
     <div className={styles.pannello}>
-      <div className={styles.intestazione}>
-        <h3>Elementi scenici</h3>
-      </div>
+      <PannelloEspandibile titolo="Elementi scenici" aperto={aperto} onToggle={() => setAperto((v) => !v)}>
+        <ul className={styles.lista}>
+          {elementiScenici.map((el) => (
+            <li key={el.id} className={styles.riga}>
+              <input
+                className={styles.nomeInput}
+                value={el.nome}
+                onChange={(e) => modificaElementoScenico(el.id, { nome: e.target.value })}
+              />
+              <select
+                value={el.forma}
+                onChange={(e) => modificaElementoScenico(el.id, { forma: e.target.value })}
+              >
+                <option value="rettangolare">Rettangolare</option>
+                <option value="ovale">Ovale</option>
+              </select>
+              <input
+                type="number"
+                min="0.5"
+                step="0.5"
+                className={styles.numeroInput}
+                title="Larghezza (pollici)"
+                value={el.larghezzaPollici}
+                onChange={(e) => modificaElementoScenico(el.id, { larghezzaPollici: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                min="0.5"
+                step="0.5"
+                className={styles.numeroInput}
+                title="Profondità (pollici)"
+                value={el.altezzaPollici}
+                onChange={(e) => modificaElementoScenico(el.id, { altezzaPollici: Number(e.target.value) })}
+              />
+              <input
+                type="color"
+                value={el.colore}
+                onChange={(e) => modificaElementoScenico(el.id, { colore: e.target.value })}
+              />
+              <button className={styles.rimuoviBtn} onClick={() => rimuoviElementoScenico(el.id)} title="Rimuovi">
+                ✕
+              </button>
+            </li>
+          ))}
+          {elementiScenici.length === 0 && <li className={styles.vuoto}>Nessun elemento scenico</li>}
+        </ul>
 
-      <ul className={styles.lista}>
-        {elementiScenici.map((el) => (
-          <li key={el.id} className={styles.riga}>
-            <input
-              className={styles.nomeInput}
-              value={el.nome}
-              onChange={(e) => modificaElementoScenico(el.id, { nome: e.target.value })}
-            />
-            <select
-              value={el.forma}
-              onChange={(e) => modificaElementoScenico(el.id, { forma: e.target.value })}
-            >
-              <option value="rettangolare">Rettangolare</option>
-              <option value="ovale">Ovale</option>
-            </select>
-            <input
-              type="number"
-              min="0.5"
-              step="0.5"
-              className={styles.numeroInput}
-              title="Larghezza (pollici)"
-              value={el.larghezzaPollici}
-              onChange={(e) => modificaElementoScenico(el.id, { larghezzaPollici: Number(e.target.value) })}
-            />
-            <input
-              type="number"
-              min="0.5"
-              step="0.5"
-              className={styles.numeroInput}
-              title="Profondità (pollici)"
-              value={el.altezzaPollici}
-              onChange={(e) => modificaElementoScenico(el.id, { altezzaPollici: Number(e.target.value) })}
-            />
-            <input
-              type="color"
-              value={el.colore}
-              onChange={(e) => modificaElementoScenico(el.id, { colore: e.target.value })}
-            />
-            <button className={styles.rimuoviBtn} onClick={() => rimuoviElementoScenico(el.id)} title="Rimuovi">
-              ✕
-            </button>
-          </li>
-        ))}
-        {elementiScenici.length === 0 && <li className={styles.vuoto}>Nessun elemento scenico</li>}
-      </ul>
-
-      <PannelloEspandibile
-        titolo="+ Aggiungi elemento"
-        aperto={formAperto}
-        onToggle={() => setFormAperto((v) => !v)}
-      >
-        <NuovoElementoForm onAggiungi={handleAggiungi} onAnnulla={() => setFormAperto(false)} />
+        <PannelloEspandibile
+          titolo="+ Aggiungi elemento"
+          aperto={formAperto}
+          onToggle={() => setFormAperto((v) => !v)}
+        >
+          <NuovoElementoForm onAggiungi={handleAggiungi} onAnnulla={() => setFormAperto(false)} />
+        </PannelloEspandibile>
       </PannelloEspandibile>
     </div>
   );

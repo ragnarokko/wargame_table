@@ -3,24 +3,10 @@
   border-bottom: 1px solid var(--colore-bordo);
 }
 
-.intestazione {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.intestazione h3 {
-  margin: 0;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--colore-testo-secondario);
-}
-
 .azioniIntestazione {
   display: flex;
   gap: 4px;
+  margin-bottom: 10px;
 }
 
 .azioniIntestazione button,
