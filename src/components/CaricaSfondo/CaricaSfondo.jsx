@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useTavolo } from '../../contexts/TavoloContext';
+import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import styles from './CaricaSfondo.module.css';
 
 function CaricaSfondo() {
   const { dimensioni, setDimensioni, sfondo, setSfondo } = useTavolo();
+  const [aperto, setAperto] = useState(false);
   const [larghezza, setLarghezza] = useState(dimensioni.larghezza);
   const [altezza, setAltezza] = useState(dimensioni.altezza);
 
@@ -28,30 +30,36 @@ function CaricaSfondo() {
 
   return (
     <div className={styles.pannello}>
-      <h3>Tavolo di gioco</h3>
+      <PannelloEspandibile titolo="Tavolo di gioco" aperto={aperto} onToggle={() => setAperto((v) => !v)}>
+        <form className={styles.formDimensioni} onSubmit={applicaDimensioni}>
+          <label>
+            Larghezza (in)
+            <input
+              type="number"
+              min="1"
+              step="0.5"
+              value={larghezza}
+              onChange={(e) => setLarghezza(e.target.value)}
+            />
+          </label>
+          <label>
+            Profondità (in)
+            <input type="number" min="1" step="0.5" value={altezza} onChange={(e) => setAltezza(e.target.value)} />
+          </label>
+          <button type="submit">Applica</button>
+        </form>
 
-      <form className={styles.formDimensioni} onSubmit={applicaDimensioni}>
-        <label>
-          Larghezza (in)
-          <input type="number" min="1" step="0.5" value={larghezza} onChange={(e) => setLarghezza(e.target.value)} />
+        <label className={styles.caricaFile}>
+          Sfondo tavolo (immagine)
+          <input type="file" accept="image/*" onChange={handleFile} />
         </label>
-        <label>
-          Profondità (in)
-          <input type="number" min="1" step="0.5" value={altezza} onChange={(e) => setAltezza(e.target.value)} />
-        </label>
-        <button type="submit">Applica</button>
-      </form>
 
-      <label className={styles.caricaFile}>
-        Sfondo tavolo (immagine)
-        <input type="file" accept="image/*" onChange={handleFile} />
-      </label>
-
-      {sfondo && (
-        <button className={styles.rimuoviBtn} onClick={() => setSfondo(null)}>
-          Rimuovi sfondo
-        </button>
-      )}
+        {sfondo && (
+          <button className={styles.rimuoviBtn} onClick={() => setSfondo(null)}>
+            Rimuovi sfondo
+          </button>
+        )}
+      </PannelloEspandibile>
     </div>
   );
 }

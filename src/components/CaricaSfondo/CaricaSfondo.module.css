@@ -3,14 +3,6 @@
   border-bottom: 1px solid var(--colore-bordo);
 }
 
-.pannello h3 {
-  margin: 0 0 10px;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--colore-testo-secondario);
-}
-
 .formDimensioni {
   display: flex;
   gap: 8px;
