@@ -17,6 +17,7 @@ import styles from './Basetta.module.css';
 const INCREMENTO_ROTAZIONE = 15;
 const SOGLIA_CLICK_PX = 3;
 const INCREMENTO_FERITE = 1;
+const AURA_RAPIDA_POLLICI = 9;
 
 const COLORE_SQUADRA = {
   blu: '#3b82f6',
@@ -209,7 +210,9 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
 
   // Z/X con la basetta selezionata (singola, non in gruppo): gestiscono l'aura. Z senza aura
   // attiva la crea a 1"; con l'aura già attiva la fa "crescere" di 1" in più rispetto all'offset
-  // corrente. X riduce l'offset di 1", spegnendo l'aura quando scende sotto 1".
+  // corrente. X riduce l'offset di 1", spegnendo l'aura quando scende sotto 1". C è una scorcia-
+  // toia rapida: senza aura attiva la imposta direttamente a 9" (qualunque sia stata l'ultima via
+  // usata, C o Z/X), con aura già attiva (a qualsiasi offset) la spegne del tutto.
   useEffect(() => {
     if (!selezionata || gruppoAttivo) return undefined;
     const onKeyDown = (e) => {
@@ -221,6 +224,9 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
       } else if (e.key === 'x' || e.key === 'X') {
         e.preventDefault();
         impostaAuraIstanza(istanza.id, Math.max(0, auraOffsetPollici - 1));
+      } else if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        impostaAuraIstanza(istanza.id, auraOffsetPollici > 0 ? 0 : AURA_RAPIDA_POLLICI);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -384,7 +390,10 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
         onPointerUp={onPointerUp}
         onMouseEnter={onMouseEnterBasetta}
         onMouseLeave={onMouseLeaveBasetta}
-        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare, +/- per le ferite, Z/X per l'aura. Ctrl+hover per i dettagli."
+        title={
+          "Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare, +/- per le ferite, " +
+          "Z/X per l'aura, C per l'aura rapida da 9\". Ctrl+hover per i dettagli."
+        }
       >
         <div className={styles.indicatoreFronte} />
         <span className={styles.nome}>{template.nome}</span>
