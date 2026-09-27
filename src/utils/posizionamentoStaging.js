@@ -4,11 +4,12 @@ import { calcolaDimensioniBasettaPx } from './basetta';
 const DISTANZA_INTERNA_POLLICI = 1;
 const DISTANZA_MINIMA_UNITA_POLLICI = 2;
 const PASSO_RICERCA_PX = 10;
-const MARGINE_INIZIALE_POLLICI = 0.5;
+const MARGINE_BORDO_POLLICI = 3;
 
 // Calcola le posizioni (in px, relative al containerRef) per allineare su un'unica fila
 // i modelli di una nuova unità in staging: 1 pollice tra i centri di basette adiacenti,
-// e l'intera fila ad almeno 2 pollici da basette di altre unità già presenti in staging.
+// l'intera fila ad almeno 2 pollici da basette di altre unità già presenti in staging, e ad
+// almeno 3 pollici dal bordo dell'area di staging (areaStaging).
 export function calcolaPosizioniUnitaStaging({
   template,
   numeroModelli,
@@ -20,7 +21,7 @@ export function calcolaPosizioniUnitaStaging({
   const dimensioneBasetta = calcolaDimensioniBasettaPx(template, pxPerPollice);
   const passoInterno = polliciAPx(DISTANZA_INTERNA_POLLICI, pxPerPollice);
   const distanzaMinima = polliciAPx(DISTANZA_MINIMA_UNITA_POLLICI, pxPerPollice);
-  const margine = polliciAPx(MARGINE_INIZIALE_POLLICI, pxPerPollice);
+  const margine = polliciAPx(MARGINE_BORDO_POLLICI, pxPerPollice);
 
   const larghezzaFila = dimensioneBasetta.larghezza + Math.max(0, numeroModelli - 1) * passoInterno;
   const altezzaFila = dimensioneBasetta.altezza;
@@ -48,7 +49,9 @@ export function calcolaPosizioniUnitaStaging({
     );
   };
 
-  const left = areaStaging.left + margine;
+  // Se la fila è troppo larga per stare entro il margine anche sul lato destro, si preferisce
+  // comunque mantenere il margine sinistro (caso limite: unità enormi in un'area di staging stretta).
+  const left = Math.min(areaStaging.left + margine, areaStaging.left + areaStaging.width - margine - larghezzaFila);
   let top = areaStaging.top + margine;
   while (sovrappostaConEsistenti(left, top)) {
     top += PASSO_RICERCA_PX;
