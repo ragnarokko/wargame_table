@@ -1,6 +1,7 @@
 .basetta {
   position: absolute;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   border: 2px solid rgba(0, 0, 0, 0.55);
@@ -57,4 +58,13 @@
   hyphens: auto;
   max-width: 100%;
   max-height: 100%;
+}
+
+.ferite {
+  font-size: 8px;
+  font-weight: 700;
+  color: #0e0e12;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  white-space: nowrap;
 }

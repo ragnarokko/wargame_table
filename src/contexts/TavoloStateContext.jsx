@@ -40,6 +40,12 @@ export function TavoloStateProvider({ children }) {
     setIstanze((prev) => prev.map((ist) => (ist.id === id ? { ...ist, rotazione } : ist)));
   }, []);
 
+  // Ferite correnti della singola basetta: persistite qui (come rotazione) così un salvataggio
+  // completo della partita può leggerle e ripristinarle correttamente al Load.
+  const impostaFeriteIstanza = useCallback((id, ferite) => {
+    setIstanze((prev) => prev.map((ist) => (ist.id === id ? { ...ist, ferite } : ist)));
+  }, []);
+
   const rimuoviIstanza = useCallback((id) => {
     setIstanze((prev) => prev.filter((ist) => ist.id !== id));
   }, []);
@@ -92,6 +98,7 @@ export function TavoloStateProvider({ children }) {
       schieraBasette,
       spostaIstanza,
       ruotaIstanza,
+      impostaFeriteIstanza,
       rimuoviIstanza,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,
@@ -107,6 +114,7 @@ export function TavoloStateProvider({ children }) {
       schieraBasette,
       spostaIstanza,
       ruotaIstanza,
+      impostaFeriteIstanza,
       rimuoviIstanza,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,

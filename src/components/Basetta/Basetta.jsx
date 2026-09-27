@@ -15,6 +15,7 @@ import styles from './Basetta.module.css';
 
 const INCREMENTO_ROTAZIONE = 15;
 const SOGLIA_CLICK_PX = 3;
+const INCREMENTO_FERITE = 1;
 
 const COLORE_SQUADRA = {
   blu: '#3b82f6',
@@ -28,7 +29,7 @@ let timeoutSpegniEvidenziaHover = null;
 
 function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
-  const { spostaIstanza, ruotaIstanza } = useTavoloState();
+  const { spostaIstanza, ruotaIstanza, impostaFeriteIstanza } = useTavoloState();
   const [hover, setHover] = useState(false);
   const [ctrlPremuto, setCtrlPremuto] = useState(false);
   const [posizioneTemp, setPosizioneTemp] = useState(null);
@@ -37,6 +38,11 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
   const [evidenziata, setEvidenziata] = useState(false);
   // Persistito su istanza (non stato locale) così un salvataggio completo della partita può leggerlo.
   const rotazione = istanza.rotazione ?? 0;
+  // Ferite correnti: solo per basette con un W numerico valido (le basette generiche di libreria,
+  // senza statistiche strutturate, non mostrano il contatore). Valore iniziale = W del template.
+  const feriteMassime = Number(template.w);
+  const haFerite = Number.isFinite(feriteMassime) && feriteMassime > 0;
+  const ferite = istanza.ferite ?? feriteMassime;
   const [rotazioneFantasma, setRotazioneFantasma] = useState(0);
   const [offsetRotazioneGruppo, setOffsetRotazioneGruppo] = useState({ dx: 0, dy: 0 });
   const [rotazioneGruppoAttiva, setRotazioneGruppoAttiva] = useState(false);
@@ -176,6 +182,26 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [selezionata, gruppoAttivo, rotazione, ruotaIstanza, istanza.id]);
+
+  // +/- con la basetta selezionata (singola, non in gruppo): regolano le ferite correnti di 1,
+  // senza scendere sotto 0 né superare il massimo (W del template). Tracciato per singola
+  // istanza, quindi indipendente tra basette della stessa unità.
+  useEffect(() => {
+    if (!selezionata || gruppoAttivo || !haFerite) return undefined;
+    const onKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (e.key === '+') {
+        e.preventDefault();
+        impostaFeriteIstanza(istanza.id, Math.min(feriteMassime, ferite + INCREMENTO_FERITE));
+      } else if (e.key === '-') {
+        e.preventDefault();
+        impostaFeriteIstanza(istanza.id, Math.max(0, ferite - INCREMENTO_FERITE));
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selezionata, gruppoAttivo, haFerite, ferite, feriteMassime, impostaFeriteIstanza, istanza.id]);
 
   const handleSposta = (puntoFinale) => {
     const zonaPartenza = istanza.zona;
@@ -320,10 +346,15 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
         onPointerUp={onPointerUp}
         onMouseEnter={onMouseEnterBasetta}
         onMouseLeave={onMouseLeaveBasetta}
-        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare. Ctrl+hover per i dettagli."
+        title="Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare, +/- per le ferite. Ctrl+hover per i dettagli."
       >
         <div className={styles.indicatoreFronte} />
         <span className={styles.nome}>{template.nome}</span>
+        {haFerite && (
+          <span className={styles.ferite}>
+            {ferite}/{feriteMassime}
+          </span>
+        )}
         {hover && ctrlPremuto && <BasettaTooltip template={template} />}
       </div>
     </>

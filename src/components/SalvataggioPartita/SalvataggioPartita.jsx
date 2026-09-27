@@ -7,7 +7,7 @@ const VERSIONE_SALVATAGGIO = 1;
 
 // Salvataggio/caricamento completo della partita: eserciti (stessa struttura dati di
 // PersistenzaEserciti, di cui però NON riusa il file/la chiave localStorage — sono due
-// funzionalità separate e coesistenti), intera libreria basette, posizione e rotazione di
+// funzionalità separate e coesistenti), intera libreria basette, posizione/rotazione/ferite di
 // ogni istanza su tavolo/staging, elementi scenici, dimensioni e sfondo del tavolo.
 function SalvataggioPartita() {
   const { dimensioni, setDimensioni, sfondo, setSfondo } = useTavolo();
