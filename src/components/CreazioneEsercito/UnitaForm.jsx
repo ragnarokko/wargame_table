@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { elencoFazioni, unitaPerFazione } from './csvUnitaImport';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { datiCsvCaricati, elencoFazioni, unitaPerFazione, useVersioneDatiCsv } from './csvUnitaImport';
 import styles from './CreazioneEsercito.module.css';
 
 const CAMPI_STATISTICHE_CSV = [
@@ -36,25 +36,50 @@ function statisticheDaUnitaCsv(unitaCsv) {
 }
 
 function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
-  const fazioni = useMemo(() => elencoFazioni(), []);
-  const [fazioneCsv, setFazioneCsv] = useState(fazioni[0] ?? '');
-  const unitaDisponibili = useMemo(() => unitaPerFazione(fazioneCsv), [fazioneCsv]);
-  const [chiaveUnita, setChiaveUnita] = useState(unitaDisponibili[0]?.chiave ?? '');
+  // I dati CSV possono ancora essere in caricamento al primo render (fetch asincrono, vedi
+  // csvUnitaImport.js): fazioneCsv/chiaveUnita ricadono su un sentinella vuoto e si aggiornano
+  // da soli non appena elencoFazioni()/unitaPerFazione() smettono di essere vuoti, invece di
+  // restare bloccati sul valore (vuoto) letto al mount.
+  const versioneDatiCsv = useVersioneDatiCsv();
+  // versioneDatiCsv non è letto nel corpo delle callback, ma è una dipendenza voluta: è il
+  // riferimento della cache CSV, e deve far ricalcolare fazioni/unitaDisponibili ad ogni
+  // caricamento/ricaricamento anche se elencoFazioni()/unitaPerFazione() leggono uno stato
+  // esterno al modulo invece di un valore passato esplicitamente.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fazioni = useMemo(() => elencoFazioni(), [versioneDatiCsv]);
+  const [fazioneScelta, setFazioneScelta] = useState('');
+  const fazioneCsv = fazioneScelta || fazioni[0] || '';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const unitaDisponibili = useMemo(() => unitaPerFazione(fazioneCsv), [fazioneCsv, versioneDatiCsv]);
+  const [chiaveScelta, setChiaveScelta] = useState('');
+  const chiaveUnita = chiaveScelta || unitaDisponibili[0]?.chiave || '';
   const unitaCsv = unitaDisponibili.find((u) => u.chiave === chiaveUnita) ?? unitaDisponibili[0] ?? null;
 
   const [numeroModelli, setNumeroModelli] = useState(5);
   const [colore, setColore] = useState(coloreDefault);
   const [statistiche, setStatistiche] = useState(() => statisticheDaUnitaCsv(unitaDisponibili[0]));
+  // Se al mount i dati CSV non erano ancora pronti, statistiche parte vuoto (nessun unitaCsv):
+  // appena la prima unità diventa disponibile la popola una volta sola (i cambi successivi di
+  // fazione/unità restano gestiti esplicitamente da cambiaFazione/cambiaUnita qui sotto).
+  const statisticheInizializzate = useRef(Boolean(unitaDisponibili[0]));
+  useEffect(() => {
+    if (!statisticheInizializzate.current && unitaCsv) {
+      statisticheInizializzate.current = true;
+      setStatistiche(statisticheDaUnitaCsv(unitaCsv));
+    }
+  }, [unitaCsv]);
 
   const cambiaFazione = (nuovaFazione) => {
-    setFazioneCsv(nuovaFazione);
+    statisticheInizializzate.current = true;
+    setFazioneScelta(nuovaFazione);
     const prima = unitaPerFazione(nuovaFazione)[0];
-    setChiaveUnita(prima?.chiave ?? '');
+    setChiaveScelta(prima?.chiave ?? '');
     setStatistiche(statisticheDaUnitaCsv(prima));
   };
 
   const cambiaUnita = (chiave) => {
-    setChiaveUnita(chiave);
+    statisticheInizializzate.current = true;
+    setChiaveScelta(chiave);
     const trovata = unitaDisponibili.find((u) => u.chiave === chiave);
     setStatistiche(statisticheDaUnitaCsv(trovata));
   };
@@ -75,7 +100,11 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
   };
 
   if (fazioni.length === 0) {
-    return <p className={styles.vuoto}>Nessuna unità disponibile nel CSV.</p>;
+    return (
+      <p className={styles.vuoto}>
+        {datiCsvCaricati() ? 'Nessuna unità disponibile nel CSV.' : 'Caricamento dati CSV…'}
+      </p>
+    );
   }
 
   return (

@@ -5,6 +5,7 @@ import GestioneElementiScenici from '../ElementoScenico/GestioneElementiScenici'
 import PulsanteRighello from '../StrumentoRighello/PulsanteRighello';
 import SelettoreLayout from '../SelettoreLayout/SelettoreLayout';
 import CreazioneEsercito from '../CreazioneEsercito/CreazioneEsercito';
+import PulsanteAggiornaDati from '../CreazioneEsercito/PulsanteAggiornaDati';
 import Aiuto from '../Aiuto/Aiuto';
 import LinkUtili from '../LinkUtili/LinkUtili';
 import styles from './PannelloLaterale.module.css';
@@ -22,6 +23,7 @@ function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
       <GestioneElementiScenici />
       <Aiuto />
       <LinkUtili />
+      <PulsanteAggiornaDati />
     </aside>
   );
 }

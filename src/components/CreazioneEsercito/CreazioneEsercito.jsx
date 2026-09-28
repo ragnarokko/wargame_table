@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTavolo } from '../../contexts/TavoloContext';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { ESERCITI } from '../../config/eserciti';
 import { coloreDisponibile } from '../../utils/colori';
-import { determinaFormaEDimensioni, generaNomeUnivoco } from './csvUnitaImport';
+import { determinaFormaEDimensioni, generaNomeUnivoco, caricaDatiCsvSeNecessario } from './csvUnitaImport';
 import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
@@ -21,6 +21,13 @@ function CreazioneEsercito() {
   const [accordionAperti, setAccordionAperti] = useState(() =>
     Object.fromEntries(ESERCITI.map((es) => [es.id, true])),
   );
+
+  // Pre-carica i dati CSV all'avvio (CreazioneEsercito è sempre montato), così di norma sono
+  // già pronti quando l'utente apre "+ Nuova unità"; l'errore, se c'è, resta segnalato solo
+  // dal pulsante "Aggiorna dati" che l'utente può premere per ritentare.
+  useEffect(() => {
+    caricaDatiCsvSeNecessario().catch(() => {});
+  }, []);
 
   const unitaTutte = basette.filter((b) => b.esercito);
 

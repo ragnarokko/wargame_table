@@ -1,6 +1,7 @@
-import csvGrezzo from '../../../wapedia/info.csv?raw';
+import { useSyncExternalStore } from 'react';
 
 const SEPARATORE = '|';
+const PERCORSO_CSV = `${import.meta.env.BASE_URL}info.csv`;
 
 // Un campo quotato usa la sequenza CSV standard: virgolette doppie raddoppiate
 // per rappresentare una virgoletta letterale (es. MOV `"6"""` → `6"`).
@@ -29,7 +30,7 @@ function parseRigheCsv(testo) {
   });
 }
 
-// Colonne effettive di wapedia/info.csv (verificate aprendo il file, non corrispondono
+// Colonne effettive di public/info.csv (verificate aprendo il file, non corrispondono
 // 1:1 ai nomi "ideali": separatore `|`, intestazione
 // datasheet_id|line|name|MOV|RES|TS|TS+|Note|W|Ld|OC|base_size|fac|faction
 function normalizzaUnita(record) {
@@ -48,23 +49,86 @@ function normalizzaUnita(record) {
   };
 }
 
-let unitaCache = null;
+// Dati CSV caricati a runtime via fetch di public/info.csv (non più incorporati nel bundle a
+// build time con `?raw`): così il pulsante "Aggiorna dati" (PulsanteAggiornaDati) può rileggere
+// il file dopo una modifica a mano anche in produzione, senza bisogno di un rebuild.
+let unitaCache = [];
+let caricato = false;
+let promessaInCorso = null;
+const ascoltatori = new Set();
 
-function caricaUnitaCsv() {
-  if (!unitaCache) {
-    unitaCache = parseRigheCsv(csvGrezzo)
-      .map(normalizzaUnita)
-      .filter((u) => u.fazione && u.nome);
+function notificaAscoltatori() {
+  ascoltatori.forEach((cb) => cb());
+}
+
+async function scaricaEProcessaCsv() {
+  // Query string anti-cache: forza sempre una richiesta di rete fresca, anche dietro
+  // un eventuale CDN/proxy che ignorerebbe altrimenti `cache: 'no-store'`.
+  const risposta = await fetch(`${PERCORSO_CSV}?t=${Date.now()}`, { cache: 'no-store' });
+  const testo = await risposta.text();
+  // Molti server (il dev server di Vite incluso, e i tipici host di siti SPA in produzione)
+  // rispondono 200 con index.html per qualunque percorso non trovato, per supportare il
+  // routing lato client: un testo che inizia con "<" non è mai un CSV valido, va trattato
+  // come "file non trovato" a tutti gli effetti (altrimenti sembrerebbe un caricamento
+  // riuscito con zero unità, invece di segnalare l'errore).
+  if (!risposta.ok || testo.trimStart().startsWith('<')) {
+    throw new Error(`Impossibile leggere ${PERCORSO_CSV} (HTTP ${risposta.status})`);
   }
-  return unitaCache;
+  return parseRigheCsv(testo)
+    .map(normalizzaUnita)
+    .filter((u) => u.fazione && u.nome);
+}
+
+// Avvia il caricamento al primo utilizzo; chiamate concorrenti condividono la stessa richiesta.
+// In caso di errore la cache precedente (se presente) resta valida: un fallito "Aggiorna dati"
+// non cancella i dati già caricati.
+export function caricaDatiCsvSeNecessario() {
+  if (caricato) return Promise.resolve();
+  if (!promessaInCorso) {
+    promessaInCorso = scaricaEProcessaCsv()
+      .then((unita) => {
+        unitaCache = unita;
+        caricato = true;
+      })
+      .finally(() => {
+        promessaInCorso = null;
+        notificaAscoltatori();
+      });
+  }
+  return promessaInCorso;
+}
+
+// Forza un nuovo caricamento scartando la cache corrente: usato dal pulsante "Aggiorna dati"
+// per rileggere public/info.csv dopo averlo modificato a mano.
+export function ricaricaDatiCsv() {
+  caricato = false;
+  return caricaDatiCsvSeNecessario();
+}
+
+export function datiCsvCaricati() {
+  return caricato;
+}
+
+// Fa ri-renderizzare il componente chiamante ad ogni caricamento/ricaricamento dei dati CSV.
+// Il valore restituito (il riferimento all'array cache) va usato come dipendenza di un useMemo
+// che richiama elencoFazioni()/unitaPerFazione(), altrimenti quei risultati restano quelli letti
+// all'ultimo render prima del caricamento.
+export function useVersioneDatiCsv() {
+  return useSyncExternalStore(
+    (cb) => {
+      ascoltatori.add(cb);
+      return () => ascoltatori.delete(cb);
+    },
+    () => unitaCache,
+  );
 }
 
 export function elencoFazioni() {
-  return [...new Set(caricaUnitaCsv().map((u) => u.fazione))].sort((a, b) => a.localeCompare(b));
+  return [...new Set(unitaCache.map((u) => u.fazione))].sort((a, b) => a.localeCompare(b));
 }
 
 export function unitaPerFazione(fazione) {
-  return caricaUnitaCsv().filter((u) => u.fazione === fazione);
+  return unitaCache.filter((u) => u.fazione === fazione);
 }
 
 // Determina forma e dimensioni (mm) della basetta a partire dal campo base_size del CSV:
