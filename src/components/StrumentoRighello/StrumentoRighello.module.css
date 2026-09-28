@@ -5,6 +5,13 @@
   cursor: crosshair;
 }
 
+.overlayPassivo {
+  position: absolute;
+  inset: 0;
+  z-index: 250;
+  pointer-events: none;
+}
+
 .lineaSvg {
   position: absolute;
   inset: 0;

@@ -7,6 +7,7 @@ import Tavolo from '../Tavolo/Tavolo';
 import Basetta from '../Basetta/Basetta';
 import ElementoScenico from '../ElementoScenico/ElementoScenico';
 import StrumentoRighello from '../StrumentoRighello/StrumentoRighello';
+import MisuraRapida from '../StrumentoRighello/MisuraRapida';
 import SelezioneMultipla from '../SelezioneMultipla/SelezioneMultipla';
 import styles from './AreaLavoro.module.css';
 
@@ -149,6 +150,7 @@ function AreaLavoro({ righelloAttivo }) {
             rotazioneArea={rotazioneArea}
             zoom={zoom}
           />
+          <MisuraRapida containerRef={containerRef} rotazioneArea={rotazioneArea} zoom={zoom} />
         </div>
       </div>
     </div>
