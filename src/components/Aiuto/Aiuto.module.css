@@ -3,6 +3,38 @@
   margin: 10px 16px;
 }
 
+.sezione {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.sezioneTitolo {
+  margin: 0 0 6px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+}
+
+.paragrafo {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--colore-testo);
+  line-height: 1.4;
+}
+
+.paragrafo:last-child {
+  margin-bottom: 0;
+}
+
+.codice {
+  font-family: monospace;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
 .lista {
   list-style: none;
   margin: 0;

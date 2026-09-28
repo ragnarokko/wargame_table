@@ -23,7 +23,8 @@ const SCORCIATOIE = [
   { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine e statistiche della basetta.' },
 ];
 
-// Tasto "Aiuto": apre una finestra con l'elenco completo delle scorciatoie usate nell'app.
+// Tasto "Aiuto": apre una finestra con l'elenco completo delle scorciatoie usate nell'app e con
+// le informazioni sull'origine dei dati delle unità (info.csv).
 function Aiuto() {
   const [aperto, setAperto] = useState(false);
 
@@ -32,7 +33,23 @@ function Aiuto() {
       <button type="button" className={styles.pulsante} onClick={() => setAperto(true)}>
         ❓ Aiuto
       </button>
-      <Modale titolo="Tasti e comandi" aperto={aperto} onChiudi={() => setAperto(false)}>
+      <Modale titolo="Aiuto" aperto={aperto} onChiudi={() => setAperto(false)}>
+        <div className={styles.sezione}>
+          <h4 className={styles.sezioneTitolo}>Dati unità (CSV)</h4>
+          <p className={styles.paragrafo}>
+            Le unità disponibili in "Creazione Esercito" vengono lette da{' '}
+            <code className={styles.codice}>public/info.csv</code>: il file viene caricato a
+            runtime (non incorporato nel programma), quindi si può modificare a mano in
+            qualsiasi momento e ricaricarlo con "⟳ Aggiorna dati" in fondo al menù, anche a
+            sito già pubblicato, senza bisogno di ricompilare nulla.
+          </p>
+          <p className={styles.paragrafo}>
+            Per ogni riga vengono importati: fazione, nome dell'unità, statistiche MOV / RES /
+            TS / TS+ / W / OC, note e <code className={styles.codice}>base_size</code> (dimensione
+            basetta: un numero = tonda, due numeri = ovale, "r_LUNGxLARGHmm" = rettangolare,
+            vuoto = rettangolo 100×50mm di riserva).
+          </p>
+        </div>
         <ul className={styles.lista}>
           {SCORCIATOIE.map((s, i) => (
             <li key={i} className={styles.voce}>
