@@ -402,7 +402,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
             {ferite}/{feriteMassime}
           </span>
         )}
-        {hover && ctrlPremuto && <BasettaTooltip template={template} />}
+        {hover && ctrlPremuto && <BasettaTooltip template={template} rotazione={rotazione} />}
       </div>
     </>
   );
