@@ -68,11 +68,18 @@ export function unitaPerFazione(fazione) {
 }
 
 // Determina forma e dimensioni (mm) della basetta a partire dal campo base_size del CSV:
+// - prefisso "r_LUNGxLARGHmm" (es. "r_100x50mm") → basetta rettangolare, primo numero = lunghezza
 // - un solo numero → basetta tonda di quel diametro
 // - due numeri (es. "170 x 109mm") → basetta ovale, primo numero = lato lungo
 // - campo assente/vuoto → rettangolo 100x50mm come placeholder provvisorio
 export function determinaFormaEDimensioni(baseSize) {
-  const numeri = (baseSize || '').match(/[\d.]+/g);
+  const valore = (baseSize || '').trim();
+  const rettangolare = valore.match(/^r_([\d.]+)\s*x\s*([\d.]+)\s*mm$/i);
+  if (rettangolare) {
+    const [, lungo, largo] = rettangolare;
+    return { forma: 'rettangolare', lunghezzaMm: Number(lungo), larghezzaMm: Number(largo) };
+  }
+  const numeri = valore.match(/[\d.]+/g);
   if (!numeri || numeri.length === 0) {
     return { forma: 'rettangolare', larghezzaMm: 100, lunghezzaMm: 50 };
   }
