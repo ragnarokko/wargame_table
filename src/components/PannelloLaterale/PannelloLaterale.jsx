@@ -1,3 +1,4 @@
+import PulsanteCalcolatore from '../Calcolatore/PulsanteCalcolatore';
 import SalvataggioPartita from '../SalvataggioPartita/SalvataggioPartita';
 import CaricaSfondo from '../CaricaSfondo/CaricaSfondo';
 import LibreriaBasette from '../LibreriaBasette/LibreriaBasette';
@@ -14,6 +15,7 @@ function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
   return (
     <aside className={styles.pannello}>
       <div className={styles.titolo}>Tavolo da Gioco</div>
+      <PulsanteCalcolatore />
       <SalvataggioPartita />
       <CaricaSfondo />
       <SelettoreLayout />
