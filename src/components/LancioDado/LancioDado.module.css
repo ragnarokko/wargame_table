@@ -1,8 +1,13 @@
+/* Come IndicatoriTavolo: figlio di .campoGioco, quindi ancorato all'angolo in basso a
+   sinistra dell'intera area di staging (segue pan/zoom/rotazione del tavolo insieme al
+   resto). Stesso z-index di IndicatoriTavolo (vedi lì il motivo: .livelloInterattivo non
+   crea un vero stacking context, quindi serve superare esplicitamente gli z-index più alti
+   usati all'interno, altrimenti il dado non sarebbe cliccabile). */
 .finestra {
-  position: fixed;
-  bottom: 16px;
+  position: absolute;
+  bottom: 20px;
   left: 16px;
-  z-index: 500;
+  z-index: 300;
 }
 
 .dado {

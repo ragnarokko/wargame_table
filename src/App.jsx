@@ -5,7 +5,6 @@ import { TavoloStateProvider } from './contexts/TavoloStateContext';
 import { IndicatoriProvider } from './contexts/IndicatoriContext';
 import PannelloLaterale from './components/PannelloLaterale/PannelloLaterale';
 import AreaLavoro from './components/AreaLavoro/AreaLavoro';
-import LancioDado from './components/LancioDado/LancioDado';
 import './App.css';
 
 function App() {
@@ -27,7 +26,6 @@ function App() {
   }, []);
 
   return (
-    <>
     <IndicatoriProvider>
     <TavoloProvider>
       <LibreriaProvider>
@@ -43,8 +41,6 @@ function App() {
       </LibreriaProvider>
     </TavoloProvider>
     </IndicatoriProvider>
-    <LancioDado />
-    </>
   );
 }
 

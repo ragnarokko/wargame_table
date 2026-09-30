@@ -5,9 +5,10 @@ import styles from './LancioDado.module.css';
 // vero (pallini), non solo la cifra. '🎲' è la faccia di riposo prima del primo lancio.
 const FACCE_D6 = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
-// Piccola finestrella fissa in basso a sinistra sullo schermo (non nell'area di gioco: non
-// segue pan/zoom/rotazione del tavolo, sempre visibile). Stato solo locale: il tiro non ha
-// bisogno di essere salvato nella partita (a differenza degli indicatori CP/Turno).
+// Piccola finestrella in basso a sinistra dell'area di staging (montata in AreaLavoro come
+// IndicatoriTavolo: segue pan/zoom/rotazione del tavolo insieme al resto). Stato solo
+// locale: il tiro non ha bisogno di essere salvato nella partita (a differenza degli
+// indicatori CP/Turno).
 function LancioDado() {
   const [valore, setValore] = useState(null);
 
