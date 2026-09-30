@@ -20,11 +20,11 @@ const SCORCIATOIE = [
   { tasti: '1 / 2 / 3', descrizione: 'Dispone le basette selezionate su 1, 2 o 3 file, distanziate di almeno 1" (richiede almeno 2 basette selezionate).' },
   { tasti: 'Canc / Backspace', descrizione: 'Seleziona una o più unità e premi Canc/Delete per eliminarle.' },
   { tasti: 'Esc', descrizione: 'Annulla un trascinamento in corso: la basetta (e l\'eventuale gruppo) torna alla posizione di partenza.' },
-  { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine e statistiche della basetta.' },
+  { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine, statistiche e armi della basetta.' },
 ];
 
 // Tasto "Aiuto": apre una finestra con l'elenco completo delle scorciatoie usate nell'app e con
-// le informazioni sull'origine dei dati delle unità (info.csv).
+// le informazioni sull'origine dei dati delle unità (info.csv) e delle armi (Datasheets_wargear.csv).
 function Aiuto() {
   const [aperto, setAperto] = useState(false);
 
@@ -48,6 +48,25 @@ function Aiuto() {
             TS / TS+ / W / OC, note e <code className={styles.codice}>base_size</code> (dimensione
             basetta: un numero = tonda, due numeri = ovale, "r_LUNGxLARGHmm" = rettangolare,
             vuoto = rettangolo 100×50mm di riserva).
+          </p>
+        </div>
+        <div className={styles.sezione}>
+          <h4 className={styles.sezioneTitolo}>Dati armi (CSV)</h4>
+          <p className={styles.paragrafo}>
+            Le armi mostrate nel popup Ctrl+hover e nella finestra "Botte!" (Attaccante) vengono
+            lette da <code className={styles.codice}>public/Datasheets_wargear.csv</code>: stesso
+            meccanismo di <code className={styles.codice}>info.csv</code> (caricato a runtime,
+            modificabile a mano e ricaricabile con "⟳ Aggiorna dati" senza ricompilare). Le armi
+            di un'unità vengono trovate tramite <code className={styles.codice}>datasheet_id</code>{' '}
+            (o, per le unità create prima di questa funzione, per nome).
+          </p>
+          <p className={styles.paragrafo}>
+            Per ogni arma vengono importati: nome, tipo (Melee/Ranged), gittata, attacchi (A),
+            soglia per colpire (BS_WS), forza (S), penetrazione armatura (AP), danni (D) e
+            descrizione. Nel calcolatore "Botte!" i valori a dadi (es. "2D6+3") vengono convertiti
+            nella loro media arrotondata e l'AP (negativo nel CSV) viene invertito di segno,
+            perché quei campi accettano solo numeri fissi; le armi senza una soglia per colpire
+            valida (es. "-" o "N/A") lasciano XCOL invariato.
           </p>
         </div>
         <ul className={styles.lista}>
