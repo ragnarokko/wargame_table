@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { TavoloProvider } from './contexts/TavoloContext';
 import { LibreriaProvider } from './contexts/LibreriaContext';
 import { TavoloStateProvider } from './contexts/TavoloStateContext';
+import { IndicatoriProvider } from './contexts/IndicatoriContext';
 import PannelloLaterale from './components/PannelloLaterale/PannelloLaterale';
 import AreaLavoro from './components/AreaLavoro/AreaLavoro';
 import './App.css';
@@ -25,6 +26,7 @@ function App() {
   }, []);
 
   return (
+    <IndicatoriProvider>
     <TavoloProvider>
       <LibreriaProvider>
         <TavoloStateProvider>
@@ -38,6 +40,7 @@ function App() {
         </TavoloStateProvider>
       </LibreriaProvider>
     </TavoloProvider>
+    </IndicatoriProvider>
   );
 }
 

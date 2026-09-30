@@ -1,0 +1,86 @@
+.fascia {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.gruppoSinistra,
+.gruppoDestra,
+.centro {
+  position: absolute;
+  top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.gruppoSinistra {
+  left: 16px;
+}
+
+.gruppoDestra {
+  right: 16px;
+}
+
+.centro {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.indicatore {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 74px;
+  background: var(--colore-pannello);
+  border: 1px solid var(--colore-bordo);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.titolo {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+  white-space: nowrap;
+}
+
+.titoloInput {
+  width: 100%;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 2px 4px;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepBtn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  line-height: 1;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.valore {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--colore-testo);
+}

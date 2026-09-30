@@ -9,6 +9,7 @@ import ElementoScenico from '../ElementoScenico/ElementoScenico';
 import StrumentoRighello from '../StrumentoRighello/StrumentoRighello';
 import MisuraRapida from '../StrumentoRighello/MisuraRapida';
 import SelezioneMultipla from '../SelezioneMultipla/SelezioneMultipla';
+import IndicatoriTavolo from '../IndicatoriTavolo/IndicatoriTavolo';
 import styles from './AreaLavoro.module.css';
 
 const INCREMENTO_ROTAZIONE_AREA = 90;
@@ -152,6 +153,8 @@ function AreaLavoro({ righelloAttivo }) {
           />
           <MisuraRapida containerRef={containerRef} rotazioneArea={rotazioneArea} zoom={zoom} />
         </div>
+
+        <IndicatoriTavolo />
       </div>
     </div>
   );
