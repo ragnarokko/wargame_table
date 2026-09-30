@@ -3,6 +3,8 @@ import { nomeEsercito } from '../../config/eserciti';
 import { armiPerTemplate, useVersioneDatiArmi } from '../CreazioneEsercito/csvArmiImport';
 import styles from './BasettaTooltip.module.css';
 
+// RANGE1/2/3 non compaiono più qui: superati dalle armi lette da Datasheets_wargear.csv, che
+// mostrano già la gittata di ognuna (vedi la sezione ARMI più sotto).
 const CAMPI_STATISTICHE = [
   ['mov', 'MOV'],
   ['res', 'RES'],
@@ -11,9 +13,6 @@ const CAMPI_STATISTICHE = [
   ['tsPiu', 'TS+'],
   ['oc', 'OC'],
   ['fnp', 'FNP'],
-  ['range1', 'RANGE1'],
-  ['range2', 'RANGE2'],
-  ['range3', 'RANGE3'],
 ];
 
 function BasettaTooltip({ template, rotazione = 0 }) {

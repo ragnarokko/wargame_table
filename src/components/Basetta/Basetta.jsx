@@ -344,7 +344,14 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     backgroundColor: template.colore,
     borderRadius: template.forma === 'rettangolare' ? 4 : '50%',
     cursor: inTrascinamento ? 'grabbing' : 'grab',
-    zIndex: inTrascinamento ? 50 : 10,
+    // Il popup Ctrl+hover (z-index 200, vedi BasettaTooltip.module.css) è un discendente di
+    // questa basetta: da solo non basta a farlo comparire sopra ALTRE basette/elementi scenici,
+    // perché lo z-index di un figlio conta solo all'interno del contesto di stacking del proprio
+    // genitore (qui creato da position+z-index). Serve quindi alzare anche lo z-index della
+    // basetta stessa mentre il popup è visibile, oltre il massimo usato altrove (50, durante un
+    // trascinamento), altrimenti il popup può restare "sotto" una basetta/elemento scenico
+    // successivo nell'ordine del DOM che lo sovrappone sullo schermo.
+    zIndex: inTrascinamento ? 50 : hover && ctrlPremuto ? 100 : 10,
     transform: `rotate(${rotazione}deg)`,
     '--colore-squadra': COLORE_SQUADRA[template.esercito] || 'transparent',
   };
