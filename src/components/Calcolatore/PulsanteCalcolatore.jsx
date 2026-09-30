@@ -11,8 +11,16 @@ import styles from './PulsanteCalcolatore.module.css';
 
 // #combat fa aprire direttamente la scheda "Combattimento" del calcolatore (vedi lo script
 // di index.html in quel repo, che legge location.hash all'avvio).
-const URL_CALCOLATORE = 'https://ragnarokko.github.io/calcolatore_wh40/#combat';
+const BASE_CALCOLATORE = 'https://ragnarokko.github.io/calcolatore_wh40/';
 const ORIGINE_CALCOLATORE = 'https://ragnarokko.github.io';
+
+// GitHub Pages serve index.html con Cache-Control: max-age=600 (visto in pratica, con tanto di
+// hit sulla CDN davanti): senza una query string sempre diversa, aprendo il calcolatore entro
+// 10 minuti da un aggiornamento del sito si rischia di ricevere dalla cache una versione vecchia
+// della pagina (es. senza gli ultimi campi aggiunti all'Attaccante).
+function urlCalcolatoreSenzaCache() {
+  return `${BASE_CALCOLATORE}?t=${Date.now()}#combat`;
+}
 
 // Un'arma pronta per il calcolatore: valori già normalizzati (media dei dadi arrotondata, AP
 // invertito di segno) perché i campi ATT/XCOL/AP/DANNI del calcolatore accettano solo numeri
@@ -50,7 +58,7 @@ function PulsanteCalcolatore() {
     const altezza = window.screen.availHeight;
     const sinistra = Math.round((window.screen.availWidth - larghezza) / 2);
     const features = `width=${larghezza},height=${altezza},left=${sinistra},top=0`;
-    const finestra = window.open(URL_CALCOLATORE, '_blank', features);
+    const finestra = window.open(urlCalcolatoreSenzaCache(), '_blank', features);
     if (!finestra) return; // popup bloccato dal browser
 
     // Normalmente già pronti (precaricati da CreazioneEsercito al mount): questo await è solo
