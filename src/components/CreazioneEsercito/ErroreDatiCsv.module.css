@@ -1,0 +1,21 @@
+.paragrafo {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--colore-testo);
+  line-height: 1.4;
+}
+
+.lista {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.voce {
+  font-size: 12px;
+  color: var(--colore-pericolo);
+  line-height: 1.4;
+  word-break: break-word;
+}

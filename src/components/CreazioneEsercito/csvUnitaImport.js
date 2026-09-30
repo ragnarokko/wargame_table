@@ -56,6 +56,7 @@ function normalizzaUnita(record) {
 let unitaCache = [];
 let caricato = false;
 let promessaInCorso = null;
+let ultimoErrore = null;
 const ascoltatori = new Set();
 
 function notificaAscoltatori() {
@@ -90,6 +91,11 @@ export function caricaDatiCsvSeNecessario() {
       .then((unita) => {
         unitaCache = unita;
         caricato = true;
+        ultimoErrore = null;
+      })
+      .catch((errore) => {
+        ultimoErrore = errore;
+        throw errore;
       })
       .finally(() => {
         promessaInCorso = null;
@@ -108,6 +114,12 @@ export function ricaricaDatiCsv() {
 
 export function datiCsvCaricati() {
   return caricato;
+}
+
+// Ultimo errore di caricamento/ricaricamento (Error o null se l'ultimo tentativo è andato a
+// buon fine): usato da ErroreDatiCsv.jsx per mostrare un popup con il dettaglio.
+export function erroreCaricamentoUnita() {
+  return ultimoErrore;
 }
 
 // Fa ri-renderizzare il componente chiamante ad ogni caricamento/ricaricamento dei dati CSV.

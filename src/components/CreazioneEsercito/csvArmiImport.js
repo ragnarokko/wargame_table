@@ -66,6 +66,7 @@ export function apDaTesto(grezzo) {
 let armiCache = [];
 let caricato = false;
 let promessaInCorso = null;
+let ultimoErrore = null;
 const ascoltatori = new Set();
 
 function notificaAscoltatori() {
@@ -88,6 +89,11 @@ export function caricaDatiArmiSeNecessario() {
       .then((armi) => {
         armiCache = armi;
         caricato = true;
+        ultimoErrore = null;
+      })
+      .catch((errore) => {
+        ultimoErrore = errore;
+        throw errore;
       })
       .finally(() => {
         promessaInCorso = null;
@@ -104,6 +110,12 @@ export function ricaricaDatiArmi() {
 
 export function datiArmiCaricati() {
   return caricato;
+}
+
+// Ultimo errore di caricamento/ricaricamento (Error o null se l'ultimo tentativo è andato a
+// buon fine): usato da ErroreDatiCsv.jsx per mostrare un popup con il dettaglio.
+export function erroreCaricamentoArmi() {
+  return ultimoErrore;
 }
 
 export function useVersioneDatiArmi() {

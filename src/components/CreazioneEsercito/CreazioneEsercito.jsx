@@ -11,6 +11,7 @@ import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
 import UnitaForm from './UnitaForm';
 import UnitaListItem from './UnitaListItem';
+import ErroreDatiCsv from './ErroreDatiCsv';
 import styles from './CreazioneEsercito.module.css';
 
 function CreazioneEsercito() {
@@ -93,6 +94,7 @@ function CreazioneEsercito() {
 
   return (
     <div className={styles.pannello}>
+      <ErroreDatiCsv />
       <h3>Creazione Esercito</h3>
 
       <PersistenzaEserciti />
