@@ -67,7 +67,9 @@ function BasettaTooltip({ template, rotazione = 0 }) {
                 <div key={`${arma.arma}-${i}`} className={styles.arma}>
                   <div className={styles.armaLinea}>
                     <span className={styles.armaNome}>{arma.arma}</span>
-                    {' — A '}
+                    {' — R '}
+                    {gittata}
+                    {' · A '}
                     {arma.attGrezzo || '-'}
                     {' · BS/WS '}
                     {arma.bsWsGrezzo || '-'}
@@ -77,8 +79,6 @@ function BasettaTooltip({ template, rotazione = 0 }) {
                     {arma.apGrezzo || '-'}
                     {' · D '}
                     {arma.danniGrezzo || '-'}
-                    {' · '}
-                    {gittata}
                   </div>
                   {arma.descrizione && <div className={styles.armaDescrizione}>{arma.descrizione}</div>}
                 </div>
