@@ -36,6 +36,7 @@ function parseRigheCsv(testo) {
 function normalizzaUnita(record) {
   return {
     chiave: `${record.datasheet_id}-${record.line}`,
+    datasheetId: record.datasheet_id,
     fazione: record.faction,
     nome: record.name,
     baseSize: record.base_size,

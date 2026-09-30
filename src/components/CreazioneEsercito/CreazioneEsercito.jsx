@@ -5,6 +5,7 @@ import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { ESERCITI } from '../../config/eserciti';
 import { coloreDisponibile } from '../../utils/colori';
 import { determinaFormaEDimensioni, generaNomeUnivoco, caricaDatiCsvSeNecessario } from './csvUnitaImport';
+import { caricaDatiArmiSeNecessario } from './csvArmiImport';
 import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
@@ -27,6 +28,7 @@ function CreazioneEsercito() {
   // dal pulsante "Aggiorna dati" che l'utente può premere per ritentare.
   useEffect(() => {
     caricaDatiCsvSeNecessario().catch(() => {});
+    caricaDatiArmiSeNecessario().catch(() => {});
   }, []);
 
   const unitaTutte = basette.filter((b) => b.esercito);
@@ -44,6 +46,7 @@ function CreazioneEsercito() {
       nome: nomeUnivoco,
       colore: dati.colore,
       esercito: esercitoSelezionato,
+      datasheetId: dati.datasheetId,
       numeroModelli: dati.numeroModelli,
       immagine: '',
       mov: dati.mov,

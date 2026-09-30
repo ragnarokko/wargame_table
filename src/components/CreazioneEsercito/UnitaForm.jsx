@@ -93,6 +93,7 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
     onCrea({
       nomeBase: unitaCsv.nome,
       baseSize: unitaCsv.baseSize,
+      datasheetId: unitaCsv.datasheetId,
       numeroModelli: numero,
       colore,
       ...statistiche,

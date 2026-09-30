@@ -75,6 +75,42 @@
   white-space: pre-wrap;
 }
 
+.armi {
+  border-top: 1px solid #3a3a46;
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.armiTitolo {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a8a9a;
+  margin-bottom: 4px;
+}
+
+.arma {
+  margin-bottom: 6px;
+}
+
+.arma:last-child {
+  margin-bottom: 0;
+}
+
+.armaNome {
+  font-weight: 600;
+  font-size: 11px;
+  color: #eaeaf0;
+  margin-bottom: 2px;
+}
+
+.armaDescrizione {
+  font-size: 10px;
+  color: #9a9aab;
+  white-space: pre-wrap;
+  margin-top: 2px;
+}
+
 .vuoto {
   font-size: 11px;
   color: #7a7a8a;
