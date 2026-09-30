@@ -19,6 +19,14 @@
   z-index: 200;
 }
 
+/* Basetta nella metà superiore dello schermo (vedi BasettaTooltip.jsx): il popup si apre verso
+   il basso invece che verso l'alto, per non uscire dalla finestra. */
+.tooltipSotto {
+  bottom: auto;
+  top: 100%;
+  transform: translate(-50%, 8px);
+}
+
 .immagine {
   width: 100%;
   height: 100px;
@@ -97,11 +105,15 @@
   margin-bottom: 0;
 }
 
+.armaLinea {
+  font-size: 10.5px;
+  color: #b8b8c8;
+  line-height: 1.4;
+}
+
 .armaNome {
   font-weight: 600;
-  font-size: 11px;
   color: #eaeaf0;
-  margin-bottom: 2px;
 }
 
 .armaDescrizione {
