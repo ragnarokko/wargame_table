@@ -1,26 +1,57 @@
-/* Come IndicatoriTavolo: figlio di .campoGioco, quindi ancorato all'angolo in basso a
-   sinistra dell'intera area di staging (segue pan/zoom/rotazione del tavolo insieme al
-   resto). Stesso z-index di IndicatoriTavolo (vedi lì il motivo: .livelloInterattivo non
-   crea un vero stacking context, quindi serve superare esplicitamente gli z-index più alti
-   usati all'interno, altrimenti il dado non sarebbe cliccabile). */
+/* Finestrella flottante centrata sullo schermo (fixed, non legata al tavolo: niente più
+   posizione fissa in un angolo), mostrata solo mentre è aperta (tasto L). */
 .finestra {
-  position: absolute;
-  bottom: 20px;
-  left: 16px;
-  z-index: 300;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--colore-pannello);
+  border: 1px solid var(--colore-bordo);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+
+.intestazione {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+}
+
+.chiudiBtn {
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  padding: 0 4px;
+  font-size: 13px;
+}
+
+.chiudiBtn:hover {
+  background: transparent;
+  color: var(--colore-testo);
 }
 
 .dado {
-  width: 64px;
-  height: 64px;
+  width: 96px;
+  height: 96px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--colore-pannello);
+  background: var(--colore-sfondo);
   border: 1px solid var(--colore-bordo);
   border-radius: var(--radius);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
   cursor: pointer;
 }
 
@@ -33,7 +64,7 @@
 }
 
 .faccia {
-  font-size: 38px;
+  font-size: 56px;
   line-height: 1;
   color: var(--colore-testo);
   user-select: none;

@@ -4,7 +4,7 @@ import styles from './Aiuto.module.css';
 
 // Elenco di tutti i tasti/interazioni usati nell'app (verificato leggendo il codice dei
 // componenti coinvolti: Basetta, SelezioneMultipla, AreaLavoro, StrumentoRighello,
-// ElementoScenico). Da tenere aggiornato se cambia la logica di quei moduli.
+// ElementoScenico, LancioDado). Da tenere aggiornato se cambia la logica di quei moduli.
 const SCORCIATOIE = [
   { tasti: 'Q / W', descrizione: 'Ruota di 15° la basetta selezionata attorno al proprio centro (con una sola basetta selezionata).' },
   { tasti: 'Q / W', descrizione: "Ruota di 15° l'intero gruppo selezionato attorno al suo centro geometrico (con 2 o più basette selezionate)." },
@@ -21,6 +21,7 @@ const SCORCIATOIE = [
   { tasti: 'Canc / Backspace', descrizione: 'Seleziona una o più unità e premi Canc/Delete per eliminarle.' },
   { tasti: 'Esc', descrizione: 'Annulla un trascinamento in corso: la basetta (e l\'eventuale gruppo) torna alla posizione di partenza.' },
   { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine, statistiche e armi della basetta.' },
+  { tasti: 'L', descrizione: 'Apre/chiude la finestrella del dado (D6): clicca sul dado per ottenere un valore casuale da 1 a 6.' },
 ];
 
 // Tasto "Aiuto": apre una finestra con l'elenco completo delle scorciatoie usate nell'app e con
