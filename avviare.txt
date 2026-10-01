@@ -5,3 +5,26 @@ Puoi avviarlo in due modi:
 npm run dev
 
 poi apri http://localhost:5173 nel browser.
+
+installazione:
+
+1. Prerequisiti sul PC nuovo
+
+node --version
+
+Serve Node.js installato (consigliata una versione LTS recente). Se non c'è, scaricalo da nodejs.org.
+
+2. Clona la repo
+
+git clone https://github.com/ragnarokko/wargame_table.git
+cd wargame_table
+
+3. Installa le dipendenze
+
+npm install
+
+4. Avvia il dev server
+
+npm run dev
+
+Si apre su http://localhost:5173, esattamente come in locale ora.
