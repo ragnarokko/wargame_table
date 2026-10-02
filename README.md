@@ -11,6 +11,10 @@ npm run dev     # http://localhost:5173
 
 Altri script: `npm run build`, `npm run preview`, `npm run lint` (Oxlint). Serve Node.js (LTS recente).
 
+## Pubblicazione
+
+L'app è online su GitHub Pages: `https://ragnarokko.github.io/wargame_table/`. Ogni `git push` su `main` avvia la Action [`deploy.yml`](.github/workflows/deploy.yml) (`npm ci` + `npm run build`, poi pubblica `dist/`) e in 1–2 minuti il sito è aggiornato (Ctrl+F5 per ricaricarlo). Il `base` `/wargame_table/` è impostato in `vite.config.js` solo per il build; in sviluppo resta `/`. Impostazione una tantum su GitHub: Settings → Pages → Source = "GitHub Actions".
+
 ## Funzionalità
 
 - **Tavolo e staging**: dimensioni in pollici, sfondo caricabile o scelto dai layout predefiniti ("Force disposition"), rotazione (A/S), zoom (G/H) e pan (tasto destro) dell'area.

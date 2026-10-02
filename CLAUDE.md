@@ -91,6 +91,8 @@ Lavoro dell'utente non ancora committato (presente nel working tree): `GameTrack
 
 Per avviare: `npm run dev` (Vite, porta 5173).
 
+Pubblicazione: GitHub Pages su `https://ragnarokko.github.io/wargame_table/`, via Action `.github/workflows/deploy.yml` a ogni push su `main`. `vite.config.js` imposta `base: '/wargame_table/'` solo nel build (in dev `/`): nuovi asset statici vanno referenziati senza `/` iniziale hard-coded nel codice (usare import o `import.meta.env.BASE_URL`). La Action compila solo ciò che è committato.
+
 ## Scorciatoie da tastiera
 
 Elenco completo (specchio dell'array `SCORCIATOIE` in `src/components/Aiuto/Aiuto.jsx`, mostrato in-app dal pulsante "❓ Aiuto"): tutte le scorciatoie legate a una basetta/gruppo ignorano la pressione se il focus è su un campo di input/textarea/select/contentEditable.

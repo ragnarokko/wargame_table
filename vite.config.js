@@ -2,7 +2,10 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // L'app è pubblicata su GitHub Pages in un sottopercorso (ragnarokko.github.io/wargame_table/):
+  // senza base i file statici non verrebbero trovati. In sviluppo (npm run dev) resta '/'.
+  base: command === 'build' ? '/wargame_table/' : '/',
   plugins: [react()],
   server: {
     watch: {
@@ -14,4 +17,4 @@ export default defineConfig({
       ignored: ['**/wapedia/**'],
     },
   },
-})
+}))
