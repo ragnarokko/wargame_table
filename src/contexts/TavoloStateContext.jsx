@@ -56,6 +56,11 @@ export function TavoloStateProvider({ children }) {
     setIstanze((prev) => prev.filter((ist) => ist.id !== id));
   }, []);
 
+  // Rimuove più istanze in un'unica operazione (es. cancellazione della selezione multipla).
+  const rimuoviIstanze = useCallback((ids) => {
+    setIstanze((prev) => prev.filter((ist) => !ids.includes(ist.id)));
+  }, []);
+
   const rimuoviIstanzePerTemplate = useCallback((templateId) => {
     setIstanze((prev) => prev.filter((ist) => ist.templateId !== templateId));
   }, []);
@@ -107,6 +112,7 @@ export function TavoloStateProvider({ children }) {
       impostaFeriteIstanza,
       impostaAuraIstanza,
       rimuoviIstanza,
+      rimuoviIstanze,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,
       ripristinaTavolo,
@@ -124,6 +130,7 @@ export function TavoloStateProvider({ children }) {
       impostaFeriteIstanza,
       impostaAuraIstanza,
       rimuoviIstanza,
+      rimuoviIstanze,
       rimuoviIstanzePerTemplate,
       impostaIstanzePerTemplates,
       ripristinaTavolo,

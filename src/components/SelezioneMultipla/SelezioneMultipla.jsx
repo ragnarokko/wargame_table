@@ -11,6 +11,7 @@ import {
   EVENTO_ROTAZIONE_GRUPPO,
 } from '../../utils/selezioneEventi';
 import MisuraDistanza from '../MisuraDistanza/MisuraDistanza';
+import { useEliminaSelezione } from './useEliminaSelezione';
 import styles from './SelezioneMultipla.module.css';
 
 const SOGLIA_TRASCINAMENTO_PX = 3;
@@ -91,6 +92,7 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
   const [rotazioneGruppo, setRotazioneGruppo] = useState(null);
   const [trascinamentoLive, setTrascinamentoLive] = useState(null);
   const trascinamentoAttivoRef = useRef(false);
+  const eliminaSelezione = useEliminaSelezione();
 
   const puntoRelativo = (clientX, clientY) =>
     puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea, zoom);
@@ -192,6 +194,20 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [selezioneCorrente, disponiInFormazione]);
+
+  // Canc/Backspace con almeno una basetta selezionata: rimuove tutte le basette selezionate.
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if (selezioneCorrente.length === 0) return;
+      e.preventDefault();
+      eliminaSelezione(selezioneCorrente);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selezioneCorrente, eliminaSelezione]);
 
   // Q/W con più basette selezionate: ruota l'intero gruppo attorno al proprio centro geometrico
   // (anziché ogni basetta attorno al proprio centro, comportamento disattivato in Basetta quando

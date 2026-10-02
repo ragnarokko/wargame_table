@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useTavolo } from '../../contexts/TavoloContext';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
+import { calcolaDimensioniBasettaPx } from '../../utils/basetta';
+import { rettangoliDaIstanze, trovaPosizioneLibera } from '../../utils/posizionamentoLibero';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import BasettaForm from './BasettaForm';
 import styles from './LibreriaBasette.module.css';
@@ -9,6 +12,7 @@ const COLONNE_STAGING = 6;
 const PASSO_STAGING = 34;
 
 function LibreriaBasette() {
+  const { pxPerPollice } = useTavolo();
   const { basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta, esportaJSON, importaJSON } = useLibreria();
   const { istanze, schieraBasetta } = useTavoloState();
   const [aperto, setAperto] = useState(false);
@@ -41,12 +45,17 @@ function LibreriaBasette() {
 
   const handleSchiera = (basetta) => {
     const n = istanze.length;
-    schieraBasetta(
-      basetta.id,
-      24 + (n % COLONNE_STAGING) * PASSO_STAGING,
-      24 + Math.floor(n / COLONNE_STAGING) * PASSO_STAGING,
-      'staging',
-    );
+    const proposta = {
+      x: 24 + (n % COLONNE_STAGING) * PASSO_STAGING,
+      y: 24 + Math.floor(n / COLONNE_STAGING) * PASSO_STAGING,
+    };
+
+    const templatesPerId = new Map(basette.map((b) => [b.id, b]));
+    const dimensione = calcolaDimensioniBasettaPx(basetta, pxPerPollice);
+    const rettangoliEsistenti = rettangoliDaIstanze(istanze, templatesPerId, pxPerPollice);
+    const posizione = trovaPosizioneLibera(proposta, dimensione, rettangoliEsistenti, pxPerPollice);
+
+    schieraBasetta(basetta.id, posizione.x, posizione.y, 'staging');
   };
 
   const handleImporta = async (e) => {

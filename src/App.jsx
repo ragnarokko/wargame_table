@@ -5,6 +5,7 @@ import { TavoloStateProvider } from './contexts/TavoloStateContext';
 import { IndicatoriProvider } from './contexts/IndicatoriContext';
 import PannelloLaterale from './components/PannelloLaterale/PannelloLaterale';
 import AreaLavoro from './components/AreaLavoro/AreaLavoro';
+import GameTracker from './components/GameTracker/GameTracker';
 import LancioDado from './components/LancioDado/LancioDado';
 import './App.css';
 
@@ -38,6 +39,7 @@ function App() {
               onToggleRighello={() => setRighelloAttivo((a) => !a)}
             />
             <AreaLavoro righelloAttivo={righelloAttivo} />
+            <GameTracker />
           </div>
         </TavoloStateProvider>
       </LibreriaProvider>

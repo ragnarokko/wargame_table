@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 const TavoloContext = createContext(null);
 
 const PX_PER_POLLICE = 14;
-const MARGINE_STAGING_POLLICI = 12;
+const MARGINE_STAGING_POLLICI = 14;
 
 export function TavoloProvider({ children }) {
   const [dimensioni, setDimensioniState] = useState({ larghezza: 60, altezza: 44 });

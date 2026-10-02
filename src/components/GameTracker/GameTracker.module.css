@@ -1,0 +1,24 @@
+.pulsante {
+  flex-shrink: 0;
+  width: 36px;
+  min-width: 36px;
+  align-self: stretch;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background: var(--colore-pannello);
+  color: var(--colore-testo);
+  border: 1px solid var(--colore-bordo);
+  border-radius: 0;
+  padding: 16px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulsante:hover {
+  background: var(--colore-accento);
+}
