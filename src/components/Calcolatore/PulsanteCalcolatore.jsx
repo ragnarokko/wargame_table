@@ -7,6 +7,7 @@ import {
   sogliaDaTesto,
   valoreMedioDado,
 } from '../CreazioneEsercito/csvArmiImport';
+import { registraFinestraCalcolatore } from '../../utils/finestreCalcolatore';
 import styles from './PulsanteCalcolatore.module.css';
 
 // #combat fa aprire direttamente la scheda "Combattimento" del calcolatore (vedi lo script
@@ -61,6 +62,7 @@ function PulsanteCalcolatore() {
     const features = `width=${larghezza},height=${altezza},left=${sinistra},top=0`;
     const finestra = window.open(urlCalcolatoreSenzaCache(), '_blank', features);
     if (!finestra) return; // popup bloccato dal browser
+    registraFinestraCalcolatore(finestra);
 
     // Normalmente già pronti (precaricati da CreazioneEsercito al mount): questo await è solo
     // una rete di sicurezza per un click prestissimo dopo l'avvio dell'app.

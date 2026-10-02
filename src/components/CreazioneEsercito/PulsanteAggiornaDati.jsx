@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ricaricaDatiCsv } from './csvUnitaImport';
 import { ricaricaDatiArmi } from './csvArmiImport';
+import { ricaricaFinestreCalcolatore } from '../../utils/finestreCalcolatore';
 import styles from './PulsanteAggiornaDati.module.css';
 
 const ETICHETTE = {
@@ -13,7 +14,8 @@ const ETICHETTE = {
 // Ricarica manualmente info.csv e Datasheets_wargear.csv dal sito del calcolatore (vedi csvUnitaImport.js e
 // csvArmiImport.js): utile dopo averli modificati a mano, sia in sviluppo che in produzione, dato
 // che i file vengono sempre letti via fetch a runtime e mai incorporati nel bundle a build time.
-// Non serve rebuild né riavviare nulla.
+// Non serve rebuild né riavviare nulla. Inoltra la richiesta anche alle finestre "Botte!" ancora
+// aperte (finestreCalcolatore.js), che rileggono i CSV a loro volta.
 function PulsanteAggiornaDati() {
   const [stato, setStato] = useState('inattivo');
 
@@ -21,6 +23,7 @@ function PulsanteAggiornaDati() {
     setStato('corso');
     try {
       await Promise.all([ricaricaDatiCsv(), ricaricaDatiArmi()]);
+      ricaricaFinestreCalcolatore();
       setStato('ok');
     } catch {
       setStato('errore');
@@ -36,7 +39,7 @@ function PulsanteAggiornaDati() {
         className={`${styles.pulsante} ${styles[stato] || ''}`}
         onClick={handleClick}
         disabled={stato === 'corso'}
-        title="Ricarica info.csv e Datasheets_wargear.csv dopo averli aggiornati nel repo del calcolatore (nessun rebuild necessario)"
+        title="Ricarica info.csv e Datasheets_wargear.csv dopo averli aggiornati nel repo del calcolatore, anche nelle finestre Botte! aperte (nessun rebuild necessario)"
       >
         {ETICHETTE[stato]}
       </button>

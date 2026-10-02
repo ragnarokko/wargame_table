@@ -47,7 +47,8 @@ function Aiuto() {
             l'app lo scarica a runtime, quindi per aggiornare i dati basta modificare il file in
             quel repo, fare commit e push, attendere la pubblicazione di GitHub Pages (di solito
             uno o due minuti) e premere "⟳ Aggiorna dati" in fondo al menù, senza ricompilare
-            nulla. Serve una connessione internet.
+            nulla: la richiesta arriva anche alle finestre "Botte!" già aperte. Serve una
+            connessione internet.
           </p>
           <p className={styles.paragrafo}>
             Per ogni riga vengono importati: fazione, nome dell'unità, statistiche MOV / RES /
