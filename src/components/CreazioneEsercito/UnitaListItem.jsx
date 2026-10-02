@@ -16,8 +16,9 @@ const CAMPI_STATISTICHE = [
 ];
 
 // Voce dell'accordion per una singola unità: il nome, al passaggio del mouse, evidenzia
-// tutte le basette sul campo appartenenti a questa unità (stesso templateId).
-function UnitaListItem({ unita, numeroModelli, onRimuovi, onRinomina }) {
+// tutte le basette sul campo appartenenti a questa unità (stesso templateId) e, al click, le
+// seleziona (onSeleziona); la freccia a sinistra apre/chiude i dettagli.
+function UnitaListItem({ unita, numeroModelli, onSeleziona, onRimuovi, onRinomina }) {
   const [dettagliAperti, setDettagliAperti] = useState(false);
   const [rinominaAperta, setRinominaAperta] = useState(false);
   const [nuovoNome, setNuovoNome] = useState(unita.nome);
@@ -64,17 +65,24 @@ function UnitaListItem({ unita, numeroModelli, onRimuovi, onRinomina }) {
             />
           </form>
         ) : (
-          <button
-            type="button"
-            className={styles.nomeUnita}
-            onMouseEnter={evidenzia}
-            onMouseLeave={spegniEvidenza}
-            onClick={() => setDettagliAperti((v) => !v)}
-            title="Passa il mouse per evidenziare sul tavolo, clicca per i dettagli"
-          >
-            <span className={styles.freccia}>{dettagliAperti ? '▼' : '▶'}</span>
-            <span className={styles.nomeTesto}>{unita.nome}</span>
-          </button>
+          <div className={styles.nomeUnita} onMouseEnter={evidenzia} onMouseLeave={spegniEvidenza}>
+            <button
+              type="button"
+              className={styles.frecciaBtn}
+              onClick={() => setDettagliAperti((v) => !v)}
+              title="Mostra/nascondi i dettagli"
+            >
+              {dettagliAperti ? '▼' : '▶'}
+            </button>
+            <button
+              type="button"
+              className={styles.nomeBtn}
+              onClick={onSeleziona}
+              title="Clicca per selezionare le basette dell'unità sul tavolo (poi frecce, Q/W, ecc.); passa il mouse per evidenziarle"
+            >
+              <span className={styles.nomeTesto}>{unita.nome}</span>
+            </button>
+          </div>
         )}
         <span className={styles.contatore}>{numeroModelli} mod.</span>
         <div className={styles.azioni}>

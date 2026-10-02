@@ -3,10 +3,12 @@ import { useTavolo } from '../../contexts/TavoloContext';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { ESERCITI } from '../../config/eserciti';
+import { ALTEZZA_FASCIA_INDICATORI_PX } from '../../config/indicatori';
 import { coloreDisponibile } from '../../utils/colori';
 import { determinaFormaEDimensioni, generaNomeUnivoco, caricaDatiCsvSeNecessario } from './csvUnitaImport';
 import { caricaDatiArmiSeNecessario } from './csvArmiImport';
 import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
+import { EVENTO_SELEZIONE_MULTIPLA } from '../../utils/selezioneEventi';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
 import UnitaForm from './UnitaForm';
@@ -68,7 +70,13 @@ function CreazioneEsercito() {
 
     const templatesPerId = new Map(basette.map((b) => [b.id, b]));
     const istanzeStaging = istanze.filter((i) => i.zona === 'staging');
-    const areaStaging = { left: 0, top: 0, width: campoGiocoPx.larghezza, height: campoGiocoPx.altezza };
+    // Il bordo superiore parte sotto la fascia degli indicatori (CP/Turno), che coprirebbe le basette.
+    const areaStaging = {
+      left: 0,
+      top: ALTEZZA_FASCIA_INDICATORI_PX,
+      width: campoGiocoPx.larghezza,
+      height: campoGiocoPx.altezza - ALTEZZA_FASCIA_INDICATORI_PX,
+    };
 
     const posizioni = calcolaPosizioniUnitaStaging({
       template: nuovoTemplate,
@@ -81,6 +89,15 @@ function CreazioneEsercito() {
 
     schieraBasette(nuovoTemplate.id, posizioni, 'staging');
     setFormAperto(false);
+  };
+
+  // Click sul nome di un'unità nella lista: seleziona tutte le sue basette sul campo (stesso
+  // evento condiviso usato da Basetta/SelezioneMultipla), così frecce, Q/W, 1/2/3 e Canc
+  // agiscono subito su di esse. Senza basette sul campo non cambia la selezione corrente.
+  const handleSeleziona = (templateId) => {
+    const ids = istanze.filter((i) => i.templateId === templateId).map((i) => i.id);
+    if (ids.length === 0) return;
+    window.dispatchEvent(new CustomEvent(EVENTO_SELEZIONE_MULTIPLA, { detail: { ids } }));
   };
 
   const handleRimuovi = (templateId) => {
@@ -142,6 +159,7 @@ function CreazioneEsercito() {
                   key={u.id}
                   unita={u}
                   numeroModelli={contaModelli(u.id)}
+                  onSeleziona={() => handleSeleziona(u.id)}
                   onRimuovi={() => handleRimuovi(u.id)}
                   onRinomina={(nuovoNome) => handleRinomina(u.id, nuovoNome)}
                 />

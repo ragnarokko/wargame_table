@@ -181,8 +181,32 @@
 }
 
 .nomeUnita:hover {
-  background: none;
   color: var(--colore-accento);
+}
+
+.frecciaBtn,
+.nomeBtn {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: 12px;
+  text-align: left;
+}
+
+.frecciaBtn {
+  font-size: 9px;
+  flex-shrink: 0;
+  width: 14px;
+}
+
+.nomeBtn {
+  flex: 1;
+  min-width: 0;
+}
+
+.frecciaBtn:hover,
+.nomeBtn:hover {
+  background: none;
 }
 
 .rinominaForm {
