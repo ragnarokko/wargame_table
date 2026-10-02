@@ -82,6 +82,8 @@ Elenco completo (specchio dell'array `SCORCIATOIE` in `src/components/Aiuto/Aiut
 
 | Tasti | Effetto |
 |---|---|
+| ← ↑ → ↓ | Sposta di 0,25" (`PASSO_FRECCE_POLLICI` in `Basetta.jsx`) la basetta selezionata o tutte quelle del gruppo selezionato (ognuna ascolta per conto suo); direzione a schermo, compensata dalla rotazione dell'area (A/S). |
+| L | Apre/chiude la finestrella del dado D6 (`LancioDado`); clic sul dado per il tiro. |
 | Q / W | Ruota di 15° la basetta selezionata (singola) attorno al proprio centro; con 2+ basette selezionate ruota invece l'intero gruppo attorno al suo centro geometrico. |
 | + / - | Aumenta/diminuisce di 1 le ferite della basetta selezionata (singola, solo se ha un `w` numerico), tra 0 e il massimo. |
 | Z / X | Basetta selezionata (singola): Z attiva/ingrandisce di 1" l'aura, X la riduce di 1" spegnendola sotto 1". Indipendente per ogni basetta. |

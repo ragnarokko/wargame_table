@@ -6,6 +6,7 @@ import styles from './Aiuto.module.css';
 // componenti coinvolti: Basetta, SelezioneMultipla, AreaLavoro, StrumentoRighello,
 // ElementoScenico, LancioDado). Da tenere aggiornato se cambia la logica di quei moduli.
 const SCORCIATOIE = [
+  { tasti: '← ↑ → ↓', descrizione: 'Sposta di 0,25" (piccolo e preciso) la basetta selezionata, o tutto il gruppo selezionato. La direzione è quella a schermo, anche con l\'area ruotata con A/S.' },
   { tasti: 'Q / W', descrizione: 'Ruota di 15° la basetta selezionata attorno al proprio centro (con una sola basetta selezionata).' },
   { tasti: 'Q / W', descrizione: "Ruota di 15° l'intero gruppo selezionato attorno al suo centro geometrico (con 2 o più basette selezionate)." },
   { tasti: '+ / -', descrizione: 'Aumenta/diminuisce di 1 le ferite della basetta selezionata (singola), tra 0 e il massimo W.' },

@@ -18,6 +18,14 @@ const INCREMENTO_ROTAZIONE = 15;
 const SOGLIA_CLICK_PX = 3;
 const INCREMENTO_FERITE = 1;
 const AURA_RAPIDA_POLLICI = 9;
+const PASSO_FRECCE_POLLICI = 0.25;
+// Versore (x destra, y giù) a schermo per ogni freccia direzionale.
+const DIREZIONI_FRECCE = {
+  ArrowUp: { x: 0, y: -1 },
+  ArrowDown: { x: 0, y: 1 },
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+};
 
 const COLORE_SQUADRA = {
   blu: '#3b82f6',
@@ -233,6 +241,32 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [selezionata, gruppoAttivo, auraOffsetPollici, impostaAuraIstanza, istanza.id]);
 
+  // Frecce direzionali con la basetta selezionata (singola o in gruppo: ogni basetta selezionata
+  // ascolta per conto suo e si sposta dello stesso passo, quindi il gruppo si muove compatto):
+  // spostamento piccolo e preciso (PASSO_FRECCE_POLLICI) rispetto al trascinamento col mouse. La
+  // direzione è quella sullo SCHERMO, quindi va riportata nel sistema di coordinate dell'area
+  // (ruotato di rotazioneArea): "su" resta "su" a schermo anche con l'area ruotata con A/S.
+  useEffect(() => {
+    if (!selezionata) return undefined;
+    const onKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (e.ctrlKey || e.altKey || e.metaKey || draggingRef.current) return;
+      const direzioneSchermo = DIREZIONI_FRECCE[e.key];
+      if (!direzioneSchermo) return;
+      e.preventDefault(); // impedisce lo scroll nativo dell'area con le frecce
+      const rad = (rotazioneArea * Math.PI) / 180;
+      const passoPx = polliciAPx(PASSO_FRECCE_POLLICI, pxPerPollice);
+      const arrotonda = (v) => Math.round(v * 1000) / 1000;
+      const dx = arrotonda((direzioneSchermo.x * Math.cos(rad) + direzioneSchermo.y * Math.sin(rad)) * passoPx);
+      const dy = arrotonda((-direzioneSchermo.x * Math.sin(rad) + direzioneSchermo.y * Math.cos(rad)) * passoPx);
+      handleSposta({ x: istanza.x + dx, y: istanza.y + dy });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selezionata, rotazioneArea, pxPerPollice, istanza, puntoNelTavolo, spostaIstanza]);
+
   const handleSposta = (puntoFinale) => {
     const zonaPartenza = istanza.zona;
     const zonaArrivo = puntoNelTavolo(puntoFinale.x, puntoFinale.y) ? 'tavolo' : 'staging';
@@ -398,8 +432,8 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
         onMouseEnter={onMouseEnterBasetta}
         onMouseLeave={onMouseLeaveBasetta}
         title={
-          "Trascina per spostare (Esc per annullare). Click per selezionare, Q/W per ruotare, +/- per le ferite, " +
-          "Z/X per l'aura, C per l'aura rapida da 9\". Ctrl+hover per i dettagli."
+          "Trascina per spostare (Esc per annullare). Click per selezionare, frecce per spostare di poco, " +
+          "Q/W per ruotare, +/- per le ferite, Z/X per l'aura, C per l'aura rapida da 9\". Ctrl+hover per i dettagli."
         }
       >
         <div className={styles.indicatoreFronte} />
