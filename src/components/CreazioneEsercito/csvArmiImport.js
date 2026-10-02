@@ -1,9 +1,10 @@
 import { useSyncExternalStore } from 'react';
+import { URL_ARMI_CSV } from '../../config/datiCsv';
 
 const SEPARATORE = '|';
-const PERCORSO_CSV = `${import.meta.env.BASE_URL}Datasheets_wargear.csv`;
+const PERCORSO_CSV = URL_ARMI_CSV;
 
-// Colonne effettive di public/Datasheets_wargear.csv (verificate aprendo il file): a differenza
+// Colonne effettive di Datasheets_wargear.csv (verificate aprendo il file): a differenza
 // di info.csv l'intestazione ha DUE colonne chiamate "name" (una per l'unità, una per l'arma), per
 // cui non si può costruire un record indicizzato per nome colonna come in csvUnitaImport.js (la
 // seconda sovrascriverebbe la prima) e si legge invece per posizione:

@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react';
+import { URL_INFO_CSV } from '../../config/datiCsv';
 
 const SEPARATORE = '|';
-const PERCORSO_CSV = `${import.meta.env.BASE_URL}info.csv`;
+const PERCORSO_CSV = URL_INFO_CSV;
 
 // Un campo quotato usa la sequenza CSV standard: virgolette doppie raddoppiate
 // per rappresentare una virgoletta letterale (es. MOV `"6"""` → `6"`).
@@ -30,7 +31,7 @@ function parseRigheCsv(testo) {
   });
 }
 
-// Colonne effettive di public/info.csv (verificate aprendo il file, non corrispondono
+// Colonne effettive di info.csv (verificate aprendo il file, non corrispondono
 // 1:1 ai nomi "ideali": separatore `|`, intestazione
 // datasheet_id|line|name|MOV|RES|TS|TS+|Note|W|Ld|OC|base_size|fac|faction
 function normalizzaUnita(record) {
@@ -50,7 +51,7 @@ function normalizzaUnita(record) {
   };
 }
 
-// Dati CSV caricati a runtime via fetch di public/info.csv (non più incorporati nel bundle a
+// Dati CSV caricati a runtime via fetch di info.csv, pubblicato dal repo del calcolatore (non più incorporati nel bundle a
 // build time con `?raw`): così il pulsante "Aggiorna dati" (PulsanteAggiornaDati) può rileggere
 // il file dopo una modifica a mano anche in produzione, senza bisogno di un rebuild.
 let unitaCache = [];
@@ -106,7 +107,7 @@ export function caricaDatiCsvSeNecessario() {
 }
 
 // Forza un nuovo caricamento scartando la cache corrente: usato dal pulsante "Aggiorna dati"
-// per rileggere public/info.csv dopo averlo modificato a mano.
+// per rileggere info.csv dopo averlo modificato nel repo del calcolatore.
 export function ricaricaDatiCsv() {
   caricato = false;
   return caricaDatiCsvSeNecessario();

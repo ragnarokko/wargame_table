@@ -40,10 +40,14 @@ function Aiuto() {
           <h4 className={styles.sezioneTitolo}>Dati unità (CSV)</h4>
           <p className={styles.paragrafo}>
             Le unità disponibili in "Creazione Esercito" vengono lette da{' '}
-            <code className={styles.codice}>public/info.csv</code>: il file viene caricato a
-            runtime (non incorporato nel programma), quindi si può modificare a mano in
-            qualsiasi momento e ricaricarlo con "⟳ Aggiorna dati" in fondo al menù, anche a
-            sito già pubblicato, senza bisogno di ricompilare nulla.
+            <code className={styles.codice}>info.csv</code>, che vive nel repo del calcolatore
+            "Botte!" (GitHub: ragnarokko/calcolatore_wh40, cartella principale, accanto a{' '}
+            <code className={styles.codice}>index.html</code>) ed è pubblicato con lui su{' '}
+            <code className={styles.codice}>ragnarokko.github.io/calcolatore_wh40/info.csv</code>:
+            l'app lo scarica a runtime, quindi per aggiornare i dati basta modificare il file in
+            quel repo, fare commit e push, attendere la pubblicazione di GitHub Pages (di solito
+            uno o due minuti) e premere "⟳ Aggiorna dati" in fondo al menù, senza ricompilare
+            nulla. Serve una connessione internet.
           </p>
           <p className={styles.paragrafo}>
             Per ogni riga vengono importati: fazione, nome dell'unità, statistiche MOV / RES /
@@ -56,9 +60,9 @@ function Aiuto() {
           <h4 className={styles.sezioneTitolo}>Dati armi (CSV)</h4>
           <p className={styles.paragrafo}>
             Le armi mostrate nel popup Ctrl+hover e nella finestra "Botte!" (Attaccante) vengono
-            lette da <code className={styles.codice}>public/Datasheets_wargear.csv</code>: stesso
-            meccanismo di <code className={styles.codice}>info.csv</code> (caricato a runtime,
-            modificabile a mano e ricaricabile con "⟳ Aggiorna dati" senza ricompilare). Le armi
+            lette da <code className={styles.codice}>Datasheets_wargear.csv</code>: stesso
+            meccanismo e stessa cartella di <code className={styles.codice}>info.csv</code> nel repo del
+            calcolatore (ricaricabile con "⟳ Aggiorna dati" senza ricompilare). Le armi
             di un'unità vengono trovate tramite <code className={styles.codice}>datasheet_id</code>{' '}
             (o, per le unità create prima di questa funzione, per nome).
           </p>
