@@ -84,6 +84,57 @@ function Aiuto() {
             </li>
           ))}
         </ul>
+        <div className={styles.sezioneFinale}>
+          <h4 className={styles.sezioneTitolo}>Come aggiornare i CSV</h4>
+          <p className={styles.paragrafo}>
+            I due file dati non stanno in questa app ma nel repo del calcolatore "Botte!"
+            (GitHub: <code className={styles.codice}>ragnarokko/calcolatore_wh40</code>), nella
+            cartella principale accanto a <code className={styles.codice}>index.html</code>:
+          </p>
+          <ul className={styles.elenco}>
+            <li>
+              <code className={styles.codice}>info.csv</code>: le unità (fazione, statistiche, dimensione
+              basetta).
+            </li>
+            <li>
+              <code className={styles.codice}>Datasheets_wargear.csv</code>: le armi di ogni unità.
+            </li>
+          </ul>
+          <p className={styles.paragrafo}>
+            Su questo PC il repo è nella cartella{' '}
+            <code className={styles.codice}>D:\Claude\sito_dadi</code>. Entrambi i file sono testo con
+            colonne separate da <code className={styles.codice}>|</code>: si possono aprire con un
+            editor di testo (o con Excel, salvando poi nello stesso formato) e va mantenuta la riga
+            di intestazione così com'è.
+          </p>
+          <ol className={styles.elenco}>
+            <li>Modifica il file (o i file) nella cartella del repo e salva.</li>
+            <li>
+              Dal terminale, nella cartella del repo, pubblica la modifica:
+              <br />
+              <code className={styles.codice}>git add info.csv Datasheets_wargear.csv</code>
+              <br />
+              <code className={styles.codice}>git commit -m "Aggiorna dati"</code>
+              <br />
+              <code className={styles.codice}>git push</code>
+            </li>
+            <li>
+              Attendi che GitHub Pages pubblichi il sito (di solito uno o due minuti). Puoi controllare
+              aprendo <code className={styles.codice}>ragnarokko.github.io/calcolatore_wh40/info.csv</code>{' '}
+              nel browser.
+            </li>
+            <li>
+              In questa app premi <strong>⟳ Aggiorna dati</strong> in fondo al menù laterale: i file
+              vengono riletti e la richiesta arriva anche alle finestre "Botte!" già aperte (oppure
+              premi "Ricarica dati" nel tab VSunità del calcolatore).
+            </li>
+          </ol>
+          <p className={styles.paragrafo}>
+            Nota: le unità già create in "Creazione Esercito" mantengono le statistiche e la
+            dimensione della basetta che avevano alla creazione; i dati nuovi valgono per le unità
+            create dopo l'aggiornamento e per le armi (popup Ctrl+hover e "Botte!").
+          </p>
+        </div>
       </Modale>
     </>
   );
