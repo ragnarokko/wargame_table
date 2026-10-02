@@ -1,16 +1,49 @@
-# React + Vite
+# Tavolo da Gioco
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+App web per gestire una partita di wargame (tipo Warhammer 40k) su un tavolo virtuale: tavolo in scala reale con area di staging, basette trascinabili, misure in pollici, eserciti importati da CSV e calcolatore di combattimento collegato.
 
-Currently, two official plugins are available:
+## Avvio
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev     # http://localhost:5173
+```
 
-## React Compiler
+Altri script: `npm run build`, `npm run preview`, `npm run lint` (Oxlint). Serve Node.js (LTS recente).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Funzionalità
 
-## Expanding the Oxlint configuration
+- **Tavolo e staging**: dimensioni in pollici, sfondo caricabile o scelto dai layout predefiniti ("Force disposition"), rotazione (A/S), zoom (G/H) e pan (tasto destro) dell'area.
+- **Basette**: drag & drop con distanza percorsa, rotazione (Q/W), ferite (+/-), aura (Z/X/C), movimento fine con le frecce (0,25"), anello colore squadra, tooltip con statistiche e armi (Ctrl + hover).
+- **Selezione multipla**: rettangolo di selezione o click sul nome dell'unità in lista; trascinamento e rotazione di gruppo, disposizione su 1-3 file (1/2/3), eliminazione con Canc.
+- **Eserciti Blu/Rosso**: unità create da `public/info.csv` (basi tonde, ovali, rettangolari), schieramento automatico in staging, evidenziazione bidirezionale lista ↔ campo, rinomina, export/import JSON.
+- **Misure**: righello (D) e misura rapida tenendo premuto F.
+- **Indicatori**: CP Blu, CP Rosso, Turno e due extra con titolo editabile, in alto nello staging.
+- **Dado D6**: tasto L, clic sul dado per il tiro.
+- **Botte!**: apre il calcolatore di combattimento (repo `calcolatore_wh40`, su GitHub Pages) con le unità delle due armate e le loro armi già caricate.
+- **Save/Load partita**: un unico file JSON con libreria, istanze, elementi scenici, tavolo, sfondo e indicatori. I file da versionare vanno in [`savegames/`](savegames/README.md).
+- **Libreria basette** ed **elementi scenici** personalizzabili; finestre **Aiuto** (tutte le scorciatoie) e **Link utili**.
+- **Aggiorna dati**: ricarica `info.csv` e `Datasheets_wargear.csv` a runtime, senza rebuild.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Architettura
+
+React 19 + Vite, nessuna libreria UI né di stato esterne (drag & drop con Pointer Events scritti a mano).
+
+```
+src/
+  components/   un componente = una funzionalità = una cartella (JSX + CSS Module)
+  contexts/     stato condiviso via Context API
+  hooks/        hook riusabili (useDraggable)
+  utils/        funzioni pure: scala px↔pollici, coordinate ruotate, eventi, posizionamento
+  config/       dati statici: eserciti, dimensioni basette, fascia indicatori
+public/         info.csv (unità), Datasheets_wargear.csv (armi): letti via fetch a runtime
+savegames/      salvataggi partita versionati a mano
+```
+
+- **Stato**: quattro Context indipendenti montati in `App.jsx`: `IndicatoriContext` (CP/Turno/extra), `TavoloContext` (dimensioni, sfondo, conversioni px↔pollici), `LibreriaContext` (template delle basette), `TavoloStateContext` (istanze sul campo ed elementi scenici).
+- **Comunicazione trasversale**: gli eventi di selezione, rotazione di gruppo ed evidenziazione unità passano da eventi custom su `window` (`src/utils/selezioneEventi.js`), senza un Context dedicato.
+- **Coordinate**: posizioni in px relative al contenitore di `AreaLavoro`, dimensioni di dominio in pollici (tavolo) e mm (basette); `puntoRelativoRuotato` tiene conto di rotazione e zoom dell'area.
+- **Dati**: i CSV non sono incorporati nel bundle ma letti a runtime, quindi modificabili anche a sito pubblicato.
+- **Calcolatore**: app separata; la comunicazione avviene via `postMessage` dopo il messaggio `wh40-ready`.
+
+La descrizione dettagliata dei moduli e delle convenzioni è in [`CLAUDE.md`](CLAUDE.md).
