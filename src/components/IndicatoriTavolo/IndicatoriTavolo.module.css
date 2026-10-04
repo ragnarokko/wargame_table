@@ -91,3 +91,32 @@
   font-size: 15px;
   color: var(--colore-testo);
 }
+
+.giocatoreBtn {
+  min-width: 56px;
+  height: 20px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.blu {
+  background: #3b82f6;
+}
+
+.rosso {
+  background: #ef4444;
+}
+
+.blu:hover {
+  background: #2563eb;
+}
+
+.rosso:hover {
+  background: #dc2626;
+}
