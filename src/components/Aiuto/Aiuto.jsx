@@ -51,6 +51,20 @@ function Aiuto() {
             connessione internet.
           </p>
           <p className={styles.paragrafo}>
+            I dati in uso sono quelli generati dalla repo{' '}
+            <code className={styles.codice}>BSData/wh40k-11e</code> (11ª edizione):{' '}
+            <code className={styles.codice}>info_11e.csv</code> e{' '}
+            <code className={styles.codice}>Datasheets_wargear_11e.csv</code>. Per aggiornarli da GitHub, nel
+            repo del calcolatore, lancia{' '}
+            <code className={styles.codice}>node tools/bsdata-to-csv.mjs --refresh</code>, poi commit e
+            push e infine "⟳ Aggiorna dati". I file originali (
+            <code className={styles.codice}>info.csv</code> e{' '}
+            <code className={styles.codice}>Datasheets_wargear.csv</code>) restano intatti: per tornare a
+            usarli, in <code className={styles.codice}>src/config/datiCsv.js</code> imposta{' '}
+            <code className={styles.codice}>SET_PREDEFINITO = 'originale'</code> (e lo stesso nel
+            calcolatore).
+          </p>
+          <p className={styles.paragrafo}>
             Per ogni riga vengono importati: fazione, nome dell'unità, statistiche MOV / RES /
             TS / TS+ / W / OC, note e <code className={styles.codice}>base_size</code> (dimensione
             basetta: un numero = tonda, due numeri = ovale, "r_LUNGxLARGHmm" = rettangolare,
@@ -112,7 +126,7 @@ function Aiuto() {
             <li>
               Dal terminale, nella cartella del repo, pubblica la modifica:
               <br />
-              <code className={styles.codice}>git add info.csv Datasheets_wargear.csv</code>
+              <code className={styles.codice}>git add info_11e.csv Datasheets_wargear_11e.csv</code>
               <br />
               <code className={styles.codice}>git commit -m "Aggiorna dati"</code>
               <br />
