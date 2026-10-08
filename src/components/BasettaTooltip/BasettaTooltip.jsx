@@ -58,6 +58,11 @@ function BasettaTooltip({ template, rotazione = 0 }) {
           </div>
         )}
         {eUnita && <div className={styles.note}>NOTE: {template.note || '-'}</div>}
+        {template.abilitaEstese?.length > 0 && (
+          <div className={styles.note}>
+            Altre abilità: {template.abilitaEstese.map((a) => a.nome).join(', ')} (testo nei dettagli dell'unità)
+          </div>
+        )}
         {armi.length > 0 && (
           <div className={styles.armi}>
             <div className={styles.armiTitolo}>ARMI</div>

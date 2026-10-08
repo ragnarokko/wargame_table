@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { EVENTO_EVIDENZIA_UNITA } from '../../utils/selezioneEventi';
+import AbilitaEstese from './AbilitaEstese';
 import styles from './CreazioneEsercito.module.css';
 
 const CAMPI_STATISTICHE = [
@@ -111,7 +112,8 @@ function UnitaListItem({ unita, numeroModelli, onSeleziona, onRimuovi, onRinomin
             </div>
           )}
           {unita.note && <div className={styles.note}>{unita.note}</div>}
-          {statistiche.length === 0 && !unita.note && (
+          <AbilitaEstese abilita={unita.abilitaEstese} />
+          {statistiche.length === 0 && !unita.note && !unita.abilitaEstese?.length && (
             <div className={styles.vuoto}>Nessun dettaglio disponibile</div>
           )}
         </div>

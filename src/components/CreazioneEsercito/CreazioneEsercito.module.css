@@ -271,3 +271,22 @@
   font-style: italic;
   white-space: pre-wrap;
 }
+
+/* Abilità lunghe o di fazione: solo il nome, la descrizione si apre con la freccia. */
+.abilitaEstese {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+}
+
+.abilitaEstese summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.abilitaEstese p {
+  margin: 2px 0 4px 14px;
+  white-space: pre-wrap;
+  color: var(--colore-testo-secondario);
+}

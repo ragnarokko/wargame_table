@@ -4,10 +4,13 @@ import {
   datiArmyBuilderCaricati,
   datiPuntiUnita,
   erroreCaricamentoArmyBuilder,
+  abilitaEsteseUnita,
+  abilitaUnitaTesto,
   modelliPredefiniti,
   puntiPerNumeroModelli,
   useVersioneDatiArmyBuilder,
 } from './csvArmyBuilderImport';
+import AbilitaEstese from './AbilitaEstese';
 import styles from './CreazioneEsercito.module.css';
 
 // Numero di modelli se nei dati non c'è nulla di meglio.
@@ -24,13 +27,6 @@ const CAMPI_STATISTICHE_CSV = [
   ['fnp', 'FNP'],
 ];
 
-// Campi opzionali non presenti nel CSV: restano compilabili a mano.
-const CAMPI_STATISTICHE_MANUALI = [
-  ['range1', 'RANGE1'],
-  ['range2', 'RANGE2'],
-  ['range3', 'RANGE3'],
-];
-
 function statisticheDaUnitaCsv(unitaCsv) {
   return {
     mov: unitaCsv?.mov ?? '',
@@ -39,11 +35,7 @@ function statisticheDaUnitaCsv(unitaCsv) {
     ts: unitaCsv?.ts ?? '',
     tsPiu: unitaCsv?.tsPiu ?? '',
     oc: unitaCsv?.oc ?? '',
-    note: unitaCsv?.note ?? '',
     fnp: unitaCsv?.fnp ?? '',
-    range1: '',
-    range2: '',
-    range3: '',
   };
 }
 
@@ -85,6 +77,18 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
   const primoProfilo = unitaDisponibili.find((u) => u.datasheetId === unitaCsv?.datasheetId);
   const proponiPunti = Boolean(stimaPunti) && primoProfilo?.chiave === unitaCsv?.chiave;
   const punti = puntiManuali ?? (proponiPunti ? String(stimaPunti.punti) : '');
+  // NOTE parte dalla nota del CSV (es. invulnerabile condizionata) più le abilità dell'unità (core solo
+  // col nome, le altre con la descrizione, da army_builder/abilita.csv); finché l'utente non la scrive
+  // (null) segue l'unità scelta e i dati, che possono arrivare dopo.
+  const [noteManuale, setNoteManuale] = useState(null);
+  const noteAutomatica = useMemo(
+    () => [unitaCsv?.note, abilitaUnitaTesto(unitaCsv)].filter(Boolean).join('\n'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [unitaCsv, versioneArmyBuilder],
+  );
+  const note = noteManuale ?? noteAutomatica;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const abilitaEstese = useMemo(() => abilitaEsteseUnita(unitaCsv), [unitaCsv, versioneArmyBuilder]);
   const [colore, setColore] = useState(coloreDefault);
   const [statistiche, setStatistiche] = useState(() => statisticheDaUnitaCsv(unitaDisponibili[0]));
   // Se al mount i dati CSV non erano ancora pronti, statistiche parte vuoto (nessun unitaCsv):
@@ -102,6 +106,7 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
     statisticheInizializzate.current = true;
     setModelliManuali(null);
     setPuntiManuali(null);
+    setNoteManuale(null);
     setFazioneScelta(nuovaFazione);
     const prima = unitaPerFazione(nuovaFazione)[0];
     setChiaveScelta(prima?.chiave ?? '');
@@ -112,6 +117,7 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
     statisticheInizializzate.current = true;
     setModelliManuali(null);
     setPuntiManuali(null);
+    setNoteManuale(null);
     setChiaveScelta(chiave);
     const trovata = unitaDisponibili.find((u) => u.chiave === chiave);
     setStatistiche(statisticheDaUnitaCsv(trovata));
@@ -132,6 +138,8 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
       punti: Number.isFinite(puntiNumero) && puntiNumero >= 0 ? puntiNumero : undefined,
       colore,
       ...statistiche,
+      note,
+      abilitaEstese,
     });
   };
 
@@ -264,30 +272,16 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
         ))}
       </div>
 
-      <div className={styles.separatore}>Statistiche aggiuntive (opzionali)</div>
-
-      <div className={styles.grigliaStatistiche}>
-        {CAMPI_STATISTICHE_MANUALI.map(([campo, etichetta]) => (
-          <label key={campo}>
-            {etichetta}
-            <input
-              value={statistiche[campo]}
-              onChange={(e) => aggiornaStatistica(campo, e.target.value)}
-              placeholder="-"
-            />
-          </label>
-        ))}
-      </div>
-
       <label>
-        NOTE
+        NOTE (abilità dell'unità)
         <textarea
-          rows="2"
-          value={statistiche.note}
-          onChange={(e) => aggiornaStatistica('note', e.target.value)}
+          rows="6"
+          value={note}
+          onChange={(e) => setNoteManuale(e.target.value)}
           placeholder="-"
         />
       </label>
+      <AbilitaEstese abilita={abilitaEstese} />
 
       <div className={styles.formAzioni}>
         <button type="submit">Crea unità</button>

@@ -66,10 +66,8 @@ function CreazioneEsercito() {
       tsPiu: dati.tsPiu,
       oc: dati.oc,
       fnp: dati.fnp,
-      range1: dati.range1,
-      range2: dati.range2,
-      range3: dati.range3,
       note: dati.note,
+      abilitaEstese: dati.abilitaEstese,
       ...dimensione,
     };
 

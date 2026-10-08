@@ -3,9 +3,11 @@ import { urlArmyBuilderCsv } from '../../config/datiCsv';
 import { parseRigheCsv } from './csvUnitaImport';
 
 // Dati extra per l'army builder (cartella army_builder/ del sito del calcolatore, generata da
-// Wahapedia con `node tools/wahapedia-to-csv.mjs`): per ora servono solo
+// Wahapedia con `node tools/wahapedia-to-csv.mjs`): per ora servono
 //   punti.csv        datasheet_id|name|scaglione|tipo|modelli|punti|descrizione
 //   composizione.csv datasheet_id|name|line|descrizione|modello|min|max
+//   abilita.csv      datasheet_id|name|line|model|ability_id|ability|type|parameter|descrizione   (facoltativo)
+//   abilita_comuni.csv ability_id|ability|fac|legend|descrizione   (facoltativo: testo delle abilità di fazione)
 // Sono indicizzati per datasheet_id (gli stessi di info.csv). Per le unità BSData che non hanno un id
 // Wahapedia si ripiega sul nome. Se i file mancano (sito non ancora aggiornato) l'app funziona
 // comunque, semplicemente senza punti.
@@ -26,6 +28,7 @@ const ETICHETTE_SCAGLIONE = {
 let puntiPerId = new Map(); // id → { scaglioni: [{ codice, etichetta, tagli: [{ modelli, punti }] }], opzioni: [...] }
 let idPerNome = new Map(); // nome normalizzato → id
 let composizionePerId = new Map(); // id → [{ modello, min, max }]
+let abilitaPerId = new Map(); // id → [{ nome, core, parametro, descrizione }]
 let caricato = false;
 let promessaInCorso = null;
 let ultimoErrore = null;
@@ -84,13 +87,40 @@ function costruisciComposizione(righe) {
   return perId;
 }
 
+// Abilità per scheda. Le abilità di fazione non hanno il testo in riga: sta in abilita_comuni.csv,
+// richiamato con ability_id.
+function costruisciAbilita(righe, comuni) {
+  const testoComune = new Map(comuni.map((c) => [String(c.ability_id), (c.descrizione ?? '').trim()]));
+  const perId = new Map();
+  for (const r of righe) {
+    const nome = (r.ability ?? '').trim();
+    if (!nome) continue;
+    const id = String(r.datasheet_id);
+    if (!perId.has(id)) perId.set(id, []);
+    const core = r.type === 'Core';
+    const descrizione = core ? '' : ((r.descrizione ?? '').trim() || testoComune.get(String(r.ability_id)) || '');
+    perId.get(id).push({ nome, core, fazione: r.type === 'Faction', parametro: (r.parameter ?? '').trim(), descrizione });
+  }
+  return perId;
+}
+
 async function scaricaEProcessa() {
   const [righePunti, righeComposizione] = await Promise.all([
     scaricaCsv('punti.csv'),
     scaricaCsv('composizione.csv'),
   ]);
+  // Le abilità sono un di più: se i file mancano il resto continua a funzionare.
+  const [righeAbilita, righeComuni] = await Promise.all([
+    scaricaCsv('abilita.csv').catch(() => []),
+    scaricaCsv('abilita_comuni.csv').catch(() => []),
+  ]);
   const { perId, perNome } = costruisciPunti(righePunti);
-  return { perId, perNome, composizione: costruisciComposizione(righeComposizione) };
+  return {
+    perId,
+    perNome,
+    composizione: costruisciComposizione(righeComposizione),
+    abilita: costruisciAbilita(righeAbilita, righeComuni),
+  };
 }
 
 // Come csvArmiImport.js: caricamento al primo utilizzo, richieste concorrenti condivise, e in caso di
@@ -103,6 +133,7 @@ export function caricaDatiArmyBuilderSeNecessario() {
         puntiPerId = dati.perId;
         idPerNome = dati.perNome;
         composizionePerId = dati.composizione;
+        abilitaPerId = dati.abilita;
         caricato = true;
         ultimoErrore = null;
       })
@@ -186,4 +217,37 @@ export function modelliPredefiniti(unitaCsv) {
     if (taglia) return { valore: taglia, min: taglia, max: righe[0]?.max || null };
   }
   return null;
+}
+
+// Le abilità con testo più lungo di così, e quelle di fazione, non finiscono nel testo di NOTE: si
+// mostrano per nome con un menu a tendina (vedi AbilitaEstese.jsx).
+const SOGLIA_ABILITA_LUNGA = 150;
+
+function abilitaDellUnita(unitaCsv) {
+  if (!unitaCsv) return [];
+  const id = String(unitaCsv.datasheetId);
+  const chiave = abilitaPerId.has(id) ? id : idPerNome.get(normalizza(unitaCsv.nome));
+  return (chiave && abilitaPerId.get(chiave)) || [];
+}
+
+const eEstesa = (a) => !a.core && a.descrizione && (a.fazione || a.descrizione.length > SOGLIA_ABILITA_LUNGA);
+
+// Testo di NOTE: le abilità core solo con il nome (e l'eventuale valore, es. "Scouts 6\"", "Feel No Pain 5+")
+// su una riga, poi quelle non core e brevi come "Nome: descrizione", una per riga. Stringa vuota se
+// l'unità non ha abilità nei dati. L'unità si trova per id Wahapedia o, per le BSData senza id
+// corrispondente, per nome (come i punti).
+export function abilitaUnitaTesto(unitaCsv) {
+  const abilita = abilitaDellUnita(unitaCsv).filter((a) => !eEstesa(a));
+  const core = abilita.filter((a) => a.core).map((a) => (a.parametro ? `${a.nome} ${a.parametro}` : a.nome));
+  const altre = abilita.filter((a) => !a.core).map((a) => (a.descrizione ? `${a.nome}: ${a.descrizione}` : a.nome));
+  return [...new Set([core.join(', '), ...altre])].filter(Boolean).join('\n');
+}
+
+// Abilità lunghe o di fazione, da mostrare per nome con la descrizione a tendina: [{ nome, descrizione }].
+export function abilitaEsteseUnita(unitaCsv) {
+  const viste = new Set();
+  return abilitaDellUnita(unitaCsv)
+    .filter(eEstesa)
+    .filter((a) => !viste.has(a.nome) && viste.add(a.nome))
+    .map((a) => ({ nome: a.nome, descrizione: a.descrizione }));
 }
