@@ -38,14 +38,14 @@ function estraiArmi(template) {
   }));
 }
 
-// Solo i campi che servono al calcolatore per precompilare Difensore (res/ts/tsPiu/w) e
+// Solo i campi che servono al calcolatore per precompilare Difensore (res/ts/tsPiu/w/fnp) e
 // Attaccante (armi, via estraiArmi), più il datasheetId con cui il tab VSunità filtra le unità
 // in gioco: le "unità" sono le basette con campo `esercito` create in
 // Creazione Esercito (vedi CreazioneEsercito.jsx), non le basette generiche di libreria.
 function estraiUnita(basette, esercito) {
   return basette
     .filter((b) => b.esercito === esercito)
-    .map((b) => ({ nome: b.nome, datasheetId: b.datasheetId, res: b.res, ts: b.ts, tsPiu: b.tsPiu, w: b.w, armi: estraiArmi(b) }));
+    .map((b) => ({ nome: b.nome, datasheetId: b.datasheetId, res: b.res, ts: b.ts, tsPiu: b.tsPiu, w: b.w, fnp: b.fnp, armi: estraiArmi(b) }));
 }
 
 // Tasto "Botte!": apre il calcolatore di combattimento in una finestra separata (stessa

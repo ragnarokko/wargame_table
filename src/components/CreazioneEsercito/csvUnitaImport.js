@@ -32,7 +32,9 @@ export function parseRigheCsv(testo) {
 
 // Colonne effettive di info.csv (verificate aprendo il file, non corrispondono
 // 1:1 ai nomi "ideali": separatore `|`, intestazione
-// datasheet_id|line|name|MOV|RES|TS|TS+|Note|W|Ld|OC|base_size|fac|faction
+// datasheet_id|line|name|MOV|RES|TS|TS+|Note|W|Ld|OC|base_size|fac|faction|FNP
+// (FNP = soglia di Feel No Pain, es. "5+"; vuota se l'unità non ce l'ha o se il file è precedente
+// all'introduzione della colonna).
 function normalizzaUnita(record) {
   return {
     chiave: `${record.datasheet_id}-${record.line}`,
@@ -46,6 +48,7 @@ function normalizzaUnita(record) {
     tsPiu: record['TS+'],
     w: record.W,
     oc: record.OC,
+    fnp: record.FNP ?? '',
     note: record.Note,
   };
 }

@@ -21,11 +21,11 @@ const CAMPI_STATISTICHE_CSV = [
   ['ts', 'TS'],
   ['tsPiu', 'TS+'],
   ['oc', 'OC'],
+  ['fnp', 'FNP'],
 ];
 
 // Campi opzionali non presenti nel CSV: restano compilabili a mano.
 const CAMPI_STATISTICHE_MANUALI = [
-  ['fnp', 'FNP'],
   ['range1', 'RANGE1'],
   ['range2', 'RANGE2'],
   ['range3', 'RANGE3'],
@@ -40,7 +40,7 @@ function statisticheDaUnitaCsv(unitaCsv) {
     tsPiu: unitaCsv?.tsPiu ?? '',
     oc: unitaCsv?.oc ?? '',
     note: unitaCsv?.note ?? '',
-    fnp: '',
+    fnp: unitaCsv?.fnp ?? '',
     range1: '',
     range2: '',
     range3: '',
