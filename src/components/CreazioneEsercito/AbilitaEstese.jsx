@@ -1,4 +1,4 @@
-import styles from './CreazioneEsercito.module.css';
+import styles from './AbilitaEstese.module.css';
 
 // Elenco di abilità lunghe o di fazione: solo il nome, con la descrizione completa che si apre/chiude
 // con la freccia (<details> nativo). Non mostra nulla senza abilità.

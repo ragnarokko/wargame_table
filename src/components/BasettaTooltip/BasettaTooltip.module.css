@@ -9,7 +9,7 @@
   bottom: 100%;
   left: 50%;
   transform: translate(-50%, -8px);
-  width: 260px;
+  width: 440px;
   background: #1c1c24;
   border: 1px solid #3a3a46;
   border-radius: 8px;
@@ -17,6 +17,13 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
   pointer-events: none;
   z-index: 200;
+}
+
+/* Popup fissato col tasto I: riceve il mouse (tendine delle abilità) e, se più alto dello schermo, scorre. */
+.tooltipInterattivo {
+  pointer-events: auto;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 /* Basetta nella metà superiore dello schermo (vedi BasettaTooltip.jsx): il popup si apre verso
@@ -61,8 +68,8 @@
 
 .grigliaStatistiche {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px 8px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px 12px;
   margin-bottom: 6px;
 }
 

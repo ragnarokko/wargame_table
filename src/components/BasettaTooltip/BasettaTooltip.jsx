@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { nomeEsercito } from '../../config/eserciti';
 import { armiPerTemplate, useVersioneDatiArmi } from '../CreazioneEsercito/csvArmiImport';
+import AbilitaEstese from '../CreazioneEsercito/AbilitaEstese';
 import styles from './BasettaTooltip.module.css';
 
 // RANGE1/2/3 non compaiono più qui: superati dalle armi lette da Datasheets_wargear.csv, che
@@ -15,7 +16,9 @@ const CAMPI_STATISTICHE = [
   ['fnp', 'FNP'],
 ];
 
-function BasettaTooltip({ template, rotazione = 0 }) {
+// interattivo: popup fissato col tasto I (vedi Basetta.jsx), quindi cliccabile: le abilità lunghe e di
+// fazione si aprono a tendina. Altrimenti (Ctrl+hover) il popup non riceve il mouse e le mostra solo per nome.
+function BasettaTooltip({ template, rotazione = 0, interattivo = false }) {
   const eUnita = Boolean(template.esercito);
   const haDati = Boolean(template.immagine || template.statistiche || eUnita);
   // eUnita non conosce ancora le armi al render (il caricamento CSV, vedi csvArmiImport.js, è
@@ -30,10 +33,38 @@ function BasettaTooltip({ template, rotazione = 0 }) {
   // hover (non resta montato mentre la basetta si sposta).
   const riferimentoRef = useRef(null);
   const [sotto, setSotto] = useState(false);
+  const popupRef = useRef(null);
+  // Spostamento orizzontale (px a schermo) che riporta il popup dentro l'area visibile: largo com'è
+  // (vedi BasettaTooltip.module.css) uscirebbe dal bordo se la basetta sta vicino al margine.
+  const [spostamentoX, setSpostamentoX] = useState(0);
+  const [scala, setScala] = useState(1);
   useLayoutEffect(() => {
     const rect = riferimentoRef.current?.getBoundingClientRect();
     if (!rect) return;
     setSotto(rect.top + rect.height / 2 < window.innerHeight / 2);
+
+    const popup = popupRef.current;
+    if (!popup) return;
+    const r = popup.getBoundingClientRect();
+    // Limiti: finestra, ristretta al primo antenato che ritaglia (l'area di lavoro, accanto alla barra laterale).
+    let sinistra = 0;
+    let destra = window.innerWidth;
+    for (let el = popup.parentElement; el; el = el.parentElement) {
+      const o = getComputedStyle(el).overflowX;
+      if (o !== 'visible') {
+        const b = el.getBoundingClientRect();
+        sinistra = Math.max(sinistra, b.left);
+        destra = Math.min(destra, b.right);
+        break;
+      }
+    }
+    const margine = 8;
+    let dx = 0;
+    if (r.left < sinistra + margine) dx = sinistra + margine - r.left;
+    else if (r.right > destra - margine) dx = destra - margine - r.right;
+    setSpostamentoX(dx);
+    // Il popup può essere scalato dallo zoom dell'area: lo spostamento va espresso nel suo sistema locale.
+    setScala(popup.offsetWidth > 0 ? r.width / popup.offsetWidth : 1);
   }, []);
 
   // Il popup è figlio della basetta, che ha una propria rotazione (Q/W): senza contro-rotazione
@@ -43,7 +74,13 @@ function BasettaTooltip({ template, rotazione = 0 }) {
   // e ancorato al centro della basetta indipendentemente dalla rotazione corrente.
   return (
     <div ref={riferimentoRef} className={styles.controrotazione} style={{ transform: `rotate(${-rotazione}deg)` }}>
-      <div className={`${styles.tooltip} ${sotto ? styles.tooltipSotto : ''}`}>
+      <div
+        ref={popupRef}
+        style={spostamentoX ? { translate: `${spostamentoX / scala}px 0` } : undefined}
+        className={`${styles.tooltip} ${sotto ? styles.tooltipSotto : ''} ${interattivo ? styles.tooltipInterattivo : ''}`}
+        onPointerDown={interattivo ? (e) => e.stopPropagation() : undefined}
+        onDoubleClick={interattivo ? (e) => e.stopPropagation() : undefined}
+      >
         {template.immagine && <img src={template.immagine} alt={template.nome} className={styles.immagine} />}
         <div className={styles.nome}>{template.nome}</div>
         {eUnita && <div className={styles.esercito}>{nomeEsercito(template.esercito)}</div>}
@@ -58,11 +95,14 @@ function BasettaTooltip({ template, rotazione = 0 }) {
           </div>
         )}
         {eUnita && <div className={styles.note}>NOTE: {template.note || '-'}</div>}
-        {template.abilitaEstese?.length > 0 && (
-          <div className={styles.note}>
-            Altre abilità: {template.abilitaEstese.map((a) => a.nome).join(', ')} (testo nei dettagli dell'unità)
-          </div>
-        )}
+        {template.abilitaEstese?.length > 0 &&
+          (interattivo ? (
+            <AbilitaEstese abilita={template.abilitaEstese} />
+          ) : (
+            <div className={styles.note}>
+              Altre abilità: {template.abilitaEstese.map((a) => a.nome).join(', ')} (premi I per aprire il testo)
+            </div>
+          ))}
         {armi.length > 0 && (
           <div className={styles.armi}>
             <div className={styles.armiTitolo}>ARMI</div>

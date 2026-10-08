@@ -17,3 +17,11 @@ export const EVENTO_ROTAZIONE_GRUPPO = 'tavolo-rotazione-gruppo';
 
 // detail: { templateId: string | null } — hover su un'unità nella lista eserciti (null per spegnere l'evidenziazione).
 export const EVENTO_EVIDENZIA_UNITA = 'tavolo-evidenzia-unita';
+
+// detail: { templateId: string, esercito: string } — doppio click su una basetta sul campo: la lista
+// eserciti apre l'accordion giusto, seleziona l'unità, ne apre i dettagli e la porta in vista.
+export const EVENTO_MOSTRA_UNITA = 'tavolo-mostra-unita';
+
+// detail: { istanzaId: string } — una basetta ha fissato il proprio popup dei dettagli (tasto I): le
+// altre chiudono il proprio, così ne resta uno solo.
+export const EVENTO_FISSA_POPUP = 'tavolo-fissa-popup';

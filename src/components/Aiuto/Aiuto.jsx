@@ -27,7 +27,9 @@ const SCORCIATOIE = [
   { tasti: '1 / 2 / 3', descrizione: 'Dispone le basette selezionate su 1, 2 o 3 file, distanziate di almeno 1" (richiede almeno 2 basette selezionate).' },
   { tasti: 'Canc / Backspace', descrizione: 'Seleziona una o più unità e premi Canc/Delete per eliminarle.' },
   { tasti: 'Esc', descrizione: 'Annulla un trascinamento in corso: la basetta (e l\'eventuale gruppo) torna alla posizione di partenza.' },
-  { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine, statistiche e armi della basetta.' },
+  { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine, statistiche, note e armi della basetta.' },
+  { tasti: 'I (sopra una basetta)', descrizione: 'Tiene aperto il popup dei dettagli anche togliendo il mouse e lo rende cliccabile: le abilità lunghe e di fazione compaiono per nome e si aprono a tendina. Si chiude premendo di nuovo I o Esc.' },
+  { tasti: 'Doppio click su una basetta', descrizione: "Seleziona l'unità nell'elenco a sinistra: apre l'esercito e i dettagli e, se serve, scorre l'elenco fino a mostrarla." },
   { tasti: 'L', descrizione: 'Apre/chiude la finestrella dei dadi (D6): imposta il numero di dadi e clicca sul dado per lanciarli (compaiono tutti i risultati e la somma); con «Dettaglio» i risultati sono ordinati e c\'è la tabella valore / quanti uguali / quanti almeno / quanti sotto (passando il mouse sul valore la riga si evidenzia).' },
 ];
 
@@ -199,7 +201,7 @@ function Aiuto() {
           <p className={styles.paragrafo}>
             Nota: le unità già create in "Creazione Esercito" mantengono le statistiche e la
             dimensione della basetta che avevano alla creazione; i dati nuovi valgono per le unità
-            create dopo l'aggiornamento e per le armi (popup Ctrl+hover e "Botte!").
+            create dopo l'aggiornamento e per le armi (popup Ctrl+hover e "Botte!"). Lo stesso vale per le abilità (campo NOTE e tendine), che arrivano da army_builder/abilita.csv: per aggiornarle su un'unità già creata va ricreata.
           </p>
         </div>
       </Modale>

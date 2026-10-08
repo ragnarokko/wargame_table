@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { EVENTO_EVIDENZIA_UNITA } from '../../utils/selezioneEventi';
 import AbilitaEstese from './AbilitaEstese';
 import styles from './CreazioneEsercito.module.css';
@@ -19,11 +19,22 @@ const CAMPI_STATISTICHE = [
 // Voce dell'accordion per una singola unità: il nome, al passaggio del mouse, evidenzia
 // tutte le basette sul campo appartenenti a questa unità (stesso templateId) e, al click, le
 // seleziona (onSeleziona); la freccia a sinistra apre/chiude i dettagli.
-function UnitaListItem({ unita, numeroModelli, onSeleziona, onRimuovi, onRinomina }) {
+function UnitaListItem({ unita, numeroModelli, mostrata, onSeleziona, onRimuovi, onRinomina }) {
   const [dettagliAperti, setDettagliAperti] = useState(false);
   const [rinominaAperta, setRinominaAperta] = useState(false);
   const [nuovoNome, setNuovoNome] = useState(unita.nome);
   const [evidenziataDalCampo, setEvidenziataDalCampo] = useState(false);
+  const voceRef = useRef(null);
+
+  // Doppio click sulla basetta sul campo (vedi CreazioneEsercito): apre i dettagli e porta la voce in
+  // vista, scorrendo la lista (e la barra laterale) se serve. Il piccolo ritardo lascia il tempo
+  // all'accordion di aprirsi e ai dettagli di prendere posto prima della misura.
+  useEffect(() => {
+    if (!mostrata) return undefined;
+    setDettagliAperti(true);
+    const timer = setTimeout(() => voceRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80);
+    return () => clearTimeout(timer);
+  }, [mostrata]);
 
   // Speculare all'evidenziazione lista→basette: l'hover su una basetta sul campo
   // (o su una sua "sorella" della stessa unità) evidenzia questa riga.
@@ -52,7 +63,7 @@ function UnitaListItem({ unita, numeroModelli, onSeleziona, onRimuovi, onRinomin
   const statistiche = CAMPI_STATISTICHE.filter(([campo]) => unita[campo]);
 
   return (
-    <li className={styles.unitaItem}>
+    <li ref={voceRef} className={`${styles.unitaItem} ${mostrata ? styles.unitaMostrata : ''}`}>
       <div className={`${styles.riga} ${evidenziataDalCampo ? styles.rigaEvidenziata : ''}`}>
         <span className={styles.pallino} style={{ backgroundColor: unita.colore }} />
         {rinominaAperta ? (

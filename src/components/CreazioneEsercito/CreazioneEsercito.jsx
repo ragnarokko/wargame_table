@@ -9,7 +9,7 @@ import { determinaFormaEDimensioni, generaNomeUnivoco, caricaDatiCsvSeNecessario
 import { caricaDatiArmiSeNecessario } from './csvArmiImport';
 import { caricaDatiArmyBuilderSeNecessario } from './csvArmyBuilderImport';
 import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
-import { EVENTO_SELEZIONE_MULTIPLA } from '../../utils/selezioneEventi';
+import { EVENTO_MOSTRA_UNITA, EVENTO_SELEZIONE_MULTIPLA } from '../../utils/selezioneEventi';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
 import UnitaForm from './UnitaForm';
@@ -23,6 +23,9 @@ function CreazioneEsercito() {
   const { istanze, schieraBasette, rimuoviIstanzePerTemplate } = useTavoloState();
   const [esercitoSelezionato, setEsercitoSelezionato] = useState(ESERCITI[0].id);
   const [formAperto, setFormAperto] = useState(false);
+  // Unità da mostrare in lista dopo un doppio click su una basetta: { id, n } (n cambia a ogni richiesta,
+  // così anche un secondo doppio click sulla stessa unità la riporta in vista).
+  const [unitaMostrata, setUnitaMostrata] = useState(null);
   const [accordionAperti, setAccordionAperti] = useState(() =>
     Object.fromEntries(ESERCITI.map((es) => [es.id, true])),
   );
@@ -37,6 +40,26 @@ function CreazioneEsercito() {
   }, []);
 
   const unitaTutte = basette.filter((b) => b.esercito);
+
+  // Doppio click su una basetta: apre l'accordion del suo esercito, così la voce è montata e
+  // UnitaListItem la seleziona, ne apre i dettagli e la porta in vista; deselezionando tutto sul
+  // campo la selezione in lista si toglie.
+  useEffect(() => {
+    const onMostra = (e) => {
+      const { templateId, esercito } = e.detail;
+      setAccordionAperti((prev) => ({ ...prev, [esercito]: true }));
+      setUnitaMostrata((prev) => ({ id: templateId, n: (prev?.n ?? 0) + 1 }));
+    };
+    const onSelezione = (e) => {
+      if (e.detail.ids.length === 0) setUnitaMostrata(null);
+    };
+    window.addEventListener(EVENTO_MOSTRA_UNITA, onMostra);
+    window.addEventListener(EVENTO_SELEZIONE_MULTIPLA, onSelezione);
+    return () => {
+      window.removeEventListener(EVENTO_MOSTRA_UNITA, onMostra);
+      window.removeEventListener(EVENTO_SELEZIONE_MULTIPLA, onSelezione);
+    };
+  }, []);
 
   const contaModelli = (templateId) => istanze.filter((i) => i.templateId === templateId).length;
 
@@ -164,6 +187,7 @@ function CreazioneEsercito() {
                   key={u.id}
                   unita={u}
                   numeroModelli={contaModelli(u.id)}
+                  mostrata={unitaMostrata?.id === u.id ? unitaMostrata : null}
                   onSeleziona={() => handleSeleziona(u.id)}
                   onRimuovi={() => handleRimuovi(u.id)}
                   onRinomina={(nuovoNome) => handleRinomina(u.id, nuovoNome)}

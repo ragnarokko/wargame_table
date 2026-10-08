@@ -6,6 +6,8 @@ import { puntoRelativoRuotato } from '../../utils/coordinate';
 import { polliciAPx } from '../../utils/scala';
 import {
   EVENTO_EVIDENZIA_UNITA,
+  EVENTO_FISSA_POPUP,
+  EVENTO_MOSTRA_UNITA,
   EVENTO_SELEZIONE_MULTIPLA,
   EVENTO_TRASCINAMENTO_GRUPPO,
   EVENTO_ROTAZIONE_GRUPPO,
@@ -42,6 +44,11 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
   const { spostaIstanza, ruotaIstanza, impostaFeriteIstanza, impostaAuraIstanza } = useTavoloState();
   const [hover, setHover] = useState(false);
   const [ctrlPremuto, setCtrlPremuto] = useState(false);
+  // Popup dei dettagli fissato con il tasto I: resta aperto (e diventa cliccabile, per le tendine delle
+  // abilità) finché non si preme di nuovo I o Esc.
+  const [popupFissato, setPopupFissato] = useState(false);
+  const hoverRef = useRef(false);
+  const popupFissatoRef = useRef(false);
   const [posizioneTemp, setPosizioneTemp] = useState(null);
   const [selezionata, setSelezionata] = useState(false);
   const [selezioneGruppo, setSelezioneGruppo] = useState([]);
@@ -77,6 +84,35 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
       window.removeEventListener('keyup', onKeyUp);
     };
   }, []);
+
+  popupFissatoRef.current = popupFissato;
+
+  // Tasto I: sopra una basetta fissa il suo popup; con un popup già fissato lo chiude (anche con Esc).
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (e.key === 'Escape') {
+        setPopupFissato(false);
+      } else if (e.key === 'i' || e.key === 'I') {
+        if (popupFissatoRef.current) {
+          setPopupFissato(false);
+        } else if (hoverRef.current) {
+          setPopupFissato(true);
+          window.dispatchEvent(new CustomEvent(EVENTO_FISSA_POPUP, { detail: { istanzaId: istanza.id } }));
+        }
+      }
+    };
+    const onFissa = (e) => {
+      if (e.detail.istanzaId !== istanza.id) setPopupFissato(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener(EVENTO_FISSA_POPUP, onFissa);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener(EVENTO_FISSA_POPUP, onFissa);
+    };
+  }, [istanza.id]);
 
   const inGruppo = selezioneGruppo.includes(istanza.id);
   const gruppoAttivo = inGruppo && selezioneGruppo.length > 1;
@@ -385,7 +421,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     // basetta stessa mentre il popup è visibile, oltre il massimo usato altrove (50, durante un
     // trascinamento), altrimenti il popup può restare "sotto" una basetta/elemento scenico
     // successivo nell'ordine del DOM che lo sovrappone sullo schermo.
-    zIndex: inTrascinamento ? 50 : hover && ctrlPremuto ? 100 : 10,
+    zIndex: inTrascinamento ? 50 : (hover && ctrlPremuto) || popupFissato ? 100 : 10,
     transform: `rotate(${rotazione}deg)`,
     '--colore-squadra': COLORE_SQUADRA[template.esercito] || 'transparent',
   };
@@ -395,11 +431,13 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
   // sulla lista che già evidenzia le basette sul campo.
   const onMouseEnterBasetta = () => {
     clearTimeout(timeoutSpegniEvidenziaHover);
+    hoverRef.current = true;
     setHover(true);
     window.dispatchEvent(new CustomEvent(EVENTO_EVIDENZIA_UNITA, { detail: { templateId: istanza.templateId } }));
   };
 
   const onMouseLeaveBasetta = () => {
+    hoverRef.current = false;
     setHover(false);
     timeoutSpegniEvidenziaHover = setTimeout(() => {
       window.dispatchEvent(new CustomEvent(EVENTO_EVIDENZIA_UNITA, { detail: { templateId: null } }));
@@ -431,9 +469,15 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
         onPointerUp={onPointerUp}
         onMouseEnter={onMouseEnterBasetta}
         onMouseLeave={onMouseLeaveBasetta}
+        onDoubleClick={() => {
+          if (!template.esercito) return;
+          window.dispatchEvent(
+            new CustomEvent(EVENTO_MOSTRA_UNITA, { detail: { templateId: istanza.templateId, esercito: template.esercito } }),
+          );
+        }}
         title={
           "Trascina per spostare (Esc per annullare). Click per selezionare, frecce per spostare di poco, " +
-          "Q/W per ruotare, +/- per le ferite, Z/X per l'aura, C per l'aura rapida da 9\". Ctrl+hover per i dettagli."
+          "Q/W per ruotare, +/- per le ferite, Z/X per l'aura, C per l'aura rapida da 9\". Ctrl+hover per i dettagli (I per tenerli aperti), doppio click per trovare l'unità nella lista."
         }
       >
         <div className={styles.indicatoreFronte} />
@@ -443,7 +487,9 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
             {ferite}/{feriteMassime}
           </span>
         )}
-        {hover && ctrlPremuto && <BasettaTooltip template={template} rotazione={rotazione} />}
+        {((hover && ctrlPremuto) || popupFissato) && (
+          <BasettaTooltip template={template} rotazione={rotazione} interattivo={popupFissato} />
+        )}
       </div>
     </>
   );

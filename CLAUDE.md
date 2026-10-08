@@ -114,6 +114,8 @@ Elenco completo (specchio dell'array `SCORCIATOIE` in `src/components/Aiuto/Aiut
 | Canc / Backspace | Elimina le basette selezionate (richiede una selezione attiva). |
 | Esc | Annulla un trascinamento in corso; chiude anche una finestra `Modale` aperta (Aiuto/Link). |
 | Ctrl + hover su una basetta | Mostra il popup `BasettaTooltip` con immagine e statistiche. |
+| I (con il mouse su una basetta) | Fissa il popup dei dettagli (resta aperto e diventa cliccabile: `AbilitaEstese` a tendina); si chiude con I o Esc. Gestito da `Basetta` (`popupFissato`, evento `EVENTO_FISSA_POPUP` perché ne resti uno solo). |
+| Doppio click su una basetta | `EVENTO_MOSTRA_UNITA`: `CreazioneEsercito` apre l'accordion dell'esercito e `UnitaListItem` (prop `mostrata`) evidenzia la voce, apre i dettagli e la porta in vista con `scrollIntoView`; la selezione in lista si toglie deselezionando sul campo. |
 | Tasto destro (trascina) | Pan dell'intera area di lavoro. |
 | Tasto sinistro (trascina) | Sposta una basetta/elemento scenico; su area vuota disegna il rettangolo di selezione multipla, oppure misura se il righello (D) è attivo. |
 

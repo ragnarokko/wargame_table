@@ -41,7 +41,7 @@ function PulsanteAggiornaDati() {
         className={`${styles.pulsante} ${styles[stato] || ''}`}
         onClick={handleClick}
         disabled={stato === 'corso'}
-        title="Ricarica info.csv e Datasheets_wargear.csv dopo averli aggiornati nel repo del calcolatore, anche nelle finestre Botte! aperte (nessun rebuild necessario)"
+        title="Ricarica info.csv, Datasheets_wargear.csv e i file di army_builder/ (punti, composizione, abilità) dopo averli aggiornati nel repo del calcolatore, anche nelle finestre Botte! aperte (nessun rebuild necessario)"
       >
         {ETICHETTE[stato]}
       </button>
