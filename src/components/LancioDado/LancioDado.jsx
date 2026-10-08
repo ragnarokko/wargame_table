@@ -49,6 +49,7 @@ function LancioDado() {
     valore,
     uguali: risultati.filter((v) => v === valore).length,
     almeno: risultati.filter((v) => v >= valore).length,
+    sotto: risultati.filter((v) => v < valore).length,
   }));
 
   return (
@@ -105,6 +106,7 @@ function LancioDado() {
                   <th>Valore</th>
                   <th>Uguali</th>
                   <th>Almeno</th>
+                  <th>Sotto</th>
                 </tr>
               </thead>
               <tbody>
@@ -113,6 +115,7 @@ function LancioDado() {
                     <td>{r.valore}</td>
                     <td>{r.uguali}</td>
                     <td>{r.almeno}</td>
+                    <td>{r.sotto}</td>
                   </tr>
                 ))}
               </tbody>

@@ -124,6 +124,15 @@
   border: 1px solid var(--colore-bordo);
 }
 
+/* Passando il mouse sul valore (prima colonna) si evidenzia l'intera riga. */
+.tabella tbody tr:has(td:first-child:hover) td {
+  background: var(--colore-accento);
+}
+
+.tabella td:first-child {
+  cursor: default;
+}
+
 .tabella th {
   font-weight: 600;
   color: var(--colore-testo-secondario);
