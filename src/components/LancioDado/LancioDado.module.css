@@ -69,3 +69,62 @@
   color: var(--colore-testo);
   user-select: none;
 }
+
+.dettaglio {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.numeroDadi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--colore-testo-secondario);
+}
+
+.numeroDadi input {
+  width: 64px;
+}
+
+.risultati {
+  max-width: 260px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+}
+
+.facciaPiccola {
+  font-size: 30px;
+  line-height: 1;
+  color: var(--colore-testo);
+  user-select: none;
+}
+
+.somma {
+  font-size: 14px;
+  color: var(--colore-testo);
+}
+
+.tabella {
+  border-collapse: collapse;
+  font-size: 13px;
+  color: var(--colore-testo);
+}
+
+.tabella th,
+.tabella td {
+  padding: 3px 14px;
+  text-align: center;
+  border: 1px solid var(--colore-bordo);
+}
+
+.tabella th {
+  font-weight: 600;
+  color: var(--colore-testo-secondario);
+}

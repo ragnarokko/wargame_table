@@ -28,7 +28,7 @@ const SCORCIATOIE = [
   { tasti: 'Canc / Backspace', descrizione: 'Seleziona una o più unità e premi Canc/Delete per eliminarle.' },
   { tasti: 'Esc', descrizione: 'Annulla un trascinamento in corso: la basetta (e l\'eventuale gruppo) torna alla posizione di partenza.' },
   { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine, statistiche e armi della basetta.' },
-  { tasti: 'L', descrizione: 'Apre/chiude la finestrella del dado (D6): clicca sul dado per ottenere un valore casuale da 1 a 6.' },
+  { tasti: 'L', descrizione: 'Apre/chiude la finestrella dei dadi (D6): imposta il numero di dadi e clicca sul dado per lanciarli (compaiono tutti i risultati e la somma); con «Dettaglio» i risultati sono ordinati e c\'è la tabella valore / quanti uguali / quanti almeno.' },
 ];
 
 // Tasto "Aiuto": apre una finestra con l'elenco completo delle scorciatoie usate nell'app e con
