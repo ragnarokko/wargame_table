@@ -102,6 +102,12 @@ export function ripristinaRepoBsdata() {
 export const comandoAggiornamentoBsdata = (repoBsdata) =>
   `node tools/bsdata-to-csv.mjs --refresh --repo ${repoBsdata}`;
 
+// Comando (stessa cartella) che riscrive i file tradizionali (info.csv, Datasheets_wargear.csv) e i file
+// extra per l'army builder (cartella army_builder/) dall'export dati di Wahapedia. L'edizione/sito si
+// cambia con `--sorgente <indirizzo>` (lo script lo ricorda in tools/wahapedia-sorgente.json).
+export const SORGENTE_WAHAPEDIA_PREDEFINITA = 'https://wahapedia.ru/wh40k11ed';
+export const comandoAggiornamentoWahapedia = 'node tools/wahapedia-to-csv.mjs';
+
 export function useImpostazioniDati() {
   return useSyncExternalStore(
     (cb) => {
@@ -118,3 +124,6 @@ export const origineSito = () => new URL(URL_SITO).origin;
 export const nomiFileDati = () => SET_DATI_DISPONIBILI[stato.set];
 export const urlInfoCsv = () => `${URL_SITO}${nomiFileDati().info}`;
 export const urlArmiCsv = () => `${URL_SITO}${nomiFileDati().armi}`;
+// File extra per l'army builder (punti, composizione...): stanno in army_builder/ e sono generati da
+// Wahapedia, quindi non dipendono dal set scelto sopra (vedi csvArmyBuilderImport.js).
+export const urlArmyBuilderCsv = (nomeFile) => `${URL_SITO}army_builder/${nomeFile}`;

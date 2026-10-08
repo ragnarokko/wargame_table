@@ -2,8 +2,10 @@ import { useState } from 'react';
 import Modale from '../Modale/Modale';
 import {
   SET_DATI_DISPONIBILI,
+  SORGENTE_WAHAPEDIA_PREDEFINITA,
   URL_REPO_BSDATA_PREDEFINITO,
   comandoAggiornamentoBsdata,
+  comandoAggiornamentoWahapedia,
   impostaRepoBsdata,
   impostaSetDati,
   ripristinaRepoBsdata,
@@ -20,7 +22,7 @@ function Impostazioni() {
   const [inModifica, setInModifica] = useState(false);
   const [bozza, setBozza] = useState('');
   const [errore, setErrore] = useState('');
-  const [copiato, setCopiato] = useState(false);
+  const [copiato, setCopiato] = useState(''); // quale comando è stato appena copiato
   const { set, repoBsdata } = useImpostazioniDati();
   const comando = comandoAggiornamentoBsdata(repoBsdata);
 
@@ -45,11 +47,11 @@ function Impostazioni() {
     setErrore('');
   };
 
-  const copiaComando = async () => {
+  const copiaComando = async (chiave, testo) => {
     try {
-      await navigator.clipboard.writeText(comando);
-      setCopiato(true);
-      setTimeout(() => setCopiato(false), 1500);
+      await navigator.clipboard.writeText(testo);
+      setCopiato(chiave);
+      setTimeout(() => setCopiato(''), 1500);
     } catch {
       // Appunti non disponibili: il comando resta comunque selezionabile a mano.
     }
@@ -159,12 +161,35 @@ function Impostazioni() {
           </p>
           <div className={styles.rigaUrl} style={{ marginTop: 6 }}>
             <code className={styles.url}>{comando}</code>
-            <button type="button" className={styles.secondario} onClick={copiaComando}>
-              {copiato ? '✓ Copiato' : 'Copia'}
+            <button type="button" className={styles.secondario} onClick={() => copiaComando('bsdata', comando)}>
+              {copiato === 'bsdata' ? '✓ Copiato' : 'Copia'}
             </button>
           </div>
           <p className={styles.nota}>
             Poi commit e push dei file, e <strong>⟳ Aggiorna dati</strong>. Tutti i passaggi sono in ❓ Aiuto.
+          </p>
+        </div>
+
+        <div className={styles.sezione}>
+          <h4 className={styles.sezioneTitolo}>Aggiornare i dati tradizionali da Wahapedia</h4>
+          <p className={styles.nota} style={{ marginTop: 0 }}>
+            Sempre nella cartella del repo del calcolatore (<code>D:\Claude\sito_dadi</code>) lancia:
+          </p>
+          <div className={styles.rigaUrl} style={{ marginTop: 6 }}>
+            <code className={styles.url}>{comandoAggiornamentoWahapedia}</code>
+            <button
+              type="button"
+              className={styles.secondario}
+              onClick={() => copiaComando('wahapedia', comandoAggiornamentoWahapedia)}
+            >
+              {copiato === 'wahapedia' ? '✓ Copiato' : 'Copia'}
+            </button>
+          </div>
+          <p className={styles.nota}>
+            Scarica da <code>{SORGENTE_WAHAPEDIA_PREDEFINITA}</code> (per un'altra edizione aggiungi{' '}
+            <code>--sorgente &lt;indirizzo&gt;</code>), riscrive <code>info.csv</code> e{' '}
+            <code>Datasheets_wargear.csv</code> e crea/aggiorna la cartella <code>army_builder/</code> con punti,
+            composizione e altri dati. Poi commit e push, e <strong>⟳ Aggiorna dati</strong>. Passaggi completi in ❓ Aiuto.
           </p>
         </div>
       </Modale>

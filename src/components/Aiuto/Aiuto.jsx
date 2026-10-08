@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import Modale from '../Modale/Modale';
-import { comandoAggiornamentoBsdata, useImpostazioniDati } from '../../config/datiCsv';
+import {
+  SORGENTE_WAHAPEDIA_PREDEFINITA,
+  comandoAggiornamentoBsdata,
+  comandoAggiornamentoWahapedia,
+  useImpostazioniDati,
+} from '../../config/datiCsv';
 import styles from './Aiuto.module.css';
 
 // Elenco di tutti i tasti/interazioni usati nell'app (verificato leggendo il codice dei
@@ -48,7 +53,7 @@ function Aiuto() {
             coppia di file usare si sceglie con la rotella <strong>⚙ Impostazioni</strong> (in alto a
             sinistra): <strong>dati tradizionali</strong> (
             <code className={styles.codice}>info.csv</code> +{' '}
-            <code className={styles.codice}>Datasheets_wargear.csv</code>, mai modificati) oppure{' '}
+            <code className={styles.codice}>Datasheets_wargear.csv</code>, aggiornabili da Wahapedia) oppure{' '}
             <strong>dati BSData 11ª edizione</strong> (
             <code className={styles.codice}>info_11e.csv</code> +{' '}
             <code className={styles.codice}>Datasheets_wargear_11e.csv</code>, generati dalla repo{' '}
@@ -61,6 +66,15 @@ function Aiuto() {
             TS / TS+ / W / OC, note e <code className={styles.codice}>base_size</code> (dimensione
             basetta: un numero = tonda, due numeri = ovale, "r_LUNGxLARGHmm" = rettangolare,
             vuoto = rettangolo 100×50mm di riserva).
+          </p>
+          <p className={styles.paragrafo}>
+            Scegliendo un'unità nel form si vedono anche i <strong>punti</strong> (con le taglie, es. 10
+            modelli = 90 pt) e un <strong>numero di modelli predefinito</strong> ricavato dalla composizione
+            ufficiale: entrambi si possono cambiare a mano. Il totale dei punti compare accanto al nome di
+            ogni esercito. Questi dati stanno nella cartella{' '}
+            <code className={styles.codice}>army_builder/</code> del repo del calcolatore (punti,
+            composizione, opzioni di equipaggiamento, leader, keyword, abilità, distaccamenti,
+            potenziamenti) e si aggiornano con lo script Wahapedia descritto sotto.
           </p>
         </div>
         <div className={styles.sezione}>
@@ -136,21 +150,52 @@ function Aiuto() {
               premi <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati BSData").
             </li>
           </ol>
-          <h4 className={styles.sezioneTitolo}>Dati tradizionali: modifica a mano</h4>
+          <h4 className={styles.sezioneTitolo}>Dati tradizionali: aggiornare da Wahapedia</h4>
+          <p className={styles.paragrafo}>
+            <code className={styles.codice}>info.csv</code> e{' '}
+            <code className={styles.codice}>Datasheets_wargear.csv</code> vengono dall'export dati di
+            Wahapedia ({SORGENTE_WAHAPEDIA_PREDEFINITA}). Uno script li riscrive (applicando le stesse
+            pulizie di sempre) e rigenera anche i file in{' '}
+            <code className={styles.codice}>army_builder/</code> con i punti. Dal terminale:
+          </p>
           <ol className={styles.elenco}>
-            <li>Modifica <code className={styles.codice}>info.csv</code> / <code className={styles.codice}>Datasheets_wargear.csv</code> nella cartella del repo e salva (mantieni la riga di intestazione).</li>
             <li>
-              <code className={styles.codice}>git add info.csv Datasheets_wargear.csv</code>
+              <code className={styles.codice}>cd D:\Claude\sito_dadi</code>
+            </li>
+            <li>
+              <code className={styles.codice}>{comandoAggiornamentoWahapedia}</code>
               <br />
-              <code className={styles.codice}>git commit -m "Aggiorna dati"</code>
+              (scarica i file, mostra le differenze rispetto a quelli attuali e poi li sovrascrive. Per
+              un'altra edizione: <code className={styles.codice}>--sorgente https://wahapedia.ru/wh40k12ed</code>.
+              Le dimensioni basette corrette a mano stanno in{' '}
+              <code className={styles.codice}>tools/wahapedia-basette.json</code> e hanno la precedenza;
+              lo script avvisa se una correzione non coincide più con Wahapedia.)
+            </li>
+            <li>
+              Guarda le differenze stampate: se qualcosa non torna, ripristina con{' '}
+              <code className={styles.codice}>git checkout -- info.csv Datasheets_wargear.csv army_builder</code>.
+            </li>
+            <li>
+              <code className={styles.codice}>
+                git add info.csv Datasheets_wargear.csv army_builder tools/wahapedia-sorgente.json
+              </code>
+              <br />
+              <code className={styles.codice}>git commit -m "Aggiorna dati da Wahapedia"</code>
               <br />
               <code className={styles.codice}>git push</code>
             </li>
             <li>
-              Dopo la pubblicazione premi <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati
-              tradizionali"); oppure "Ricarica dati" nel tab VSunità del calcolatore.
+              Attendi la pubblicazione di GitHub Pages (uno o due minuti), poi premi{' '}
+              <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati tradizionali"); oppure "Ricarica
+              dati" nel tab VSunità del calcolatore.
             </li>
           </ol>
+          <p className={styles.paragrafo}>
+            In alternativa si possono sempre modificare a mano <code className={styles.codice}>info.csv</code>{' '}
+            e <code className={styles.codice}>Datasheets_wargear.csv</code> (mantieni la riga di
+            intestazione), ma al prossimo lancio dello script le modifiche vengono sovrascritte: per le
+            basette usa <code className={styles.codice}>tools/wahapedia-basette.json</code>.
+          </p>
           <p className={styles.paragrafo}>
             Nota: le unità già create in "Creazione Esercito" mantengono le statistiche e la
             dimensione della basetta che avevano alla creazione; i dati nuovi valgono per le unità

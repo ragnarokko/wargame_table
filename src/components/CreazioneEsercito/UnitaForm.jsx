@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { datiCsvCaricati, elencoFazioni, unitaPerFazione, useVersioneDatiCsv } from './csvUnitaImport';
+import {
+  datiArmyBuilderCaricati,
+  datiPuntiUnita,
+  erroreCaricamentoArmyBuilder,
+  modelliPredefiniti,
+  puntiPerNumeroModelli,
+  useVersioneDatiArmyBuilder,
+} from './csvArmyBuilderImport';
 import styles from './CreazioneEsercito.module.css';
+
+// Numero di modelli se nei dati non c'è nulla di meglio.
+const MODELLI_DI_RIPIEGO = 1;
+const OPZIONI_MOSTRATE = 3;
 
 const CAMPI_STATISTICHE_CSV = [
   ['mov', 'MOV'],
@@ -55,7 +67,24 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
   const chiaveUnita = chiaveScelta || unitaDisponibili[0]?.chiave || '';
   const unitaCsv = unitaDisponibili.find((u) => u.chiave === chiaveUnita) ?? unitaDisponibili[0] ?? null;
 
-  const [numeroModelli, setNumeroModelli] = useState(5);
+  // Numero di modelli e punti sono proposti dai dati dell'army builder (composizione e punti.csv) e
+  // restano modificabili: finché l'utente non li tocca (null) seguono l'unità scelta; si azzerano ad
+  // ogni cambio di fazione/unità.
+  const versioneArmyBuilder = useVersioneDatiArmyBuilder();
+  const [modelliManuali, setModelliManuali] = useState(null);
+  const [puntiManuali, setPuntiManuali] = useState(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const datiPunti = useMemo(() => datiPuntiUnita(unitaCsv), [unitaCsv, versioneArmyBuilder]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const predefiniti = useMemo(() => modelliPredefiniti(unitaCsv), [unitaCsv, versioneArmyBuilder]);
+  const numeroModelli = modelliManuali ?? String(predefiniti?.valore ?? MODELLI_DI_RIPIEGO);
+  const modelliPerPunti = Math.max(1, Math.round(Number(numeroModelli) || 1));
+  const stimaPunti = puntiPerNumeroModelli(datiPunti, modelliPerPunti);
+  // I punti sono dell'intera scheda: se ha più profili di modello (es. Boy + Nob) li propongo solo sul
+  // primo, per non contarli due volte creando un'unità per ogni profilo.
+  const primoProfilo = unitaDisponibili.find((u) => u.datasheetId === unitaCsv?.datasheetId);
+  const proponiPunti = Boolean(stimaPunti) && primoProfilo?.chiave === unitaCsv?.chiave;
+  const punti = puntiManuali ?? (proponiPunti ? String(stimaPunti.punti) : '');
   const [colore, setColore] = useState(coloreDefault);
   const [statistiche, setStatistiche] = useState(() => statisticheDaUnitaCsv(unitaDisponibili[0]));
   // Se al mount i dati CSV non erano ancora pronti, statistiche parte vuoto (nessun unitaCsv):
@@ -71,6 +100,8 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
 
   const cambiaFazione = (nuovaFazione) => {
     statisticheInizializzate.current = true;
+    setModelliManuali(null);
+    setPuntiManuali(null);
     setFazioneScelta(nuovaFazione);
     const prima = unitaPerFazione(nuovaFazione)[0];
     setChiaveScelta(prima?.chiave ?? '');
@@ -79,6 +110,8 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
 
   const cambiaUnita = (chiave) => {
     statisticheInizializzate.current = true;
+    setModelliManuali(null);
+    setPuntiManuali(null);
     setChiaveScelta(chiave);
     const trovata = unitaDisponibili.find((u) => u.chiave === chiave);
     setStatistiche(statisticheDaUnitaCsv(trovata));
@@ -90,11 +123,13 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
     e.preventDefault();
     if (!unitaCsv) return;
     const numero = Math.max(1, Math.round(Number(numeroModelli) || 1));
+    const puntiNumero = punti === '' ? NaN : Number(punti);
     onCrea({
       nomeBase: unitaCsv.nome,
       baseSize: unitaCsv.baseSize,
       datasheetId: unitaCsv.datasheetId,
       numeroModelli: numero,
+      punti: Number.isFinite(puntiNumero) && puntiNumero >= 0 ? puntiNumero : undefined,
       colore,
       ...statistiche,
     });
@@ -134,16 +169,80 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
         </label>
       </div>
 
-      <label>
-        Numero di modelli
-        <input
-          type="number"
-          min="1"
-          step="1"
-          value={numeroModelli}
-          onChange={(e) => setNumeroModelli(e.target.value)}
-        />
-      </label>
+      <div className={styles.rigaCampi}>
+        <label>
+          Numero di modelli
+          <input
+            type="number"
+            min="1"
+            step="1"
+            value={numeroModelli}
+            onChange={(e) => setModelliManuali(e.target.value)}
+          />
+        </label>
+
+        <label>
+          Punti
+          <input
+            type="number"
+            min="0"
+            step="5"
+            value={punti}
+            placeholder="-"
+            onChange={(e) => setPuntiManuali(e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div className={styles.puntiInfo}>
+        {predefiniti && (
+          <div>
+            Modelli predefiniti: {predefiniti.valore}
+            {predefiniti.max && predefiniti.max !== predefiniti.min
+              ? ` (la composizione prevede da ${predefiniti.min} a ${predefiniti.max})`
+              : ''}
+          </div>
+        )}
+        {datiPunti ? (
+          <>
+            {datiPunti.scaglioni.map((s) => (
+              <div key={s.codice}>
+                {s.etichetta ? `${s.etichetta}: ` : 'Costo: '}
+                {s.tagli.map((t) => `${t.modelli} mod. = ${t.punti} pt`).join(' · ')}
+              </div>
+            ))}
+            {stimaPunti && !stimaPunti.esatto && (
+              <div>
+                Con {modelliPerPunti} modelli si paga la taglia da {stimaPunti.taglia} ({stimaPunti.punti} pt).
+              </div>
+            )}
+            {datiPunti.opzioni.length > 0 && (
+              <div>
+                Opzioni a pagamento:{' '}
+                {datiPunti.opzioni
+                  .slice(0, OPZIONI_MOSTRATE)
+                  .map((o) => `${o.descrizione} ${o.punti} pt`)
+                  .join(' · ')}
+                {datiPunti.opzioni.length > OPZIONI_MOSTRATE ? ` · +${datiPunti.opzioni.length - OPZIONI_MOSTRATE} altre` : ''}
+              </div>
+            )}
+            {!proponiPunti && stimaPunti && (
+              <div>
+                I punti riguardano l'intera unità: li ho proposti solo sul primo profilo ({primoProfilo?.nome}) per non
+                contarli due volte.
+              </div>
+            )}
+          </>
+        ) : (
+          <div>
+            {!datiArmyBuilderCaricati()
+              ? erroreCaricamentoArmyBuilder()
+                ? 'Punti non raggiungibili: il sito del calcolatore non ha ancora i file army_builder/.'
+                : 'Caricamento punti…'
+              : 'Punti non disponibili per questa unità: inseriscili a mano se servono.'}
+          </div>
+        )}
+      </div>
 
       <label>
         Colore

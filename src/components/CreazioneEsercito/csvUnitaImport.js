@@ -13,7 +13,7 @@ function pulisciCampo(valoreGrezzo = '') {
   return valore;
 }
 
-function parseRigheCsv(testo) {
+export function parseRigheCsv(testo) {
   const righe = testo
     .replace(/^﻿/, '')
     .split(/\r?\n/)

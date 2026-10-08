@@ -7,6 +7,7 @@ import { ALTEZZA_FASCIA_INDICATORI_PX } from '../../config/indicatori';
 import { coloreDisponibile } from '../../utils/colori';
 import { determinaFormaEDimensioni, generaNomeUnivoco, caricaDatiCsvSeNecessario } from './csvUnitaImport';
 import { caricaDatiArmiSeNecessario } from './csvArmiImport';
+import { caricaDatiArmyBuilderSeNecessario } from './csvArmyBuilderImport';
 import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
 import { EVENTO_SELEZIONE_MULTIPLA } from '../../utils/selezioneEventi';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
@@ -32,11 +33,16 @@ function CreazioneEsercito() {
   useEffect(() => {
     caricaDatiCsvSeNecessario().catch(() => {});
     caricaDatiArmiSeNecessario().catch(() => {});
+    caricaDatiArmyBuilderSeNecessario().catch(() => {});
   }, []);
 
   const unitaTutte = basette.filter((b) => b.esercito);
 
   const contaModelli = (templateId) => istanze.filter((i) => i.templateId === templateId).length;
+
+  // Totale dei punti delle unità create per un esercito (le unità senza punti non contano).
+  const puntiEsercito = (esercitoId) =>
+    unitaTutte.filter((u) => u.esercito === esercitoId).reduce((somma, u) => somma + (Number(u.punti) || 0), 0);
 
   const toggleAccordion = (esercitoId) =>
     setAccordionAperti((prev) => ({ ...prev, [esercitoId]: !prev[esercitoId] }));
@@ -51,6 +57,7 @@ function CreazioneEsercito() {
       esercito: esercitoSelezionato,
       datasheetId: dati.datasheetId,
       numeroModelli: dati.numeroModelli,
+      punti: dati.punti,
       immagine: '',
       mov: dati.mov,
       res: dati.res,
@@ -147,7 +154,7 @@ function CreazioneEsercito() {
       {ESERCITI.map((es) => (
         <PannelloEspandibile
           key={es.id}
-          titolo={es.nome}
+          titolo={puntiEsercito(es.id) > 0 ? `${es.nome} — ${puntiEsercito(es.id)} pt` : es.nome}
           aperto={accordionAperti[es.id]}
           onToggle={() => toggleAccordion(es.id)}
         >

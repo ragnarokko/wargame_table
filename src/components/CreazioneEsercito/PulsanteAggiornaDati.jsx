@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ricaricaDatiCsv } from './csvUnitaImport';
 import { ricaricaDatiArmi } from './csvArmiImport';
+import { ricaricaDatiArmyBuilder } from './csvArmyBuilderImport';
 import { ricaricaFinestreCalcolatore } from '../../utils/finestreCalcolatore';
 import styles from './PulsanteAggiornaDati.module.css';
 
@@ -22,7 +23,8 @@ function PulsanteAggiornaDati() {
   const handleClick = async () => {
     setStato('corso');
     try {
-      await Promise.all([ricaricaDatiCsv(), ricaricaDatiArmi()]);
+      // I file dei punti (army_builder/) sono facoltativi: se mancano, l'aggiornamento di unità e armi riesce lo stesso.
+      await Promise.all([ricaricaDatiCsv(), ricaricaDatiArmi(), ricaricaDatiArmyBuilder().catch(() => {})]);
       ricaricaFinestreCalcolatore();
       setStato('ok');
     } catch {

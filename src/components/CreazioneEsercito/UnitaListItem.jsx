@@ -84,7 +84,10 @@ function UnitaListItem({ unita, numeroModelli, onSeleziona, onRimuovi, onRinomin
             </button>
           </div>
         )}
-        <span className={styles.contatore}>{numeroModelli} mod.</span>
+        <span className={styles.contatore}>
+          {numeroModelli} mod.
+          {unita.punti > 0 ? ` · ${unita.punti} pt` : ''}
+        </span>
         <div className={styles.azioni}>
           <button onClick={apriRinomina} title="Rinomina unità">
             ✎

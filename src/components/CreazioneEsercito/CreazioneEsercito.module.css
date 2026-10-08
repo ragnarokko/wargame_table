@@ -147,6 +147,15 @@
   margin-top: 2px;
 }
 
+.puntiInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--colore-testo-secondario);
+}
+
 .grigliaStatistiche {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
