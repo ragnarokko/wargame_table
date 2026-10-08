@@ -1,8 +1,7 @@
 import { useSyncExternalStore } from 'react';
-import { URL_ARMI_CSV } from '../../config/datiCsv';
+import { urlArmiCsv } from '../../config/datiCsv';
 
 const SEPARATORE = '|';
-const PERCORSO_CSV = URL_ARMI_CSV;
 
 // Colonne effettive di Datasheets_wargear.csv (verificate aprendo il file): a differenza
 // di info.csv l'intestazione ha DUE colonne chiamate "name" (una per l'unità, una per l'arma), per
@@ -75,10 +74,11 @@ function notificaAscoltatori() {
 }
 
 async function scaricaEProcessaCsv() {
-  const risposta = await fetch(`${PERCORSO_CSV}?t=${Date.now()}`, { cache: 'no-store' });
+  const percorso = urlArmiCsv();
+  const risposta = await fetch(`${percorso}?t=${Date.now()}`, { cache: 'no-store' });
   const testo = await risposta.text();
   if (!risposta.ok || testo.trimStart().startsWith('<')) {
-    throw new Error(`Impossibile leggere ${PERCORSO_CSV} (HTTP ${risposta.status})`);
+    throw new Error(`Impossibile leggere ${percorso} (HTTP ${risposta.status})`);
   }
   return parseRigheCsv(testo).filter((a) => a.datasheetId && a.arma);
 }

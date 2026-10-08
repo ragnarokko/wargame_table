@@ -8,13 +8,17 @@ import SelettoreLayout from '../SelettoreLayout/SelettoreLayout';
 import CreazioneEsercito from '../CreazioneEsercito/CreazioneEsercito';
 import PulsanteAggiornaDati from '../CreazioneEsercito/PulsanteAggiornaDati';
 import Aiuto from '../Aiuto/Aiuto';
+import Impostazioni from '../Impostazioni/Impostazioni';
 import LinkUtili from '../LinkUtili/LinkUtili';
 import styles from './PannelloLaterale.module.css';
 
 function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
   return (
     <aside className={styles.pannello}>
-      <div className={styles.titolo}>Tavolo da Gioco</div>
+      <div className={styles.titolo}>
+        <Impostazioni />
+        <span>Tavolo da Gioco</span>
+      </div>
       <PulsanteCalcolatore />
       <SalvataggioPartita />
       <CaricaSfondo />

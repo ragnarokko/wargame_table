@@ -7,20 +7,20 @@ import {
   sogliaDaTesto,
   valoreMedioDado,
 } from '../CreazioneEsercito/csvArmiImport';
-import { ORIGINE_CALCOLATORE, SET_DATI, URL_BASE_DATI_CSV } from '../../config/datiCsv';
+import { origineSito, setDati, urlSitoDati } from '../../config/datiCsv';
 import { registraFinestraCalcolatore } from '../../utils/finestreCalcolatore';
 import styles from './PulsanteCalcolatore.module.css';
 
 // #combat fa aprire direttamente la scheda "Combattimento" del calcolatore (vedi lo script
 // di index.html in quel repo, che legge location.hash all'avvio).
-const BASE_CALCOLATORE = URL_BASE_DATI_CSV;
 
 // GitHub Pages serve index.html con Cache-Control: max-age=600 (visto in pratica, con tanto di
 // hit sulla CDN davanti): senza una query string sempre diversa, aprendo il calcolatore entro
 // 10 minuti da un aggiornamento del sito si rischia di ricevere dalla cache una versione vecchia
 // della pagina (es. senza gli ultimi campi aggiunti all'Attaccante).
 function urlCalcolatoreSenzaCache() {
-  return `${BASE_CALCOLATORE}?t=${Date.now()}&dati=${SET_DATI}#combat`;
+  // Sito e set di dati sono quelli scelti in Impostazioni (letti ad ogni apertura).
+  return `${urlSitoDati()}?t=${Date.now()}&dati=${setDati()}#combat`;
 }
 
 // Un'arma pronta per il calcolatore: valori già normalizzati (media dei dadi arrotondata, AP
@@ -78,7 +78,7 @@ function PulsanteCalcolatore() {
     // registrato il proprio listener e il messaggio andrebbe perso.
     const onMessage = (e) => {
       if (e.source !== finestra || e.data?.type !== 'wh40-ready') return;
-      finestra.postMessage(datiEserciti, ORIGINE_CALCOLATORE);
+      finestra.postMessage(datiEserciti, origineSito());
       window.removeEventListener('message', onMessage);
     };
     window.addEventListener('message', onMessage);

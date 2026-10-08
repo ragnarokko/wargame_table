@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Modale from '../Modale/Modale';
 import { erroreCaricamentoUnita, useVersioneDatiCsv } from './csvUnitaImport';
 import { erroreCaricamentoArmi, useVersioneDatiArmi } from './csvArmiImport';
+import { nomiFileDati } from '../../config/datiCsv';
 import styles from './ErroreDatiCsv.module.css';
 
 // Popup automatico per gli errori di caricamento di info.csv/Datasheets_wargear.csv, sia al primo
@@ -15,8 +16,8 @@ function ErroreDatiCsv() {
   const erroreUnita = erroreCaricamentoUnita();
   const erroreArmi = erroreCaricamentoArmi();
   const errori = [
-    erroreUnita && { file: 'info.csv', messaggio: erroreUnita.message },
-    erroreArmi && { file: 'Datasheets_wargear.csv', messaggio: erroreArmi.message },
+    erroreUnita && { file: nomiFileDati().info, messaggio: erroreUnita.message },
+    erroreArmi && { file: nomiFileDati().armi, messaggio: erroreArmi.message },
   ].filter(Boolean);
   const chiaveErrori = errori.map((e) => `${e.file}:${e.messaggio}`).join('|');
 

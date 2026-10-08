@@ -1,8 +1,7 @@
 import { useSyncExternalStore } from 'react';
-import { URL_INFO_CSV } from '../../config/datiCsv';
+import { urlInfoCsv } from '../../config/datiCsv';
 
 const SEPARATORE = '|';
-const PERCORSO_CSV = URL_INFO_CSV;
 
 // Un campo quotato usa la sequenza CSV standard: virgolette doppie raddoppiate
 // per rappresentare una virgoletta letterale (es. MOV `"6"""` → `6"`).
@@ -67,7 +66,9 @@ function notificaAscoltatori() {
 async function scaricaEProcessaCsv() {
   // Query string anti-cache: forza sempre una richiesta di rete fresca, anche dietro
   // un eventuale CDN/proxy che ignorerebbe altrimenti `cache: 'no-store'`.
-  const risposta = await fetch(`${PERCORSO_CSV}?t=${Date.now()}`, { cache: 'no-store' });
+  // L'indirizzo si legge qui, a ogni download: le Impostazioni possono cambiarlo in qualsiasi momento.
+  const percorso = urlInfoCsv();
+  const risposta = await fetch(`${percorso}?t=${Date.now()}`, { cache: 'no-store' });
   const testo = await risposta.text();
   // Molti server (il dev server di Vite incluso, e i tipici host di siti SPA in produzione)
   // rispondono 200 con index.html per qualunque percorso non trovato, per supportare il
@@ -75,7 +76,7 @@ async function scaricaEProcessaCsv() {
   // come "file non trovato" a tutti gli effetti (altrimenti sembrerebbe un caricamento
   // riuscito con zero unità, invece di segnalare l'errore).
   if (!risposta.ok || testo.trimStart().startsWith('<')) {
-    throw new Error(`Impossibile leggere ${PERCORSO_CSV} (HTTP ${risposta.status})`);
+    throw new Error(`Impossibile leggere ${percorso} (HTTP ${risposta.status})`);
   }
   return parseRigheCsv(testo)
     .map(normalizzaUnita)

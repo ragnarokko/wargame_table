@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Modale from '../Modale/Modale';
+import { comandoAggiornamentoBsdata, useImpostazioniDati } from '../../config/datiCsv';
 import styles from './Aiuto.module.css';
 
 // Elenco di tutti i tasti/interazioni usati nell'app (verificato leggendo il codice dei
@@ -29,6 +30,7 @@ const SCORCIATOIE = [
 // le informazioni sull'origine dei dati delle unità (info.csv) e delle armi (Datasheets_wargear.csv).
 function Aiuto() {
   const [aperto, setAperto] = useState(false);
+  const { repoBsdata } = useImpostazioniDati();
 
   return (
     <>
@@ -39,30 +41,20 @@ function Aiuto() {
         <div className={styles.sezione}>
           <h4 className={styles.sezioneTitolo}>Dati unità (CSV)</h4>
           <p className={styles.paragrafo}>
-            Le unità disponibili in "Creazione Esercito" vengono lette da{' '}
-            <code className={styles.codice}>info.csv</code>, che vive nel repo del calcolatore
-            "Botte!" (GitHub: ragnarokko/calcolatore_wh40, cartella principale, accanto a{' '}
-            <code className={styles.codice}>index.html</code>) ed è pubblicato con lui su{' '}
-            <code className={styles.codice}>ragnarokko.github.io/calcolatore_wh40/info.csv</code>:
-            l'app lo scarica a runtime, quindi per aggiornare i dati basta modificare il file in
-            quel repo, fare commit e push, attendere la pubblicazione di GitHub Pages (di solito
-            uno o due minuti) e premere "⟳ Aggiorna dati" in fondo al menù, senza ricompilare
-            nulla: la richiesta arriva anche alle finestre "Botte!" già aperte. Serve una
-            connessione internet.
-          </p>
-          <p className={styles.paragrafo}>
-            I dati in uso sono quelli generati dalla repo{' '}
-            <code className={styles.codice}>BSData/wh40k-11e</code> (11ª edizione):{' '}
-            <code className={styles.codice}>info_11e.csv</code> e{' '}
-            <code className={styles.codice}>Datasheets_wargear_11e.csv</code>. Per aggiornarli da GitHub, nel
-            repo del calcolatore, lancia{' '}
-            <code className={styles.codice}>node tools/bsdata-to-csv.mjs --refresh</code>, poi commit e
-            push e infine "⟳ Aggiorna dati". I file originali (
-            <code className={styles.codice}>info.csv</code> e{' '}
-            <code className={styles.codice}>Datasheets_wargear.csv</code>) restano intatti: per tornare a
-            usarli, in <code className={styles.codice}>src/config/datiCsv.js</code> imposta{' '}
-            <code className={styles.codice}>SET_PREDEFINITO = 'originale'</code> (e lo stesso nel
-            calcolatore).
+            Le unità disponibili in "Creazione Esercito" vengono lette da un file CSV che vive nel repo
+            del calcolatore "Botte!" (GitHub: ragnarokko/calcolatore_wh40, accanto a{' '}
+            <code className={styles.codice}>index.html</code>) ed è pubblicato con lui: l'app lo
+            scarica a runtime, senza ricompilare nulla, e serve una connessione internet. Quale
+            coppia di file usare si sceglie con la rotella <strong>⚙ Impostazioni</strong> (in alto a
+            sinistra): <strong>dati tradizionali</strong> (
+            <code className={styles.codice}>info.csv</code> +{' '}
+            <code className={styles.codice}>Datasheets_wargear.csv</code>, mai modificati) oppure{' '}
+            <strong>dati BSData 11ª edizione</strong> (
+            <code className={styles.codice}>info_11e.csv</code> +{' '}
+            <code className={styles.codice}>Datasheets_wargear_11e.csv</code>, generati dalla repo{' '}
+            <code className={styles.codice}>BSData/wh40k-11e</code>). Sempre lì si può cambiare
+            l'indirizzo GitHub di BSData, nel caso venga spostato. La scelta tra i due set si applica con "⟳ Aggiorna dati" in fondo al menù, che
+            avvisa anche le finestre "Botte!" già aperte.
           </p>
           <p className={styles.paragrafo}>
             Per ogni riga vengono importati: fazione, nome dell'unità, statistiche MOV / RES /
@@ -75,9 +67,8 @@ function Aiuto() {
           <h4 className={styles.sezioneTitolo}>Dati armi (CSV)</h4>
           <p className={styles.paragrafo}>
             Le armi mostrate nel popup Ctrl+hover e nella finestra "Botte!" (Attaccante) vengono
-            lette da <code className={styles.codice}>Datasheets_wargear.csv</code>: stesso
-            meccanismo e stessa cartella di <code className={styles.codice}>info.csv</code> nel repo del
-            calcolatore (ricaricabile con "⟳ Aggiorna dati" senza ricompilare). Le armi
+            lette dal file delle armi del set scelto in Impostazioni (stesso meccanismo e stessa
+            cartella del file unità, ricaricabile con "⟳ Aggiorna dati"). Le armi
             di un'unità vengono trovate tramite <code className={styles.codice}>datasheet_id</code>{' '}
             (o, per le unità create prima di questa funzione, per nome).
           </p>
@@ -101,46 +92,63 @@ function Aiuto() {
         <div className={styles.sezioneFinale}>
           <h4 className={styles.sezioneTitolo}>Come aggiornare i CSV</h4>
           <p className={styles.paragrafo}>
-            I due file dati non stanno in questa app ma nel repo del calcolatore "Botte!"
-            (GitHub: <code className={styles.codice}>ragnarokko/calcolatore_wh40</code>), nella
-            cartella principale accanto a <code className={styles.codice}>index.html</code>:
+            I file dati non stanno in questa app ma nel repo del calcolatore "Botte!" (su questo PC:{' '}
+            <code className={styles.codice}>D:\Claude\sito_dadi</code>). Sono testo con colonne
+            separate da <code className={styles.codice}>|</code>.
           </p>
-          <ul className={styles.elenco}>
-            <li>
-              <code className={styles.codice}>info.csv</code>: le unità (fazione, statistiche, dimensione
-              basetta).
-            </li>
-            <li>
-              <code className={styles.codice}>Datasheets_wargear.csv</code>: le armi di ogni unità.
-            </li>
-          </ul>
+          <h4 className={styles.sezioneTitolo}>Dati BSData: aggiornare da GitHub</h4>
           <p className={styles.paragrafo}>
-            Su questo PC il repo è nella cartella{' '}
-            <code className={styles.codice}>D:\Claude\sito_dadi</code>. Entrambi i file sono testo con
-            colonne separate da <code className={styles.codice}>|</code>: si possono aprire con un
-            editor di testo (o con Excel, salvando poi nello stesso formato) e va mantenuta la riga
-            di intestazione così com'è.
+            I file <code className={styles.codice}>_11e</code> si rigenerano con uno script del repo del
+            calcolatore, che scarica i dati aggiornati da{' '}
+            <code className={styles.codice}>{repoBsdata}</code> (l'indirizzo si modifica in ⚙
+            Impostazioni; se BSData sposta la repo basta cambiarlo lì e il comando qui sotto si aggiorna).
+            Dal terminale:
           </p>
           <ol className={styles.elenco}>
-            <li>Modifica il file (o i file) nella cartella del repo e salva.</li>
             <li>
-              Dal terminale, nella cartella del repo, pubblica la modifica:
+              <code className={styles.codice}>cd D:\Claude\sito_dadi</code>
+            </li>
+            <li>
+              <code className={styles.codice}>{comandoAggiornamentoBsdata(repoBsdata)}</code>
               <br />
-              <code className={styles.codice}>git add info_11e.csv Datasheets_wargear_11e.csv</code>
+              (rigenera <code className={styles.codice}>info_11e.csv</code> e{' '}
+              <code className={styles.codice}>Datasheets_wargear_11e.csv</code>; l'indirizzo dopo{' '}
+              <code className={styles.codice}>--repo</code> viene ricordato in{' '}
+              <code className={styles.codice}>tools/bsdata-sorgente.json</code>; le dimensioni basetta già
+              inserite restano.)
+            </li>
+            <li>
+              <code className={styles.codice}>node tools/confronta-csv.mjs</code> (facoltativo: scrive in{' '}
+              <code className={styles.codice}>bsdata/confronto.md</code> le differenze rispetto ai dati
+              tradizionali)
+            </li>
+            <li>
+              <code className={styles.codice}>
+                git add info_11e.csv Datasheets_wargear_11e.csv tools/bsdata-ids.json tools/bsdata-sorgente.json
+              </code>
+              <br />
+              <code className={styles.codice}>git commit -m "Aggiorna dati BSData"</code>
+              <br />
+              <code className={styles.codice}>git push</code>
+            </li>
+            <li>
+              Attendi che GitHub Pages pubblichi il sito (di solito uno o due minuti), poi in questa app
+              premi <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati BSData").
+            </li>
+          </ol>
+          <h4 className={styles.sezioneTitolo}>Dati tradizionali: modifica a mano</h4>
+          <ol className={styles.elenco}>
+            <li>Modifica <code className={styles.codice}>info.csv</code> / <code className={styles.codice}>Datasheets_wargear.csv</code> nella cartella del repo e salva (mantieni la riga di intestazione).</li>
+            <li>
+              <code className={styles.codice}>git add info.csv Datasheets_wargear.csv</code>
               <br />
               <code className={styles.codice}>git commit -m "Aggiorna dati"</code>
               <br />
               <code className={styles.codice}>git push</code>
             </li>
             <li>
-              Attendi che GitHub Pages pubblichi il sito (di solito uno o due minuti). Puoi controllare
-              aprendo <code className={styles.codice}>ragnarokko.github.io/calcolatore_wh40/info.csv</code>{' '}
-              nel browser.
-            </li>
-            <li>
-              In questa app premi <strong>⟳ Aggiorna dati</strong> in fondo al menù laterale: i file
-              vengono riletti e la richiesta arriva anche alle finestre "Botte!" già aperte (oppure
-              premi "Ricarica dati" nel tab VSunità del calcolatore).
+              Dopo la pubblicazione premi <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati
+              tradizionali"); oppure "Ricarica dati" nel tab VSunità del calcolatore.
             </li>
           </ol>
           <p className={styles.paragrafo}>

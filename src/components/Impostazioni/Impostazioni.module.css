@@ -1,0 +1,146 @@
+.rotella {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  border: 1px solid var(--colore-bordo);
+}
+
+.rotella:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--colore-testo);
+}
+
+.sezione {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.sezione:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.sezioneTitolo {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colore-testo-secondario);
+}
+
+.scelte {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scelta {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--colore-bordo);
+  border-radius: var(--radius);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.scelta input {
+  margin-top: 3px;
+}
+
+.sceltaAttiva {
+  border-color: var(--colore-accento);
+  background: rgba(91, 141, 239, 0.12);
+}
+
+.file {
+  display: block;
+  margin-top: 2px;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+}
+
+.nota {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--colore-testo-secondario);
+}
+
+.nota a {
+  color: var(--colore-accento);
+}
+
+.rigaUrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.url {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 5px 7px;
+  border-radius: 3px;
+}
+
+.campo {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--colore-testo);
+  background: var(--colore-sfondo);
+  border: 1px solid var(--colore-bordo);
+  border-radius: var(--radius);
+}
+
+.azioni {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.secondario {
+  background: transparent;
+  color: var(--colore-testo);
+  border: 1px solid var(--colore-bordo);
+  flex-shrink: 0;
+}
+
+.secondario:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.errore {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--colore-pericolo);
+}
+
+.link {
+  margin-top: 6px;
+  padding: 0;
+  background: none;
+  color: var(--colore-accento);
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.link:hover {
+  background: none;
+  color: var(--colore-accento-hover);
+}
