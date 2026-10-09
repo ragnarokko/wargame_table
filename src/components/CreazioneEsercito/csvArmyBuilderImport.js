@@ -8,6 +8,7 @@ import { parseRigheCsv } from './csvUnitaImport';
 //   composizione.csv datasheet_id|name|line|descrizione|modello|min|max
 //   abilita.csv      datasheet_id|name|line|model|ability_id|ability|type|parameter|descrizione   (facoltativo)
 //   abilita_comuni.csv ability_id|ability|fac|legend|descrizione   (facoltativo: testo delle abilità di fazione)
+//   keywords.csv     datasheet_id|name|keyword|model|is_faction_keyword   (facoltativo: serve per la sotto-fazione/capitolo)
 // Sono indicizzati per datasheet_id (gli stessi di info.csv). Per le unità BSData che non hanno un id
 // Wahapedia si ripiega sul nome. Se i file mancano (sito non ancora aggiornato) l'app funziona
 // comunque, semplicemente senza punti.
@@ -29,6 +30,8 @@ let puntiPerId = new Map(); // id → { scaglioni: [{ codice, etichetta, tagli: 
 let idPerNome = new Map(); // nome normalizzato → id
 let composizionePerId = new Map(); // id → [{ modello, min, max }]
 let abilitaPerId = new Map(); // id → [{ nome, core, parametro, descrizione }]
+let capitoliPerId = new Map(); // id → capitoli dei Space Marines (es. 'Blood Angels')
+let capitoliPerNome = new Map(); // nome normalizzato → capitoli
 let caricato = false;
 let promessaInCorso = null;
 let ultimoErrore = null;
@@ -104,6 +107,36 @@ function costruisciAbilita(righe, comuni) {
   return perId;
 }
 
+// Capitoli dei Space Marines (parola chiave di fazione della scheda): una scheda del capitolo ha la
+// parola chiave del capitolo oltre a 'Adeptus Astartes'. Le altre fazioni non hanno sotto-fazioni.
+const CAPITOLI = new Set([
+  'Blood Angels',
+  'Dark Angels',
+  'Space Wolves',
+  'Ultramarines',
+  'Imperial Fists',
+  'Iron Hands',
+  'Raven Guard',
+  'Salamanders',
+  'White Scars',
+  'Black Templars',
+  'Deathwatch',
+]);
+
+function costruisciCapitoli(righe) {
+  const perId = new Map();
+  const perNome = new Map();
+  for (const r of righe) {
+    const parola = (r.keyword ?? '').trim();
+    if (r.is_faction_keyword !== 'true' || !CAPITOLI.has(parola)) continue;
+    const id = String(r.datasheet_id);
+    const attuali = perId.get(id) ?? [];
+    if (!attuali.includes(parola)) perId.set(id, [...attuali, parola]);
+    perNome.set(normalizza(r.name), perId.get(id));
+  }
+  return { perId, perNome };
+}
+
 async function scaricaEProcessa() {
   const [righePunti, righeComposizione] = await Promise.all([
     scaricaCsv('punti.csv'),
@@ -114,12 +147,14 @@ async function scaricaEProcessa() {
     scaricaCsv('abilita.csv').catch(() => []),
     scaricaCsv('abilita_comuni.csv').catch(() => []),
   ]);
+  const righeKeywords = await scaricaCsv('keywords.csv').catch(() => []);
   const { perId, perNome } = costruisciPunti(righePunti);
   return {
     perId,
     perNome,
     composizione: costruisciComposizione(righeComposizione),
     abilita: costruisciAbilita(righeAbilita, righeComuni),
+    capitoli: costruisciCapitoli(righeKeywords),
   };
 }
 
@@ -134,6 +169,8 @@ export function caricaDatiArmyBuilderSeNecessario() {
         idPerNome = dati.perNome;
         composizionePerId = dati.composizione;
         abilitaPerId = dati.abilita;
+        capitoliPerId = dati.capitoli.perId;
+        capitoliPerNome = dati.capitoli.perNome;
         caricato = true;
         ultimoErrore = null;
       })
@@ -217,6 +254,15 @@ export function modelliPredefiniti(unitaCsv) {
     if (taglia) return { valore: taglia, min: taglia, max: righe[0]?.max || null };
   }
   return null;
+}
+
+// Sotto-fazione (capitolo) di un'unità dei Space Marines, es. 'Blood Angels'; stringa vuota se è
+// generica (solo Adeptus Astartes), se non è dei Space Marines o se i dati non ci sono. Più capitoli
+// sono separati da virgola. Si trova per id Wahapedia o, per le BSData, per nome.
+export function sottoFazioneUnita(unitaCsv) {
+  if (!unitaCsv || unitaCsv.fazione !== 'Space Marines') return '';
+  const capitoli = capitoliPerId.get(String(unitaCsv.datasheetId)) ?? capitoliPerNome.get(normalizza(unitaCsv.nome));
+  return capitoli ? capitoli.join(', ') : '';
 }
 
 // Le abilità con testo più lungo di così, e quelle di fazione, non finiscono nel testo di NOTE: si

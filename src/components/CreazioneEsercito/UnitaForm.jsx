@@ -8,6 +8,7 @@ import {
   abilitaUnitaTesto,
   modelliPredefiniti,
   puntiPerNumeroModelli,
+  sottoFazioneUnita,
   useVersioneDatiArmyBuilder,
 } from './csvArmyBuilderImport';
 import AbilitaEstese from './AbilitaEstese';
@@ -23,6 +24,12 @@ const normalizza = (testo) =>
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase();
+
+// Unità il cui nome o la cui sotto-fazione contiene il testo cercato (tutto se vuoto).
+function filtraUnita(unita, testo) {
+  const q = normalizza(testo.trim());
+  return q ? unita.filter((u) => normalizza(`${u.nome} ${u.sottoFazione}`).includes(q)) : unita;
+}
 
 const CAMPI_STATISTICHE_CSV = [
   ['mov', 'MOV'],
@@ -67,16 +74,19 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   const [chiaveScelta, setChiaveScelta] = useState('');
   const [ricerca, setRicerca] = useState('');
   const chiaveUnita = chiaveScelta || unitaDisponibili[0]?.chiave || '';
-  const unitaFiltrate = useMemo(() => {
-    const q = normalizza(ricerca.trim());
-    return q ? unitaDisponibili.filter((u) => normalizza(u.nome).includes(q)) : unitaDisponibili;
-  }, [unitaDisponibili, ricerca]);
+  const versioneArmyBuilder = useVersioneDatiArmyBuilder();
+  // Sotto-fazione (capitolo) di ogni unità dei Space Marines, mostrata accanto al nome e cercabile.
+  const elencoUnita = useMemo(
+    () => unitaDisponibili.map((u) => ({ ...u, sottoFazione: sottoFazioneUnita(u) })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [unitaDisponibili, versioneArmyBuilder],
+  );
+  const unitaFiltrate = useMemo(() => filtraUnita(elencoUnita, ricerca), [elencoUnita, ricerca]);
   const unitaCsv = unitaDisponibili.find((u) => u.chiave === chiaveUnita) ?? unitaDisponibili[0] ?? null;
 
   // Numero di modelli e punti sono proposti dai dati dell'army builder (composizione e punti.csv) e
   // restano modificabili: finché l'utente non li tocca (null) seguono l'unità scelta; si azzerano ad
   // ogni cambio di fazione/unità.
-  const versioneArmyBuilder = useVersioneDatiArmyBuilder();
   const [modelliManuali, setModelliManuali] = useState(null);
   const [puntiManuali, setPuntiManuali] = useState(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,8 +153,7 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   // La ricerca filtra l'elenco delle unità della fazione; se l'unità scelta non corrisponde più passa alla prima trovata.
   const cambiaRicerca = (testo) => {
     setRicerca(testo);
-    const q = normalizza(testo.trim());
-    const trovate = q ? unitaDisponibili.filter((u) => normalizza(u.nome).includes(q)) : unitaDisponibili;
+    const trovate = filtraUnita(elencoUnita, testo);
     if (trovate.length > 0 && !trovate.some((u) => u.chiave === chiaveUnita)) cambiaUnita(trovate[0].chiave);
   };
 
@@ -197,6 +206,7 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
             {unitaFiltrate.map((u) => (
               <option key={u.chiave} value={u.chiave}>
                 {u.nome}
+                {u.sottoFazione ? ` (${u.sottoFazione})` : ''}
               </option>
             ))}
           </select>
@@ -208,7 +218,7 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
         <input
           type="search"
           value={ricerca}
-          placeholder={`Cerca tra le ${unitaDisponibili.length} unità della fazione…`}
+          placeholder={`Cerca per nome o sotto-fazione tra le ${unitaDisponibili.length} unità…`}
           onChange={(e) => cambiaRicerca(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.preventDefault();
