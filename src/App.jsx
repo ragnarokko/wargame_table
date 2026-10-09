@@ -3,9 +3,10 @@ import { TavoloProvider } from './contexts/TavoloContext';
 import { LibreriaProvider } from './contexts/LibreriaContext';
 import { TavoloStateProvider } from './contexts/TavoloStateContext';
 import { IndicatoriProvider } from './contexts/IndicatoriContext';
+import { TrackerProvider } from './contexts/TrackerContext';
 import PannelloLaterale from './components/PannelloLaterale/PannelloLaterale';
 import AreaLavoro from './components/AreaLavoro/AreaLavoro';
-import GameTracker from './components/GameTracker/GameTracker';
+import TrackerPartita from './components/TrackerPartita/TrackerPartita';
 import LancioDado from './components/LancioDado/LancioDado';
 import './App.css';
 
@@ -31,6 +32,7 @@ function App() {
     <>
     <IndicatoriProvider>
     <TavoloProvider>
+    <TrackerProvider>
       <LibreriaProvider>
         <TavoloStateProvider>
           <div className="app">
@@ -39,10 +41,11 @@ function App() {
               onToggleRighello={() => setRighelloAttivo((a) => !a)}
             />
             <AreaLavoro righelloAttivo={righelloAttivo} />
-            <GameTracker />
+            <TrackerPartita />
           </div>
         </TavoloStateProvider>
       </LibreriaProvider>
+    </TrackerProvider>
     </TavoloProvider>
     </IndicatoriProvider>
     <LancioDado />

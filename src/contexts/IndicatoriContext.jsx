@@ -44,6 +44,16 @@ export function IndicatoriProvider({ children }) {
     }));
   }, []);
 
+  // Usati dal tracker di partita (TrackerContext) per tenere allineati Turno e "Tocca a".
+  const impostaIndicatore = useCallback((chiave, valore) => {
+    setIndicatori((prev) => ({ ...prev, [chiave]: { ...prev[chiave], valore } }));
+  }, []);
+
+  const impostaGiocatoreAttivo = useCallback((giocatore) => {
+    if (giocatore !== 'blu' && giocatore !== 'rosso') return;
+    setIndicatori((prev) => ({ ...prev, giocatoreAttivo: { ...prev.giocatoreAttivo, valore: giocatore } }));
+  }, []);
+
   const rinominaIndicatore = useCallback((chiave, nuovoTitolo) => {
     setIndicatori((prev) => ({
       ...prev,
@@ -74,6 +84,8 @@ export function IndicatoriProvider({ children }) {
       incrementaIndicatore,
       decrementaIndicatore,
       alternaGiocatoreAttivo,
+      impostaIndicatore,
+      impostaGiocatoreAttivo,
       rinominaIndicatore,
       ripristinaIndicatori,
     }),
@@ -82,6 +94,8 @@ export function IndicatoriProvider({ children }) {
       incrementaIndicatore,
       decrementaIndicatore,
       alternaGiocatoreAttivo,
+      impostaIndicatore,
+      impostaGiocatoreAttivo,
       rinominaIndicatore,
       ripristinaIndicatori,
     ],

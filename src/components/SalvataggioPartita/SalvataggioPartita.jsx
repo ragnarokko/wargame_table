@@ -2,6 +2,7 @@ import { useTavolo } from '../../contexts/TavoloContext';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { useIndicatori } from '../../contexts/IndicatoriContext';
+import { useTracker } from '../../contexts/TrackerContext';
 import styles from './SalvataggioPartita.module.css';
 
 const VERSIONE_SALVATAGGIO = 1;
@@ -16,6 +17,7 @@ function SalvataggioPartita() {
   const { basette, impostaBasette } = useLibreria();
   const { istanze, elementiScenici, ripristinaTavolo } = useTavoloState();
   const { indicatori, ripristinaIndicatori } = useIndicatori();
+  const { stato: tracker, ripristinaTracker } = useTracker();
 
   const handleSave = () => {
     const dati = {
@@ -25,6 +27,7 @@ function SalvataggioPartita() {
       elementiScenici,
       tavolo: { dimensioni, sfondo },
       indicatori,
+      tracker,
     };
     const json = JSON.stringify(dati, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -59,6 +62,8 @@ function SalvataggioPartita() {
         // `indicatori` non esisteva nei salvataggi precedenti a questa funzionalità:
         // ripristinaIndicatori gestisce da sé l'assenza/parzialità del campo (vedi IndicatoriContext).
         ripristinaIndicatori(dati.indicatori);
+        // Anche `tracker` manca nei salvataggi più vecchi: in tal caso il tracker riparte dal setup.
+        ripristinaTracker(dati.tracker);
       } catch (err) {
         alert('Caricamento fallito: ' + err.message);
       }

@@ -49,8 +49,8 @@ function estraiUnita(basette, esercito) {
 }
 
 // Tasto "Botte!": apre il calcolatore di combattimento in una finestra separata (stessa
-// logica di apertura di GameTracker.jsx: una nuova finestra ad ogni click, dimensionata
-// sullo schermo disponibile) e gli invia le unità delle due armate via postMessage, così
+// logica con cui si apriva il vecchio pulsante Game Tracker: una nuova finestra ad ogni click,
+// dimensionata sullo schermo disponibile) e gli invia le unità delle due armate via postMessage, così
 // nel Difensore si può scegliere un'unità invece di ricopiarne a mano le statistiche.
 function PulsanteCalcolatore() {
   const { basette } = useLibreria();

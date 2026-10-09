@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTavolo } from '../../contexts/TavoloContext';
+import { DISPOSIZIONI } from '../../config/missioni';
 import styles from './SelettoreLayout.module.css';
-
-const FORCE_DISPOSITIONS = [
-  { codice: 'th', nome: 'Take and Hold' },
-  { codice: 'di', nome: 'Disruption' },
-  { codice: 'pf', nome: 'Purge the Foe' },
-  { codice: 'pa', nome: 'Priority Assets' },
-  { codice: 're', nome: 'Reconnaissance' },
-];
 
 const SUFFISSI_LAYOUT = { 1: 'a', 2: 'b', 3: 'c' };
 
@@ -31,10 +24,8 @@ function trovaImmagineLayout(codice1, codice2, numeroLayout) {
 }
 
 function SelettoreLayout() {
-  const { setSfondo } = useTavolo();
-  const [giocatore1, setGiocatore1] = useState('');
-  const [giocatore2, setGiocatore2] = useState('');
-  const [numeroLayout, setNumeroLayout] = useState('');
+  const { setSfondo, selezioneLayout, impostaSelezioneLayout } = useTavolo();
+  const { giocatore1, giocatore2, numeroLayout } = selezioneLayout;
   const [errore, setErrore] = useState(null);
 
   useEffect(() => {
@@ -58,9 +49,9 @@ function SelettoreLayout() {
 
       <label>
         Giocatore 1
-        <select value={giocatore1} onChange={(e) => setGiocatore1(e.target.value)}>
+        <select value={giocatore1} onChange={(e) => impostaSelezioneLayout({ giocatore1: e.target.value })}>
           <option value="">Seleziona...</option>
-          {FORCE_DISPOSITIONS.map((fd) => (
+          {DISPOSIZIONI.map((fd) => (
             <option key={fd.codice} value={fd.codice}>
               {fd.nome}
             </option>
@@ -70,9 +61,9 @@ function SelettoreLayout() {
 
       <label>
         Giocatore 2
-        <select value={giocatore2} onChange={(e) => setGiocatore2(e.target.value)}>
+        <select value={giocatore2} onChange={(e) => impostaSelezioneLayout({ giocatore2: e.target.value })}>
           <option value="">Seleziona...</option>
-          {FORCE_DISPOSITIONS.map((fd) => (
+          {DISPOSIZIONI.map((fd) => (
             <option key={fd.codice} value={fd.codice}>
               {fd.nome}
             </option>
@@ -82,7 +73,7 @@ function SelettoreLayout() {
 
       <label>
         Layout
-        <select value={numeroLayout} onChange={(e) => setNumeroLayout(e.target.value)}>
+        <select value={numeroLayout} onChange={(e) => impostaSelezioneLayout({ numeroLayout: e.target.value })}>
           <option value="">Seleziona...</option>
           <option value="1">1</option>
           <option value="2">2</option>

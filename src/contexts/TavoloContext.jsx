@@ -8,6 +8,13 @@ const MARGINE_STAGING_POLLICI = 14;
 export function TavoloProvider({ children }) {
   const [dimensioni, setDimensioniState] = useState({ larghezza: 60, altezza: 44 });
   const [sfondo, setSfondo] = useState(null);
+  // Scelta di "Force disposition" (codici delle due disposizioni e numero di layout): vive qui, e non
+  // dentro SelettoreLayout, perché la imposta anche il tracker di partita (vedi TrackerContext).
+  const [selezioneLayout, setSelezioneLayout] = useState({ giocatore1: '', giocatore2: '', numeroLayout: '1' });
+
+  const impostaSelezioneLayout = useCallback((patch) => {
+    setSelezioneLayout((prev) => ({ ...prev, ...patch }));
+  }, []);
 
   const setDimensioni = useCallback((larghezza, altezza) => {
     setDimensioniState({
@@ -59,6 +66,8 @@ export function TavoloProvider({ children }) {
       setDimensioni,
       sfondo,
       setSfondo,
+      selezioneLayout,
+      impostaSelezioneLayout,
       pxPerPollice: PX_PER_POLLICE,
       tavoloPx,
       tavoloRect,
@@ -66,7 +75,18 @@ export function TavoloProvider({ children }) {
       margineStagingPx,
       puntoNelTavolo,
     }),
-    [dimensioni, setDimensioni, sfondo, tavoloPx, tavoloRect, campoGiocoPx, margineStagingPx, puntoNelTavolo],
+    [
+      dimensioni,
+      setDimensioni,
+      sfondo,
+      selezioneLayout,
+      impostaSelezioneLayout,
+      tavoloPx,
+      tavoloRect,
+      campoGiocoPx,
+      margineStagingPx,
+      puntoNelTavolo,
+    ],
   );
 
   return <TavoloContext.Provider value={value}>{children}</TavoloContext.Provider>;

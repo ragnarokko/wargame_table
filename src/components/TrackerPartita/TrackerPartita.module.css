@@ -1,0 +1,578 @@
+/* Pannello laterale destro a tutta altezza; da chiuso resta la linguetta verticale. */
+.pannello {
+  flex-shrink: 0;
+  width: 330px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--colore-pannello);
+  border-left: 1px solid var(--colore-bordo);
+}
+
+.titoloPannello {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.chiudi {
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  padding: 2px 8px;
+}
+
+.chiudi:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--colore-testo);
+}
+
+.corpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+
+.linguetta {
+  flex-shrink: 0;
+  width: 36px;
+  min-width: 36px;
+  align-self: stretch;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background: var(--colore-pannello);
+  color: var(--colore-testo);
+  border: 1px solid var(--colore-bordo);
+  border-radius: 0;
+  padding: 16px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.linguetta:hover {
+  background: var(--colore-accento);
+}
+
+
+.setup,
+.partita {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.gruppo {
+  margin: 0;
+  padding: 8px 10px 10px;
+  border: 1px solid var(--colore-bordo);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gruppoBlu legend {
+  color: #3b82f6;
+}
+
+.gruppoRosso legend {
+  color: #ef4444;
+}
+
+.gruppo legend {
+  font-weight: 700;
+  padding: 0 4px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--colore-testo-secondario);
+}
+
+.campo select {
+  width: 100%;
+}
+
+.scelte {
+  display: flex;
+  gap: 4px;
+}
+
+.scelta {
+  flex: 1;
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  border: 1px solid var(--colore-bordo);
+  padding: 4px 6px;
+}
+
+.scelta:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sceltaAttiva,
+.sceltaAttiva:hover {
+  background: var(--colore-accento);
+  border-color: var(--colore-accento);
+  color: #fff;
+}
+
+.fisse {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--colore-testo);
+}
+
+.fisse label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.avvia {
+  padding: 8px;
+  font-weight: 700;
+}
+
+.avvia:disabled,
+.piccolo:disabled,
+.carta:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.vuoto {
+  color: var(--colore-testo-secondario);
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Statistica fissa in fondo al pannello */
+.statistiche {
+  flex-shrink: 0;
+  border-top: 1px solid var(--colore-bordo);
+  padding: 8px 14px 10px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.statistiche table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  text-align: center;
+}
+
+.statistiche th {
+  font-weight: 600;
+  color: var(--colore-testo-secondario);
+  padding: 1px 2px;
+}
+
+.statistiche td {
+  padding: 1px 2px;
+}
+
+.statistiche td:first-child {
+  text-align: left;
+  color: var(--colore-testo-secondario);
+}
+
+.statistiche tbody td:nth-child(2),
+.statistiche tbody td:nth-child(4),
+.statistiche tfoot tr:first-child td:nth-child(2),
+.statistiche tfoot tr:first-child td:nth-child(4) {
+  border-left: 1px solid var(--colore-bordo);
+}
+
+.colBlu {
+  color: #3b82f6 !important;
+  border-left: 1px solid var(--colore-bordo);
+}
+
+.colRosso {
+  color: #ef4444 !important;
+  border-left: 1px solid var(--colore-bordo);
+}
+
+.roundCorrente td {
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+}
+
+.zero {
+  color: var(--colore-testo-secondario);
+  opacity: 0.5;
+}
+
+.statistiche tfoot td {
+  border-top: 1px solid var(--colore-bordo);
+  font-weight: 700;
+}
+
+.totaleRiga {
+  font-size: 14px;
+  border-left: 1px solid var(--colore-bordo);
+}
+
+/* Turni */
+.turni {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.turnoInfo {
+  flex: 1;
+  text-align: center;
+}
+
+.round {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.round small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--colore-testo-secondario);
+}
+
+.chiTocca {
+  color: var(--colore-testo-secondario);
+}
+
+/* Scheda giocatore */
+.scheda {
+  border: 1px solid var(--colore-bordo);
+  border-top: 3px solid var(--colore-giocatore);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.schedaAttiva {
+  box-shadow: 0 0 0 1px var(--colore-giocatore);
+}
+
+.schedaTesta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.nomeGiocatore {
+  color: var(--colore-giocatore);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chipTurno,
+.chip {
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--colore-testo-secondario);
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.totaleVp {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.totaleVp small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--colore-testo-secondario);
+}
+
+.barre {
+  display: flex;
+  justify-content: space-between;
+  color: var(--colore-testo-secondario);
+  font-size: 11px;
+}
+
+.blocco {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--colore-bordo);
+  padding-top: 6px;
+}
+
+.bloccoTitolo {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--colore-testo-secondario);
+}
+
+.tipoSec {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.nomeMissione {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.segna {
+  padding: 5px 8px;
+}
+
+.storico {
+  color: var(--colore-testo-secondario);
+  font-size: 11px;
+}
+
+.secondaria {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nomeSecondaria {
+  flex: 1;
+  font-weight: 600;
+}
+
+.piccolo {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.secondario {
+  background: transparent;
+  border: 1px solid var(--colore-bordo);
+  color: var(--colore-testo-secondario);
+}
+
+.secondario:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--colore-testo);
+}
+
+.azioniSec {
+  display: flex;
+  gap: 4px;
+}
+
+.log {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+}
+
+.log li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.log li span {
+  flex: 1;
+}
+
+.log b {
+  color: var(--colore-testo);
+}
+
+.x {
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  padding: 0 4px;
+  font-size: 11px;
+}
+
+.x:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--colore-testo);
+}
+
+.nuova {
+  padding: 5px;
+}
+
+.testoConferma {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Dialoghi (Modale) */
+.notaMissione {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--colore-testo-secondario);
+}
+
+.avviso {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: #e0b34a;
+}
+
+.sezione {
+  margin-bottom: 12px;
+}
+
+.sezione h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.momento {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  color: var(--colore-testo-secondario);
+}
+
+.voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alternative {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.riga {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.testoRiga {
+  flex: 1;
+}
+
+.vp {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--colore-accento);
+}
+
+.cumulativo {
+  margin: 4px 0 0 20px;
+}
+
+.contatore {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.contatore button {
+  padding: 0 7px;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.contatoreValore {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.scarta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.piede {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid var(--colore-bordo);
+  padding-top: 10px;
+}
+
+.totaleDialogo {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.totaleDialogo .avviso {
+  display: block;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.azioniDialogo {
+  display: flex;
+  gap: 6px;
+}
+
+.elencoCarte {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.carta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--colore-bordo);
+  color: var(--colore-testo);
+  padding: 7px 10px;
+}
+
+.carta:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.carta span:first-child {
+  flex: 1;
+}
