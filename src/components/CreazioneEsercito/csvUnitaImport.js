@@ -41,6 +41,7 @@ function normalizzaUnita(record) {
     datasheetId: record.datasheet_id,
     riga: Number(record.line) || 0,
     fazione: record.faction,
+    codiceFazione: record.fac,
     nome: record.name,
     baseSize: record.base_size,
     mov: record.MOV,
@@ -150,6 +151,12 @@ export function elencoFazioni() {
 export function fazionePerDatasheetId(datasheetId) {
   if (datasheetId === undefined || datasheetId === null || datasheetId === '') return '';
   return unitaCache.find((u) => String(u.datasheetId) === String(datasheetId))?.fazione ?? '';
+}
+
+// Codice della fazione (campo fac, es. 'SM') di una scheda, o '' se i dati caricati non la conoscono.
+export function codiceFazionePerDatasheetId(datasheetId) {
+  if (datasheetId === undefined || datasheetId === null || datasheetId === '') return '';
+  return unitaCache.find((u) => String(u.datasheetId) === String(datasheetId))?.codiceFazione ?? '';
 }
 
 // Unità della fazione in ordine alfabetico (a parità di nome, nell'ordine delle righe del file).

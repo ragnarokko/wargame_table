@@ -42,7 +42,7 @@ function notificaAscoltatori() {
   ascoltatori.forEach((cb) => cb());
 }
 
-async function scaricaCsv(nomeFile) {
+export async function scaricaCsv(nomeFile) {
   const percorso = urlArmyBuilderCsv(nomeFile);
   const risposta = await fetch(`${percorso}?t=${Date.now()}`, { cache: 'no-store' });
   const testo = await risposta.text();

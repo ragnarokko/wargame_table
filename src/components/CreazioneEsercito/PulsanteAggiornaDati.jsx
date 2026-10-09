@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ricaricaDatiCsv } from './csvUnitaImport';
 import { ricaricaDatiArmi } from './csvArmiImport';
 import { ricaricaDatiArmyBuilder } from './csvArmyBuilderImport';
+import { ricaricaDatiRegole } from '../RegoleEsercito/csvRegoleEsercito';
 import { ricaricaFinestreCalcolatore } from '../../utils/finestreCalcolatore';
 import styles from './PulsanteAggiornaDati.module.css';
 
@@ -24,7 +25,12 @@ function PulsanteAggiornaDati() {
     setStato('corso');
     try {
       // I file dei punti (army_builder/) sono facoltativi: se mancano, l'aggiornamento di unità e armi riesce lo stesso.
-      await Promise.all([ricaricaDatiCsv(), ricaricaDatiArmi(), ricaricaDatiArmyBuilder().catch(() => {})]);
+      await Promise.all([
+        ricaricaDatiCsv(),
+        ricaricaDatiArmi(),
+        ricaricaDatiArmyBuilder().catch(() => {}),
+        ricaricaDatiRegole().catch(() => {}),
+      ]);
       ricaricaFinestreCalcolatore();
       setStato('ok');
     } catch {
@@ -41,7 +47,7 @@ function PulsanteAggiornaDati() {
         className={`${styles.pulsante} ${styles[stato] || ''}`}
         onClick={handleClick}
         disabled={stato === 'corso'}
-        title="Ricarica info.csv, Datasheets_wargear.csv e i file di army_builder/ (punti, composizione, abilità) dopo averli aggiornati nel repo del calcolatore, anche nelle finestre Botte! aperte (nessun rebuild necessario)"
+        title="Ricarica info.csv, Datasheets_wargear.csv e i file di army_builder/ (punti, composizione, abilità, distaccamenti, stratagemmi) dopo averli aggiornati nel repo del calcolatore, anche nelle finestre Botte! aperte (nessun rebuild necessario)"
       >
         {ETICHETTE[stato]}
       </button>

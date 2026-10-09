@@ -3,6 +3,7 @@ import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { useIndicatori } from '../../contexts/IndicatoriContext';
 import { useTracker } from '../../contexts/TrackerContext';
+import { useRegoleEsercito } from '../../contexts/RegoleEsercitoContext';
 import styles from './SalvataggioPartita.module.css';
 
 const VERSIONE_SALVATAGGIO = 1;
@@ -18,6 +19,7 @@ function SalvataggioPartita() {
   const { istanze, elementiScenici, ripristinaTavolo } = useTavoloState();
   const { indicatori, ripristinaIndicatori } = useIndicatori();
   const { stato: tracker, ripristinaTracker } = useTracker();
+  const { stato: regoleEsercito, ripristinaRegoleEsercito } = useRegoleEsercito();
 
   const handleSave = () => {
     const dati = {
@@ -28,6 +30,7 @@ function SalvataggioPartita() {
       tavolo: { dimensioni, sfondo },
       indicatori,
       tracker,
+      regoleEsercito,
     };
     const json = JSON.stringify(dati, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -64,6 +67,8 @@ function SalvataggioPartita() {
         ripristinaIndicatori(dati.indicatori);
         // Anche `tracker` manca nei salvataggi più vecchi: in tal caso il tracker riparte dal setup.
         ripristinaTracker(dati.tracker);
+        // Idem per `regoleEsercito` (fazione e distaccamenti scelti nel pannello Eserciti).
+        ripristinaRegoleEsercito(dati.regoleEsercito);
       } catch (err) {
         alert('Caricamento fallito: ' + err.message);
       }

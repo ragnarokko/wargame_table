@@ -2,57 +2,30 @@ import { useState } from 'react';
 import { LIMITI_VP } from '../../config/missioni';
 import { useTracker } from '../../contexts/TrackerContext';
 import Modale from '../Modale/Modale';
+import PannelloDestro from '../PannelloDestro/PannelloDestro';
 import SchedaGiocatore, { NOME_GIOCATORE } from './SchedaGiocatore';
 import SetupTracker from './SetupTracker';
 import StatisticheTracker from './StatisticheTracker';
 import styles from './TrackerPartita.module.css';
 
-const CHIAVE_APERTO = 'tavolo-tracker-aperto';
-
-function leggiAperto() {
-  try {
-    return localStorage.getItem(CHIAVE_APERTO) !== '0';
-  } catch {
-    return true;
-  }
-}
-
 // Pannello laterale destro, a tutta altezza, per tracciare la partita: setup guidato (disposizioni,
 // secondarie, attaccante, primo turno), poi round/turni (riportati negli indicatori sul tavolo) e punti
-// di primarie e secondarie per giocatore. Chiuso si riduce a una linguetta verticale. Stato in TrackerContext.
-function TrackerPartita() {
+// di primarie e secondarie per giocatore. Chiuso si riduce a una linguetta verticale (vedi PannelloDestro;
+// aperto/chiuso è deciso da PannelliDestra). Stato in TrackerContext.
+function TrackerPartita({ aperto, onApri, onChiudi }) {
   const { stato, avanzaTurno, tornaIndietro, nuovaPartita } = useTracker();
-  const [aperto, setApertoState] = useState(leggiAperto);
   const [confermaAperta, setConfermaAperta] = useState(false);
   const inPartita = stato.fase === 'partita';
   const ultimoTurno = stato.round === LIMITI_VP.round && stato.turnoDi !== stato.primo;
 
-  const setAperto = (valore) => {
-    setApertoState(valore);
-    try {
-      localStorage.setItem(CHIAVE_APERTO, valore ? '1' : '0');
-    } catch {
-      // localStorage non disponibile: la scelta vale solo per questa sessione.
-    }
-  };
-
-  if (!aperto) {
-    return (
-      <button type="button" className={styles.linguetta} onClick={() => setAperto(true)} title="Apri il tracker partita">
-        Tracker partita
-      </button>
-    );
-  }
-
   return (
-    <aside className={styles.pannello}>
-      <div className={styles.titoloPannello}>
-        <span>Tracker partita</span>
-        <button type="button" className={styles.chiudi} onClick={() => setAperto(false)} title="Chiudi il tracker">
-          ✕
-        </button>
-      </div>
-      <div className={styles.corpo}>
+    <PannelloDestro
+      titolo="Tracker partita"
+      aperto={aperto}
+      onApri={onApri}
+      onChiudi={onChiudi}
+      piede={inPartita ? <StatisticheTracker /> : null}
+    >
       {!inPartita ? (
         <SetupTracker />
       ) : (
@@ -106,9 +79,7 @@ function TrackerPartita() {
           </Modale>
         </div>
       )}
-      </div>
-      {inPartita && <StatisticheTracker />}
-    </aside>
+    </PannelloDestro>
   );
 }
 
