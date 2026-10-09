@@ -17,6 +17,13 @@ import styles from './CreazioneEsercito.module.css';
 const MODELLI_DI_RIPIEGO = 1;
 const OPZIONI_MOSTRATE = 3;
 
+// Confronto della ricerca senza maiuscole e accenti.
+const normalizza = (testo) =>
+  (testo || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+
 const CAMPI_STATISTICHE_CSV = [
   ['mov', 'MOV'],
   ['res', 'RES'],
@@ -58,7 +65,12 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const unitaDisponibili = useMemo(() => unitaPerFazione(fazioneCsv), [fazioneCsv, versioneDatiCsv]);
   const [chiaveScelta, setChiaveScelta] = useState('');
+  const [ricerca, setRicerca] = useState('');
   const chiaveUnita = chiaveScelta || unitaDisponibili[0]?.chiave || '';
+  const unitaFiltrate = useMemo(() => {
+    const q = normalizza(ricerca.trim());
+    return q ? unitaDisponibili.filter((u) => normalizza(u.nome).includes(q)) : unitaDisponibili;
+  }, [unitaDisponibili, ricerca]);
   const unitaCsv = unitaDisponibili.find((u) => u.chiave === chiaveUnita) ?? unitaDisponibili[0] ?? null;
 
   // Numero di modelli e punti sono proposti dai dati dell'army builder (composizione e punti.csv) e
@@ -76,7 +88,9 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   const stimaPunti = puntiPerNumeroModelli(datiPunti, modelliPerPunti);
   // I punti sono dell'intera scheda: se ha più profili di modello (es. Boy + Nob) li propongo solo sul
   // primo, per non contarli due volte creando un'unità per ogni profilo.
-  const primoProfilo = unitaDisponibili.find((u) => u.datasheetId === unitaCsv?.datasheetId);
+  const primoProfilo = unitaDisponibili
+    .filter((u) => u.datasheetId === unitaCsv?.datasheetId)
+    .sort((a, b) => a.riga - b.riga)[0];
   const proponiPunti = Boolean(stimaPunti) && primoProfilo?.chiave === unitaCsv?.chiave;
   const punti = puntiManuali ?? (proponiPunti ? String(stimaPunti.punti) : '');
   // NOTE parte dalla nota del CSV (es. invulnerabile condizionata) più le abilità dell'unità (core solo
@@ -106,6 +120,7 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
 
   const cambiaFazione = (nuovaFazione) => {
     statisticheInizializzate.current = true;
+    setRicerca('');
     setModelliManuali(null);
     setPuntiManuali(null);
     setNoteManuale(null);
@@ -123,6 +138,14 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
     setChiaveScelta(chiave);
     const trovata = unitaDisponibili.find((u) => u.chiave === chiave);
     setStatistiche(statisticheDaUnitaCsv(trovata));
+  };
+
+  // La ricerca filtra l'elenco delle unità della fazione; se l'unità scelta non corrisponde più passa alla prima trovata.
+  const cambiaRicerca = (testo) => {
+    setRicerca(testo);
+    const q = normalizza(testo.trim());
+    const trovate = q ? unitaDisponibili.filter((u) => normalizza(u.nome).includes(q)) : unitaDisponibili;
+    if (trovate.length > 0 && !trovate.some((u) => u.chiave === chiaveUnita)) cambiaUnita(trovate[0].chiave);
   };
 
   const aggiornaStatistica = (campo, valore) => setStatistiche((prev) => ({ ...prev, [campo]: valore }));
@@ -170,7 +193,8 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
         <label>
           Unità
           <select value={chiaveUnita} onChange={(e) => cambiaUnita(e.target.value)}>
-            {unitaDisponibili.map((u) => (
+            {unitaFiltrate.length === 0 && <option value="">Nessuna unità trovata</option>}
+            {unitaFiltrate.map((u) => (
               <option key={u.chiave} value={u.chiave}>
                 {u.nome}
               </option>
@@ -178,6 +202,19 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
           </select>
         </label>
       </div>
+
+      <label>
+        Cerca unità
+        <input
+          type="search"
+          value={ricerca}
+          placeholder={`Cerca tra le ${unitaDisponibili.length} unità della fazione…`}
+          onChange={(e) => cambiaRicerca(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.preventDefault();
+          }}
+        />
+      </label>
 
       <div className={styles.rigaCampi}>
         <label>
@@ -286,7 +323,9 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
       <AbilitaEstese abilita={abilitaEstese} />
 
       <div className={styles.formAzioni}>
-        <button type="submit">Crea unità</button>
+        <button type="submit" disabled={unitaFiltrate.length === 0}>
+          Crea unità
+        </button>
         <button type="button" onClick={onAnnulla}>
           Annulla
         </button>

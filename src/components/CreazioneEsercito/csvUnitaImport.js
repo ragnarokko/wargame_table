@@ -39,6 +39,7 @@ function normalizzaUnita(record) {
   return {
     chiave: `${record.datasheet_id}-${record.line}`,
     datasheetId: record.datasheet_id,
+    riga: Number(record.line) || 0,
     fazione: record.faction,
     nome: record.name,
     baseSize: record.base_size,
@@ -151,8 +152,11 @@ export function fazionePerDatasheetId(datasheetId) {
   return unitaCache.find((u) => String(u.datasheetId) === String(datasheetId))?.fazione ?? '';
 }
 
+// Unità della fazione in ordine alfabetico (a parità di nome, nell'ordine delle righe del file).
 export function unitaPerFazione(fazione) {
-  return unitaCache.filter((u) => u.fazione === fazione);
+  return unitaCache
+    .filter((u) => u.fazione === fazione)
+    .sort((a, b) => a.nome.localeCompare(b.nome) || a.riga - b.riga);
 }
 
 // Determina forma e dimensioni (mm) della basetta a partire dal campo base_size del CSV:
