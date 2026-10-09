@@ -5,7 +5,12 @@ import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { ESERCITI } from '../../config/eserciti';
 import { ALTEZZA_FASCIA_INDICATORI_PX } from '../../config/indicatori';
 import { coloreDisponibile } from '../../utils/colori';
-import { determinaFormaEDimensioni, generaNomeUnivoco, caricaDatiCsvSeNecessario } from './csvUnitaImport';
+import {
+  determinaFormaEDimensioni,
+  fazionePerDatasheetId,
+  generaNomeUnivoco,
+  caricaDatiCsvSeNecessario,
+} from './csvUnitaImport';
 import { caricaDatiArmiSeNecessario } from './csvArmiImport';
 import { caricaDatiArmyBuilderSeNecessario } from './csvArmyBuilderImport';
 import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
@@ -60,6 +65,14 @@ function CreazioneEsercito() {
       window.removeEventListener(EVENTO_SELEZIONE_MULTIPLA, onSelezione);
     };
   }, []);
+
+  // Fazione già presente nell'esercito scelto (quella dell'ultima unità creata): "+ Nuova unità" la
+  // propone per prima invece della prima in elenco.
+  const fazioneEsercito = unitaTutte
+    .filter((u) => u.esercito === esercitoSelezionato)
+    .map((u) => fazionePerDatasheetId(u.datasheetId))
+    .filter(Boolean)
+    .pop();
 
   const contaModelli = (templateId) => istanze.filter((i) => i.templateId === templateId).length;
 
@@ -163,6 +176,7 @@ function CreazioneEsercito() {
       {formAperto ? (
         <UnitaForm
           coloreDefault={coloreDisponibile(esercitoSelezionato, unitaTutte)}
+          fazioneIniziale={fazioneEsercito}
           onCrea={handleCrea}
           onAnnulla={() => setFormAperto(false)}
         />
@@ -187,7 +201,7 @@ function CreazioneEsercito() {
                   key={u.id}
                   unita={u}
                   numeroModelli={contaModelli(u.id)}
-                  mostrata={unitaMostrata?.id === u.id ? unitaMostrata : null}
+                  richiesta={unitaMostrata}
                   onSeleziona={() => handleSeleziona(u.id)}
                   onRimuovi={() => handleRimuovi(u.id)}
                   onRinomina={(nuovoNome) => handleRinomina(u.id, nuovoNome)}

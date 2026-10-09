@@ -3,7 +3,7 @@ import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import styles from './PersistenzaEserciti.module.css';
 
-const CHIAVE_LOCALSTORAGE = 'tavolo-eserciti-json';
+export const CHIAVE_LOCALSTORAGE = 'tavolo-eserciti-json';
 
 function applicaDati(dati, sostituisciUnitaEserciti, impostaIstanzePerTemplates) {
   if (!dati || !Array.isArray(dati.unita) || !Array.isArray(dati.istanze)) {

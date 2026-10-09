@@ -9,7 +9,8 @@
   bottom: 100%;
   left: 50%;
   transform: translate(-50%, -8px);
-  width: 440px;
+  width: 540px;
+  --dim-abilita: 13px;
   background: #1c1c24;
   border: 1px solid #3a3a46;
   border-radius: 8px;
@@ -45,7 +46,7 @@
 
 .nome {
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   color: #eaeaf0;
   margin-bottom: 4px;
 }
@@ -53,13 +54,13 @@
 .statistiche {
   margin: 0;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
   color: #b8b8c8;
   white-space: pre-wrap;
 }
 
 .esercito {
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #8a8a9a;
@@ -76,7 +77,7 @@
 .cellaStatistica {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 13px;
   color: #b8b8c8;
 }
 
@@ -85,7 +86,7 @@
 }
 
 .note {
-  font-size: 11px;
+  font-size: 13px;
   color: #b8b8c8;
   white-space: pre-wrap;
 }
@@ -97,7 +98,7 @@
 }
 
 .armiTitolo {
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #8a8a9a;
@@ -113,7 +114,7 @@
 }
 
 .armaLinea {
-  font-size: 10.5px;
+  font-size: 12.5px;
   color: #b8b8c8;
   line-height: 1.4;
 }
@@ -124,14 +125,14 @@
 }
 
 .armaDescrizione {
-  font-size: 10px;
+  font-size: 11.5px;
   color: #9a9aab;
   white-space: pre-wrap;
   margin-top: 2px;
 }
 
 .vuoto {
-  font-size: 11px;
+  font-size: 13px;
   color: #7a7a8a;
   font-style: italic;
 }

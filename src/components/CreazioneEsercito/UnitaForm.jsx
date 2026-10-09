@@ -39,7 +39,9 @@ function statisticheDaUnitaCsv(unitaCsv) {
   };
 }
 
-function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
+// fazioneIniziale: fazione proposta all'apertura (quella delle unità già nell'esercito); se i dati non la
+// contengono si parte dalla prima.
+function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   // I dati CSV possono ancora essere in caricamento al primo render (fetch asincrono, vedi
   // csvUnitaImport.js): fazioneCsv/chiaveUnita ricadono su un sentinella vuoto e si aggiornano
   // da soli non appena elencoFazioni()/unitaPerFazione() smettono di essere vuoti, invece di
@@ -51,8 +53,8 @@ function UnitaForm({ coloreDefault, onCrea, onAnnulla }) {
   // esterno al modulo invece di un valore passato esplicitamente.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fazioni = useMemo(() => elencoFazioni(), [versioneDatiCsv]);
-  const [fazioneScelta, setFazioneScelta] = useState('');
-  const fazioneCsv = fazioneScelta || fazioni[0] || '';
+  const [fazioneScelta, setFazioneScelta] = useState(fazioneIniziale);
+  const fazioneCsv = fazioni.includes(fazioneScelta) ? fazioneScelta : fazioni[0] || '';
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const unitaDisponibili = useMemo(() => unitaPerFazione(fazioneCsv), [fazioneCsv, versioneDatiCsv]);
   const [chiaveScelta, setChiaveScelta] = useState('');

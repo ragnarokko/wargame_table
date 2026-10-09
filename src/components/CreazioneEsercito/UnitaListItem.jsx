@@ -19,22 +19,28 @@ const CAMPI_STATISTICHE = [
 // Voce dell'accordion per una singola unità: il nome, al passaggio del mouse, evidenzia
 // tutte le basette sul campo appartenenti a questa unità (stesso templateId) e, al click, le
 // seleziona (onSeleziona); la freccia a sinistra apre/chiude i dettagli.
-function UnitaListItem({ unita, numeroModelli, mostrata, onSeleziona, onRimuovi, onRinomina }) {
+function UnitaListItem({ unita, numeroModelli, richiesta, onSeleziona, onRimuovi, onRinomina }) {
   const [dettagliAperti, setDettagliAperti] = useState(false);
   const [rinominaAperta, setRinominaAperta] = useState(false);
   const [nuovoNome, setNuovoNome] = useState(unita.nome);
   const [evidenziataDalCampo, setEvidenziataDalCampo] = useState(false);
   const voceRef = useRef(null);
 
-  // Doppio click sulla basetta sul campo (vedi CreazioneEsercito): apre i dettagli e porta la voce in
-  // vista, scorrendo la lista (e la barra laterale) se serve. Il piccolo ritardo lascia il tempo
-  // all'accordion di aprirsi e ai dettagli di prendere posto prima della misura.
+  // Doppio click sulla basetta sul campo (vedi CreazioneEsercito): la voce richiesta apre i dettagli e si
+  // porta in vista, scorrendo la lista (e la barra laterale) se serve; tutte le altre chiudono i propri,
+  // così resta aperto un solo dettaglio. Il piccolo ritardo lascia il tempo all'accordion di aprirsi e ai
+  // dettagli di prendere posto prima della misura.
+  const mostrata = richiesta?.id === unita.id;
   useEffect(() => {
-    if (!mostrata) return undefined;
+    if (!richiesta) return undefined;
+    if (richiesta.id !== unita.id) {
+      setDettagliAperti(false);
+      return undefined;
+    }
     setDettagliAperti(true);
     const timer = setTimeout(() => voceRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80);
     return () => clearTimeout(timer);
-  }, [mostrata]);
+  }, [richiesta, unita.id]);
 
   // Speculare all'evidenziazione lista→basette: l'hover su una basetta sul campo
   // (o su una sua "sorella" della stessa unità) evidenzia questa riga.

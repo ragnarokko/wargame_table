@@ -145,6 +145,12 @@ export function elencoFazioni() {
   return [...new Set(unitaCache.map((u) => u.fazione))].sort((a, b) => a.localeCompare(b));
 }
 
+// Fazione di una scheda (datasheetId come in info.csv), o '' se i dati caricati non la conoscono.
+export function fazionePerDatasheetId(datasheetId) {
+  if (datasheetId === undefined || datasheetId === null || datasheetId === '') return '';
+  return unitaCache.find((u) => String(u.datasheetId) === String(datasheetId))?.fazione ?? '';
+}
+
 export function unitaPerFazione(fazione) {
   return unitaCache.filter((u) => u.fazione === fazione);
 }

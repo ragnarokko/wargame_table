@@ -10,6 +10,7 @@ import PulsanteAggiornaDati from '../CreazioneEsercito/PulsanteAggiornaDati';
 import Aiuto from '../Aiuto/Aiuto';
 import Impostazioni from '../Impostazioni/Impostazioni';
 import LinkUtili from '../LinkUtili/LinkUtili';
+import Reset from '../Reset/Reset';
 import styles from './PannelloLaterale.module.css';
 
 function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
@@ -18,6 +19,7 @@ function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
       <div className={styles.titolo}>
         <Impostazioni />
         <span>Tavolo da Gioco</span>
+        <Reset />
       </div>
       <PulsanteCalcolatore />
       <SalvataggioPartita />

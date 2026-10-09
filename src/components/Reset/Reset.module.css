@@ -1,0 +1,34 @@
+.reset {
+  margin-left: auto;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  border: 1px solid var(--colore-bordo);
+}
+
+.reset:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--colore-testo);
+}
+
+.testo {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.azioni {
+  display: flex;
+  gap: 8px;
+}
+
+.azioni button {
+  flex: 1;
+}
+
+.conferma {
+  background: #a23333;
+  border-color: #a23333;
+  color: #fff;
+}
