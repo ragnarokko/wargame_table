@@ -61,6 +61,59 @@ export function Potenziamento({ potenziamento }) {
   );
 }
 
+// Colori dei turni e delle fasi nel sottotitolo degli stratagemmi (solo lo sfondo di quelle parole).
+const COLORE_TURNO = [
+  [/^your/i, 'blu'],
+  [/^opponent/i, 'rosso'],
+  [/^either/i, 'verde'],
+];
+const COLORE_FASE = {
+  movement: 'blu',
+  shooting: 'arancione',
+  fight: 'rosso',
+  any: 'verde',
+  charge: 'viola',
+  command: 'giallo',
+};
+
+function Etichetta({ colore, children }) {
+  return <span className={`${styles.etichetta} ${colore ? styles[`colore_${colore}`] : ''}`}>{children}</span>;
+}
+
+// "Shooting or Fight phase" → due etichette colorate ("Shooting", "Fight phase") unite da "or".
+function FasiColorate({ fase }) {
+  const nomi = fase.replace(/\s*phase$/i, '').split(/\s+or\s+/i);
+  return nomi.map((nome, i) => (
+    <span key={nome}>
+      {i > 0 && ' or '}
+      <Etichetta colore={COLORE_FASE[nome.trim().toLowerCase()]}>{i === nomi.length - 1 ? `${nome} phase` : nome}</Etichetta>
+    </span>
+  ));
+}
+
+function SottotitoloStratagemma({ tipo, turno, fase }) {
+  const coloreTurno = COLORE_TURNO.find(([regex]) => regex.test(turno))?.[1];
+  const parti = [
+    tipo && <span key="tipo">{tipo}</span>,
+    turno && (
+      <Etichetta key="turno" colore={coloreTurno}>
+        {turno}
+      </Etichetta>
+    ),
+    fase && <FasiColorate key="fase" fase={fase} />,
+  ].filter(Boolean);
+  return (
+    <div className={styles.meta}>
+      {parti.map((p, i) => (
+        <span key={p.key}>
+          {i > 0 && ' · '}
+          {p}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function Stratagemma({ stratagemma }) {
   const { nome, cp, tipo, turno, fase, descrizione } = stratagemma;
   return (
@@ -69,7 +122,7 @@ export function Stratagemma({ stratagemma }) {
         {nome}
         <span className={styles.chip}>{cp} CP</span>
       </summary>
-      <div className={styles.meta}>{[tipo, turno, fase].filter(Boolean).join(' · ')}</div>
+      <SottotitoloStratagemma tipo={tipo} turno={turno} fase={fase} />
       <Testo testo={descrizione} />
     </details>
   );

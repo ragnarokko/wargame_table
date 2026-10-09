@@ -90,6 +90,39 @@
   color: var(--colore-testo-secondario);
 }
 
+.etichetta {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.colore_blu {
+  background: #3b82f6;
+}
+
+.colore_rosso {
+  background: #ef4444;
+}
+
+.colore_verde {
+  background: #16a34a;
+}
+
+.colore_arancione {
+  background: #f97316;
+}
+
+.colore_viola {
+  background: #a855f7;
+}
+
+.colore_giallo {
+  background: #eab308;
+  color: #1e1e24;
+}
+
 .chip {
   display: inline-block;
   padding: 0 6px;
