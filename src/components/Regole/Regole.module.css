@@ -1,0 +1,65 @@
+.pulsante {
+  width: calc(100% - 32px);
+  margin: 0 16px 10px;
+}
+
+.ricerca {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.parte h4 {
+  margin: 14px 0 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--colore-testo-secondario);
+}
+
+.capitolo {
+  margin-bottom: 8px;
+}
+
+.parte a {
+  color: var(--colore-accento);
+  text-decoration: none;
+}
+
+.parte a:hover {
+  text-decoration: underline;
+}
+
+.titoloCapitolo {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.numero {
+  color: var(--colore-testo-secondario);
+  font-weight: 400;
+}
+
+.it {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--colore-testo-secondario);
+}
+
+.sezioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 3px 0 0 18px;
+  font-size: 12px;
+}
+
+.vuoto,
+.nota {
+  font-size: 12px;
+  color: var(--colore-testo-secondario);
+}
+
+.nota {
+  margin: 14px 0 0;
+}

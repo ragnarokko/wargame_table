@@ -10,6 +10,7 @@ import PulsanteAggiornaDati from '../CreazioneEsercito/PulsanteAggiornaDati';
 import Aiuto from '../Aiuto/Aiuto';
 import Impostazioni from '../Impostazioni/Impostazioni';
 import LinkUtili from '../LinkUtili/LinkUtili';
+import Regole from '../Regole/Regole';
 import Reset from '../Reset/Reset';
 import styles from './PannelloLaterale.module.css';
 
@@ -30,6 +31,7 @@ function PannelloLaterale({ righelloAttivo, onToggleRighello }) {
       <LibreriaBasette />
       <GestioneElementiScenici />
       <Aiuto />
+      <Regole />
       <LinkUtili />
       <PulsanteAggiornaDati />
     </aside>
