@@ -3,6 +3,41 @@
   margin: 0 16px 10px;
 }
 
+.linguette {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
+.linguetta {
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.linguettaAttiva {
+  margin-bottom: -1px;
+  border-color: var(--colore-bordo);
+  border-bottom: 1px solid var(--colore-pannello, #1e1e24);
+  background: var(--colore-pannello, #1e1e24);
+  color: var(--colore-testo);
+}
+
+.fazioni {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .ricerca {
   width: 100%;
   box-sizing: border-box;

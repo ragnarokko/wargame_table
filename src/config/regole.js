@@ -246,3 +246,48 @@ export const PARTI_REGOLE = [
     ],
   },
 ];
+
+// Pagine delle fazioni su Wahapedia (11a edizione), raggruppate come sul sito. Lo slug non è sempre il nome
+// in minuscolo (es. T'au e Emperor's Children): gli indirizzi sono stati verificati a mano.
+export const URL_FAZIONI = 'https://wahapedia.ru/wh40k11ed/factions/';
+
+export const GRUPPI_FAZIONI = [
+  {
+    titolo: 'Imperium',
+    fazioni: [
+      ['Space Marines', 'space-marines'],
+      ['Adepta Sororitas', 'adepta-sororitas'],
+      ['Adeptus Custodes', 'adeptus-custodes'],
+      ['Adeptus Mechanicus', 'adeptus-mechanicus'],
+      ['Astra Militarum', 'astra-militarum'],
+      ['Grey Knights', 'grey-knights'],
+      ['Imperial Agents', 'imperial-agents'],
+      ['Imperial Knights', 'imperial-knights'],
+    ],
+  },
+  {
+    titolo: 'Caos',
+    fazioni: [
+      ['Chaos Daemons', 'chaos-daemons'],
+      ['Chaos Knights', 'chaos-knights'],
+      ['Chaos Space Marines', 'chaos-space-marines'],
+      ['Death Guard', 'death-guard'],
+      ["Emperor's Children", 'emperor-s-children'],
+      ['Thousand Sons', 'thousand-sons'],
+      ['World Eaters', 'world-eaters'],
+    ],
+  },
+  {
+    titolo: 'Xenos',
+    fazioni: [
+      ['Aeldari', 'aeldari'],
+      ['Drukhari', 'drukhari'],
+      ['Genestealer Cults', 'genestealer-cults'],
+      ['Leagues of Votann', 'leagues-of-votann'],
+      ['Necrons', 'necrons'],
+      ['Orks', 'orks'],
+      ["T'au Empire", 't-au-empire'],
+      ['Tyranids', 'tyranids'],
+    ],
+  },
+];

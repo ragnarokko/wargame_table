@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { PARTI_REGOLE, URL_REGOLE } from '../../config/regole';
+import { GRUPPI_FAZIONI, PARTI_REGOLE, URL_FAZIONI, URL_REGOLE } from '../../config/regole';
 import Modale from '../Modale/Modale';
 import styles from './Regole.module.css';
 
@@ -11,12 +11,34 @@ const normalizza = (testo) =>
 
 const urlSezione = (id) => `${URL_REGOLE}#${id}`;
 
-// Tasto "Regole": finestra con l'indice delle Core Rules (parti → capitoli → sezioni) e una ricerca sui
-// titoli (inglesi e italiani). Non contiene testo delle regole: ogni voce apre la sezione esatta della
-// pagina di Wahapedia in una nuova scheda.
+const SCHEDE = [
+  ['generali', 'Regole generali'],
+  ['eserciti', 'Eserciti'],
+];
+
+// Elenco delle fazioni di Warhammer 40,000, raggruppate come su Wahapedia, ognuna con il link alla sua pagina.
+function ElencoEserciti() {
+  return GRUPPI_FAZIONI.map((gruppo) => (
+    <section key={gruppo.titolo} className={styles.parte}>
+      <h4>{gruppo.titolo}</h4>
+      <div className={styles.fazioni}>
+        {gruppo.fazioni.map(([nome, slug]) => (
+          <a key={slug} href={`${URL_FAZIONI}${slug}/`} target="_blank" rel="noopener noreferrer">
+            {nome}
+          </a>
+        ))}
+      </div>
+    </section>
+  ));
+}
+
+// Tasto "Regole": finestra con due linguette. "Regole generali": indice delle Core Rules (parti → capitoli →
+// sezioni) e una ricerca sui titoli (inglesi e italiani). "Eserciti": le pagine delle fazioni su Wahapedia.
+// Non contiene testo delle regole: ogni voce apre la pagina esatta di Wahapedia in una nuova scheda.
 function Regole() {
   const [aperto, setAperto] = useState(false);
   const [ricerca, setRicerca] = useState('');
+  const [scheda, setScheda] = useState('generali');
 
   // Applica il filtro: un capitolo che corrisponde mostra tutte le sue sezioni, altrimenti solo quelle
   // che corrispondono. Le parti senza risultati spariscono.
@@ -53,18 +75,35 @@ function Regole() {
         📖 Regole
       </button>
       <Modale titolo="Regole (Core Rules 11a ed.)" aperto={aperto} onChiudi={chiudi}>
-        <input
-          type="search"
-          className={styles.ricerca}
-          placeholder="Cerca un capitolo o una sezione (anche in italiano)…"
-          value={ricerca}
-          onChange={(e) => setRicerca(e.target.value)}
-          onKeyDown={onKeyDown}
-          autoFocus
-        />
-        {parti.length === 0 ? (
+        <div className={styles.linguette} role="tablist">
+          {SCHEDE.map(([id, etichetta]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={scheda === id}
+              className={`${styles.linguetta} ${scheda === id ? styles.linguettaAttiva : ''}`}
+              onClick={() => setScheda(id)}
+            >
+              {etichetta}
+            </button>
+          ))}
+        </div>
+        {scheda === 'eserciti' && <ElencoEserciti />}
+        {scheda === 'generali' && (
+          <input
+            type="search"
+            className={styles.ricerca}
+            placeholder="Cerca un capitolo o una sezione (anche in italiano)…"
+            value={ricerca}
+            onChange={(e) => setRicerca(e.target.value)}
+            onKeyDown={onKeyDown}
+            autoFocus
+          />
+        )}
+        {scheda === 'generali' && parti.length === 0 ? (
           <p className={styles.vuoto}>Nessun risultato.</p>
-        ) : (
+        ) : scheda === 'generali' ? (
           parti.map((parte) => (
             <section key={parte.titolo} className={styles.parte}>
               <h4>{parte.titolo}</h4>
@@ -87,11 +126,11 @@ function Regole() {
               ))}
             </section>
           ))
-        )}
+        ) : null}
         <p className={styles.nota}>
           Le voci aprono la pagina su Wahapedia (
-          <a href={URL_REGOLE} target="_blank" rel="noopener noreferrer">
-            Core Rules
+          <a href={scheda === 'eserciti' ? URL_FAZIONI : URL_REGOLE} target="_blank" rel="noopener noreferrer">
+            {scheda === 'eserciti' ? 'Factions' : 'Core Rules'}
           </a>
           ); serve internet.
         </p>
