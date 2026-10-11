@@ -52,6 +52,12 @@ export function TavoloStateProvider({ children }) {
     setIstanze((prev) => prev.map((ist) => (ist.id === id ? { ...ist, auraOffset } : ist)));
   }, []);
 
+  // Modello eliminato (tasto R): la basetta resta sul campo, in grigio, ma non conta più tra i modelli attivi.
+  // Persistito sull'istanza (come ferite e aura) per finire nei salvataggi.
+  const impostaMortaIstanze = useCallback((ids, morta) => {
+    setIstanze((prev) => prev.map((ist) => (ids.includes(ist.id) ? { ...ist, morta } : ist)));
+  }, []);
+
   const rimuoviIstanza = useCallback((id) => {
     setIstanze((prev) => prev.filter((ist) => ist.id !== id));
   }, []);
@@ -111,6 +117,7 @@ export function TavoloStateProvider({ children }) {
       ruotaIstanza,
       impostaFeriteIstanza,
       impostaAuraIstanza,
+      impostaMortaIstanze,
       rimuoviIstanza,
       rimuoviIstanze,
       rimuoviIstanzePerTemplate,
@@ -129,6 +136,7 @@ export function TavoloStateProvider({ children }) {
       ruotaIstanza,
       impostaFeriteIstanza,
       impostaAuraIstanza,
+      impostaMortaIstanze,
       rimuoviIstanza,
       rimuoviIstanze,
       rimuoviIstanzePerTemplate,

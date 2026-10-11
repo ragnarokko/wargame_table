@@ -74,7 +74,11 @@ function CreazioneEsercito() {
     .filter(Boolean)
     .pop();
 
-  const contaModelli = (templateId) => istanze.filter((i) => i.templateId === templateId).length;
+  // Modelli attivi di un'unità: basette ancora sul campo e non eliminate (grigie, tasto R).
+  const contaModelli = (templateId) => istanze.filter((i) => i.templateId === templateId && !i.morta).length;
+  // Modelli iniziali: quelli con cui l'unità è stata creata (in mancanza, tutte le basette presenti).
+  const modelliIniziali = (u) =>
+    Number(u.numeroModelli) || istanze.filter((i) => i.templateId === u.id).length;
 
   // Totale dei punti delle unità create per un esercito (le unità senza punti non contano).
   const puntiEsercito = (esercitoId) =>
@@ -201,6 +205,7 @@ function CreazioneEsercito() {
                   key={u.id}
                   unita={u}
                   numeroModelli={contaModelli(u.id)}
+                  modelliIniziali={modelliIniziali(u)}
                   richiesta={unitaMostrata}
                   onSeleziona={() => handleSeleziona(u.id)}
                   onRimuovi={() => handleRimuovi(u.id)}

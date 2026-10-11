@@ -9,6 +9,7 @@ import PannelloLaterale from './components/PannelloLaterale/PannelloLaterale';
 import AreaLavoro from './components/AreaLavoro/AreaLavoro';
 import PannelliDestra from './components/PannelliDestra/PannelliDestra';
 import LancioDado from './components/LancioDado/LancioDado';
+import Duello from './components/Duello/Duello';
 import './App.css';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
             />
             <AreaLavoro righelloAttivo={righelloAttivo} />
             <PannelliDestra />
+            <Duello />
           </div>
         </TavoloStateProvider>
       </LibreriaProvider>

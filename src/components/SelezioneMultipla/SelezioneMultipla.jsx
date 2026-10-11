@@ -85,7 +85,7 @@ function direzionePrincipale(punti, centro) {
 
 function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
-  const { istanze, spostaIstanza } = useTavoloState();
+  const { istanze, spostaIstanza, impostaMortaIstanze } = useTavoloState();
   const { basette } = useLibreria();
   const [rettangolo, setRettangolo] = useState(null);
   const [selezioneCorrente, setSelezioneCorrente] = useState([]);
@@ -208,6 +208,25 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [selezioneCorrente, eliminaSelezione]);
+
+  // R con almeno una basetta selezionata: elimina i modelli (basette grigie, restano sul campo); se sono già tutte
+  // grigie le riporta in vita. Con una selezione mista le elimina tutte.
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if ((e.key !== 'r' && e.key !== 'R') || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+      if (selezioneCorrente.length === 0) return;
+      const selezionate = istanze.filter((ist) => selezioneCorrente.includes(ist.id));
+      if (selezionate.length === 0) return;
+      impostaMortaIstanze(
+        selezionate.map((ist) => ist.id),
+        selezionate.some((ist) => !ist.morta),
+      );
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selezioneCorrente, istanze, impostaMortaIstanze]);
 
   // Q/W con più basette selezionate: ruota l'intero gruppo attorno al proprio centro geometrico
   // (anziché ogni basetta attorno al proprio centro, comportamento disattivato in Basetta quando

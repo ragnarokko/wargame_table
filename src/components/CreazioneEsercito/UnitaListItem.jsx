@@ -19,7 +19,7 @@ const CAMPI_STATISTICHE = [
 // Voce dell'accordion per una singola unità: il nome, al passaggio del mouse, evidenzia
 // tutte le basette sul campo appartenenti a questa unità (stesso templateId) e, al click, le
 // seleziona (onSeleziona); la freccia a sinistra apre/chiude i dettagli.
-function UnitaListItem({ unita, numeroModelli, richiesta, onSeleziona, onRimuovi, onRinomina }) {
+function UnitaListItem({ unita, numeroModelli, modelliIniziali, richiesta, onSeleziona, onRimuovi, onRinomina }) {
   const [dettagliAperti, setDettagliAperti] = useState(false);
   const [rinominaAperta, setRinominaAperta] = useState(false);
   const [nuovoNome, setNuovoNome] = useState(unita.nome);
@@ -103,7 +103,7 @@ function UnitaListItem({ unita, numeroModelli, richiesta, onSeleziona, onRimuovi
           </div>
         )}
         <span className={styles.contatore}>
-          {numeroModelli} mod.
+          {numeroModelli}/{modelliIniziali} mod.
           {unita.punti > 0 ? ` · ${unita.punti} pt` : ''}
         </span>
         <div className={styles.azioni}>

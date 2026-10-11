@@ -39,6 +39,9 @@ const COLORE_SQUADRA = {
 // precedente, evitando che l'evidenziazione lampeggi nel breve istante di passaggio.
 let timeoutSpegniEvidenziaHover = null;
 
+// Colore delle basette dei modelli eliminati (tasto R).
+const COLORE_MORTA = '#6b6b75';
+
 function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
   const { spostaIstanza, ruotaIstanza, impostaFeriteIstanza, impostaAuraIstanza } = useTavoloState();
@@ -411,7 +414,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     top: posizioneVisualizzata.y - dimensionePx.altezza / 2,
     width: dimensionePx.larghezza,
     height: dimensionePx.altezza,
-    backgroundColor: template.colore,
+    backgroundColor: istanza.morta ? COLORE_MORTA : template.colore,
     borderRadius: template.forma === 'rettangolare' ? 4 : '50%',
     cursor: inTrascinamento ? 'grabbing' : 'grab',
     // Il popup Ctrl+hover (z-index 200, vedi BasettaTooltip.module.css) è un discendente di

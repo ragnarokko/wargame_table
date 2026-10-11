@@ -1,52 +1,13 @@
 import { useCallback } from 'react';
 import { useLibreria } from '../../contexts/LibreriaContext';
-import {
-  armiPerTemplate,
-  apDaTesto,
-  caricaDatiArmiSeNecessario,
-  sogliaDaTesto,
-  valoreMedioDado,
-} from '../CreazioneEsercito/csvArmiImport';
-import { origineSito, setDati, urlSitoDati } from '../../config/datiCsv';
+import { caricaDatiArmiSeNecessario } from '../CreazioneEsercito/csvArmiImport';
+import { origineSito } from '../../config/datiCsv';
+import { estraiUnita, urlCalcolatoreSenzaCache } from './datiCalcolatore';
 import { registraFinestraCalcolatore } from '../../utils/finestreCalcolatore';
 import styles from './PulsanteCalcolatore.module.css';
 
 // #combat fa aprire direttamente la scheda "Combattimento" del calcolatore (vedi lo script
 // di index.html in quel repo, che legge location.hash all'avvio).
-
-// GitHub Pages serve index.html con Cache-Control: max-age=600 (visto in pratica, con tanto di
-// hit sulla CDN davanti): senza una query string sempre diversa, aprendo il calcolatore entro
-// 10 minuti da un aggiornamento del sito si rischia di ricevere dalla cache una versione vecchia
-// della pagina (es. senza gli ultimi campi aggiunti all'Attaccante).
-function urlCalcolatoreSenzaCache() {
-  // Sito e set di dati sono quelli scelti in Impostazioni (letti ad ogni apertura).
-  return `${urlSitoDati()}?t=${Date.now()}&dati=${setDati()}#combat`;
-}
-
-// Un'arma pronta per il calcolatore: valori già normalizzati (media dei dadi arrotondata, AP
-// invertito di segno) perché i campi ATT/XCOL/AP/DANNI del calcolatore accettano solo numeri
-// fissi (vedi csvArmiImport.js per il dettaglio delle conversioni).
-function estraiArmi(template) {
-  return armiPerTemplate(template).map((a) => ({
-    nome: a.arma,
-    descrizione: a.descrizione,
-    att: valoreMedioDado(a.attGrezzo, 1),
-    xcol: sogliaDaTesto(a.bsWsGrezzo),
-    forza: Number(a.forzaGrezzo) || 1,
-    ap: apDaTesto(a.apGrezzo),
-    danni: valoreMedioDado(a.danniGrezzo, 1),
-  }));
-}
-
-// Solo i campi che servono al calcolatore per precompilare Difensore (res/ts/tsPiu/w/fnp) e
-// Attaccante (armi, via estraiArmi), più il datasheetId con cui il tab VSunità filtra le unità
-// in gioco: le "unità" sono le basette con campo `esercito` create in
-// Creazione Esercito (vedi CreazioneEsercito.jsx), non le basette generiche di libreria.
-function estraiUnita(basette, esercito) {
-  return basette
-    .filter((b) => b.esercito === esercito)
-    .map((b) => ({ nome: b.nome, datasheetId: b.datasheetId, res: b.res, ts: b.ts, tsPiu: b.tsPiu, w: b.w, fnp: b.fnp, armi: estraiArmi(b) }));
-}
 
 // Tasto "Botte!": apre il calcolatore di combattimento in una finestra separata (stessa
 // logica con cui si apriva il vecchio pulsante Game Tracker: una nuova finestra ad ogni click,
@@ -60,7 +21,7 @@ function PulsanteCalcolatore() {
     const altezza = window.screen.availHeight;
     const sinistra = Math.round((window.screen.availWidth - larghezza) / 2);
     const features = `width=${larghezza},height=${altezza},left=${sinistra},top=0`;
-    const finestra = window.open(urlCalcolatoreSenzaCache(), '_blank', features);
+    const finestra = window.open(urlCalcolatoreSenzaCache('combat'), '_blank', features);
     if (!finestra) return; // popup bloccato dal browser
     registraFinestraCalcolatore(finestra);
 
