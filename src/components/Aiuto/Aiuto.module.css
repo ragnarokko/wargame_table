@@ -1,6 +1,12 @@
-.pulsante {
-  width: calc(100% - 32px);
+.riga {
+  display: flex;
+  gap: 8px;
   margin: 10px 16px;
+}
+
+.pulsante {
+  flex: 1;
+  min-width: 0;
 }
 
 .sezione {

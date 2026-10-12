@@ -35,18 +35,45 @@ const SCORCIATOIE = [
   { tasti: 'L', descrizione: 'Apre/chiude la finestrella dei dadi (D6): imposta il numero di dadi e clicca sul dado per lanciarli (compaiono tutti i risultati e la somma); con «Dettaglio» i risultati sono ordinati e c\'è la tabella valore / quanti uguali / quanti almeno / quanti sotto (passando il mouse sul valore la riga si evidenzia).' },
 ];
 
-// Tasto "Aiuto": apre una finestra con l'elenco completo delle scorciatoie usate nell'app e con
-// le informazioni sull'origine dei dati delle unità (info.csv) e delle armi (Datasheets_wargear.csv).
+// Tasto "Aiuto", diviso in due pulsanti sulla stessa riga: "Tasti" apre l'elenco completo delle scorciatoie
+// usate nell'app, "Info e dati" le informazioni sull'origine dei dati delle unità (info.csv) e delle armi
+// (Datasheets_wargear.csv) e su come aggiornarli.
 function Aiuto() {
-  const [aperto, setAperto] = useState(false);
+  // '' = chiuso, altrimenti la finestra aperta: 'tasti' o 'info'.
+  const [aperto, setAperto] = useState('');
   const { repoBsdata } = useImpostazioniDati();
 
   return (
     <>
-      <button type="button" className={styles.pulsante} onClick={() => setAperto(true)}>
-        ❓ Aiuto
-      </button>
-      <Modale titolo="Aiuto" aperto={aperto} onChiudi={() => setAperto(false)}>
+      <div className={styles.riga}>
+        <button
+          type="button"
+          className={styles.pulsante}
+          onClick={() => setAperto('tasti')}
+          title="Elenco delle scorciatoie da tastiera e del mouse"
+        >
+          ❓ Tasti
+        </button>
+        <button
+          type="button"
+          className={styles.pulsante}
+          onClick={() => setAperto('info')}
+          title="Origine dei dati (unità, armi) e come aggiornarli"
+        >
+          ℹ Info e dati
+        </button>
+      </div>
+      <Modale titolo="Aiuto — Tasti" aperto={aperto === 'tasti'} onChiudi={() => setAperto('')}>
+        <ul className={styles.lista}>
+          {SCORCIATOIE.map((s, i) => (
+            <li key={i} className={styles.voce}>
+              <span className={styles.tasti}>{s.tasti}</span>
+              <span className={styles.descrizione}>{s.descrizione}</span>
+            </li>
+          ))}
+        </ul>
+      </Modale>
+      <Modale titolo="Aiuto — Info e dati" aperto={aperto === 'info'} onChiudi={() => setAperto('')}>
         <div className={styles.sezione}>
           <h4 className={styles.sezioneTitolo}>Dati unità (CSV)</h4>
           <p className={styles.paragrafo}>
@@ -99,14 +126,6 @@ function Aiuto() {
             valida (es. "-" o "N/A") lasciano XCOL invariato.
           </p>
         </div>
-        <ul className={styles.lista}>
-          {SCORCIATOIE.map((s, i) => (
-            <li key={i} className={styles.voce}>
-              <span className={styles.tasti}>{s.tasti}</span>
-              <span className={styles.descrizione}>{s.descrizione}</span>
-            </li>
-          ))}
-        </ul>
         <div className={styles.sezioneFinale}>
           <h4 className={styles.sezioneTitolo}>Come aggiornare i CSV</h4>
           <p className={styles.paragrafo}>
