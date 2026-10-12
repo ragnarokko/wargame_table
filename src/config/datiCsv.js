@@ -12,7 +12,7 @@ import { useSyncExternalStore } from 'react';
 // ricava i dati (serve solo a comporre il comando di aggiornamento mostrato in Impostazioni e Aiuto).
 //
 // Per provare una versione locale del calcolatore senza pubblicare nulla: `.env.local` con
-// `VITE_URL_CALCOLATORE=http://localhost:5180/` (sito dei dati) e, volendo, `VITE_SET_DATI=originale`.
+// `VITE_URL_CALCOLATORE=http://localhost:5180/` (sito dei dati) e, volendo, `VITE_SET_DATI=bsdata`.
 // Vale per tutto: tasto "Botte!" e "Aggiorna dati" inclusi. `.env.local` non va committato.
 
 const CHIAVE_STORAGE = 'wh40-impostazioni-dati';
@@ -22,22 +22,25 @@ const URL_SITO =
 // Repo da cui lo script tools/bsdata-to-csv.mjs (nel repo del calcolatore) ricava i dati BSData.
 export const URL_REPO_BSDATA_PREDEFINITO = 'https://github.com/BSData/wh40k-11e';
 
-// "originale" = info.csv / Datasheets_wargear.csv (mai modificati); "bsdata" = info_11e.csv /
-// Datasheets_wargear_11e.csv, generati da BSData/wh40k-11e con `node tools/bsdata-to-csv.mjs`.
+// "originale" (predefinito) = info.csv / Datasheets_wargear.csv, derivati dai dati di Wahapedia con
+// `node tools/wahapedia-to-csv.mjs`; "bsdata" = info_11e.csv / Datasheets_wargear_11e.csv, generati da
+// BSData/wh40k-11e con `node tools/bsdata-to-csv.mjs`.
 export const SET_DATI_DISPONIBILI = {
   originale: {
-    etichetta: 'Dati tradizionali',
+    etichetta: 'Dati Wahapedia (predefiniti)',
+    origine: 'Derivati dai dati di Wahapedia',
     info: 'info.csv',
     armi: 'Datasheets_wargear.csv',
   },
   bsdata: {
     etichetta: 'Dati BSData (11ª edizione)',
+    origine: 'Generati dalla repo BSData/wh40k-11e',
     info: 'info_11e.csv',
     armi: 'Datasheets_wargear_11e.csv',
   },
 };
 const setEnv = import.meta.env.VITE_SET_DATI;
-const SET_PREDEFINITO = setEnv in SET_DATI_DISPONIBILI ? setEnv : 'bsdata';
+const SET_PREDEFINITO = setEnv in SET_DATI_DISPONIBILI ? setEnv : 'originale';
 
 // Accetta indirizzi di repo GitHub (https://github.com/utente/repo, anche con /tree/ramo o .git) e li
 // riporta alla forma canonica; restituisce null se non è un indirizzo di repo GitHub.

@@ -82,9 +82,9 @@ function Aiuto() {
             <code className={styles.codice}>index.html</code>) ed è pubblicato con lui: l'app lo
             scarica a runtime, senza ricompilare nulla, e serve una connessione internet. Quale
             coppia di file usare si sceglie con la rotella <strong>⚙ Impostazioni</strong> (in alto a
-            sinistra): <strong>dati tradizionali</strong> (
+            sinistra): <strong>dati Wahapedia</strong> (predefiniti; 
             <code className={styles.codice}>info.csv</code> +{' '}
-            <code className={styles.codice}>Datasheets_wargear.csv</code>, aggiornabili da Wahapedia) oppure{' '}
+            <code className={styles.codice}>Datasheets_wargear.csv</code>, derivati dai dati di Wahapedia) oppure{' '}
             <strong>dati BSData 11ª edizione</strong> (
             <code className={styles.codice}>info_11e.csv</code> +{' '}
             <code className={styles.codice}>Datasheets_wargear_11e.csv</code>, generati dalla repo{' '}
@@ -173,7 +173,7 @@ function Aiuto() {
               premi <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati BSData").
             </li>
           </ol>
-          <h4 className={styles.sezioneTitolo}>Dati tradizionali: aggiornare da Wahapedia</h4>
+          <h4 className={styles.sezioneTitolo}>Dati Wahapedia: aggiornare</h4>
           <p className={styles.paragrafo}>
             <code className={styles.codice}>info.csv</code> e{' '}
             <code className={styles.codice}>Datasheets_wargear.csv</code> vengono dall'export dati di
@@ -209,7 +209,7 @@ function Aiuto() {
             </li>
             <li>
               Attendi la pubblicazione di GitHub Pages (uno o due minuti), poi premi{' '}
-              <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati tradizionali"); oppure "Ricarica
+              <strong>⟳ Aggiorna dati</strong> (con ⚙ Impostazioni su "Dati Wahapedia"); oppure "Ricarica
               dati" nel tab VSunità del calcolatore.
             </li>
           </ol>

@@ -14,7 +14,7 @@ import {
 import styles from './Impostazioni.module.css';
 
 // Rotella in alto a sinistra: apre (via Modale) le impostazioni dei dati — quale coppia di CSV usare
-// (tradizionali o BSData, scelta singola, applicata dal tasto "⟳ Aggiorna dati") e l'indirizzo GitHub
+// (Wahapedia, predefiniti, o BSData, scelta singola, applicata dal tasto "⟳ Aggiorna dati") e l'indirizzo GitHub
 // della repo BSData, che finisce nel comando di aggiornamento (--repo) dello script del calcolatore.
 // Le scelte sono salvate in localStorage (config/datiCsv.js).
 function Impostazioni() {
@@ -95,6 +95,7 @@ function Impostazioni() {
                 />
                 <span>
                   <strong>{dati.etichetta}</strong>
+                  <span className={styles.file}>{dati.origine}</span>
                   <span className={styles.file}>
                     {dati.info} + {dati.armi}
                   </span>
@@ -171,7 +172,7 @@ function Impostazioni() {
         </div>
 
         <div className={styles.sezione}>
-          <h4 className={styles.sezioneTitolo}>Aggiornare i dati tradizionali da Wahapedia</h4>
+          <h4 className={styles.sezioneTitolo}>Aggiornare i dati Wahapedia (predefiniti)</h4>
           <p className={styles.nota} style={{ marginTop: 0 }}>
             Sempre nella cartella del repo del calcolatore (<code>D:\Claude\sito_dadi</code>) lancia:
           </p>
