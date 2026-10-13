@@ -156,6 +156,13 @@ function CreazioneEsercito() {
       width: campoGiocoPx.larghezza,
       height: campoGiocoPx.altezza - ALTEZZA_FASCIA_INDICATORI_PX,
     },
+    // Le basette vanno nello staging dell'esercito: il Blu sopra il tavolo (o ai lati nella metà alta), il Rosso
+    // sotto (o ai lati nella metà bassa), mai sul tavolo.
+    ...zoneStagingEsercito(esercitoSelezionato, {
+      campoGiocoPx,
+      tavoloRect,
+      altezzaFascia: ALTEZZA_FASCIA_INDICATORI_PX,
+    }),
   });
 
   const handleCrea = (dati) => {
@@ -165,17 +172,8 @@ function CreazioneEsercito() {
 
   // Importazione di una lista (New Recruit ecc.): crea nell'esercito scelto tutte le unità riconosciute,
   // ciascuna col suo numero di modelli e un colore diverso, una dopo l'altra in staging.
-  // Le basette vanno nello staging dell'esercito: il Blu sopra il tavolo (o ai lati nella metà alta), il Rosso
-  // sotto (o ai lati nella metà bassa), mai sul tavolo.
   const handleImporta = (elementi) => {
-    const contesto = {
-      ...nuovoContesto(),
-      ...zoneStagingEsercito(esercitoSelezionato, {
-        campoGiocoPx,
-        tavoloRect,
-        altezzaFascia: ALTEZZA_FASCIA_INDICATORI_PX,
-      }),
-    };
+    const contesto = nuovoContesto();
     const esistenti = [...unitaTutte];
     for (const { unita, modelli } of elementi) {
       const colore = coloreDisponibile(esercitoSelezionato, esistenti);
