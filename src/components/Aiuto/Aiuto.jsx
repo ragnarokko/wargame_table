@@ -75,6 +75,15 @@ function Aiuto() {
       </Modale>
       <Modale titolo="Aiuto — Info e dati" aperto={aperto === 'info'} onChiudi={() => setAperto('')}>
         <div className={styles.sezione}>
+          <h4 className={styles.sezioneTitolo}>Importare una lista da New Recruit</h4>
+          <p className={styles.paragrafo}>
+            In New Recruit esporta la lista nella versione <strong>short</strong> e copia il testo. In "Creazione
+            Esercito" scegli l'esercito (Blu o Rosso), premi <strong>Importa</strong> e incolla il testo nella
+            finestra: vengono riconosciute fazione, unità e numero di modelli, e le basette si dispongono nello
+            staging dell'esercito.
+          </p>
+        </div>
+        <div className={styles.sezione}>
           <h4 className={styles.sezioneTitolo}>Dati unità (CSV)</h4>
           <p className={styles.paragrafo}>
             Le unità disponibili in "Creazione Esercito" vengono lette da un file CSV che vive nel repo
