@@ -15,7 +15,8 @@ import { useEliminaSelezione } from './useEliminaSelezione';
 import styles from './SelezioneMultipla.module.css';
 
 const SOGLIA_TRASCINAMENTO_PX = 3;
-const DISTANZA_MINIMA_POLLICI = 1;
+// Spazio tra i bordi di due basette adiacenti nella disposizione 1/2/3: poco più di zero, così stanno vicine senza toccarsi.
+const DISTANZA_MINIMA_POLLICI = 0.1;
 const INCREMENTO_ROTAZIONE_GRUPPO = 15;
 
 // Ruota un punto attorno a un centro di un certo angolo (in gradi, positivo = orario,
@@ -138,8 +139,8 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
   }, []);
 
   // Dispone le basette selezionate su `numeroLinee` linee, distribuite nel modo più omogeneo
-  // possibile, orientate secondo la direzione attuale della selezione e distanziate di almeno
-  // 1 pollice (centro-centro, in base all'ingombro massimo tra le basette coinvolte).
+  // possibile, orientate secondo la direzione attuale della selezione e molto vicine (0,1 pollici
+  // tra i bordi, in base all'ingombro massimo tra le basette coinvolte).
   const disponiInFormazione = useCallback((numeroLinee) => {
     const selezionate = istanze.filter((ist) => selezioneCorrente.includes(ist.id));
     if (selezionate.length < 2) return;
