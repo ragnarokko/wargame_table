@@ -13,7 +13,11 @@ import {
 } from './csvUnitaImport';
 import { caricaDatiArmiSeNecessario } from './csvArmiImport';
 import { caricaDatiArmyBuilderSeNecessario } from './csvArmyBuilderImport';
-import { calcolaPosizioniUnitaStaging } from '../../utils/posizionamentoStaging';
+import {
+  calcolaPosizioniUnitaInZone,
+  calcolaPosizioniUnitaStaging,
+  zoneStagingEsercito,
+} from '../../utils/posizionamentoStaging';
 import { EVENTO_MOSTRA_UNITA, EVENTO_SELEZIONE_MULTIPLA } from '../../utils/selezioneEventi';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
@@ -25,7 +29,7 @@ import { datiUnitaDaCsv } from './datiUnita';
 import styles from './CreazioneEsercito.module.css';
 
 function CreazioneEsercito() {
-  const { pxPerPollice, campoGiocoPx } = useTavolo();
+  const { pxPerPollice, campoGiocoPx, tavoloRect } = useTavolo();
   const { basette, aggiungiBasetta, modificaBasetta, rimuoviBasetta } = useLibreria();
   const { istanze, schieraBasette, rimuoviIstanzePerTemplate } = useTavoloState();
   const [esercitoSelezionato, setEsercitoSelezionato] = useState(ESERCITI[0].id);
@@ -120,14 +124,21 @@ function CreazioneEsercito() {
     const nuovoTemplate = aggiungiBasetta(templateData);
     contesto.templatesPerId.set(nuovoTemplate.id, nuovoTemplate);
 
-    const posizioni = calcolaPosizioniUnitaStaging({
+    const parametriPosizione = {
       template: nuovoTemplate,
       numeroModelli: dati.numeroModelli,
       istanzeStaging: contesto.istanzeStaging,
       templatesPerId: contesto.templatesPerId,
       pxPerPollice,
       areaStaging: contesto.areaStaging,
-    });
+    };
+    const posizioni = contesto.preferite
+      ? calcolaPosizioniUnitaInZone({
+          ...parametriPosizione,
+          zone: contesto.preferite,
+          zoneRiserva: contesto.riserva,
+        })
+      : calcolaPosizioniUnitaStaging(parametriPosizione);
 
     schieraBasette(nuovoTemplate.id, posizioni, 'staging');
     contesto.istanzeStaging.push(...posizioni.map((p) => ({ templateId: nuovoTemplate.id, x: p.x, y: p.y })));
@@ -154,8 +165,17 @@ function CreazioneEsercito() {
 
   // Importazione di una lista (New Recruit ecc.): crea nell'esercito scelto tutte le unità riconosciute,
   // ciascuna col suo numero di modelli e un colore diverso, una dopo l'altra in staging.
+  // Le basette vanno nello staging dell'esercito: il Blu sopra il tavolo (o ai lati nella metà alta), il Rosso
+  // sotto (o ai lati nella metà bassa), mai sul tavolo.
   const handleImporta = (elementi) => {
-    const contesto = nuovoContesto();
+    const contesto = {
+      ...nuovoContesto(),
+      ...zoneStagingEsercito(esercitoSelezionato, {
+        campoGiocoPx,
+        tavoloRect,
+        altezzaFascia: ALTEZZA_FASCIA_INDICATORI_PX,
+      }),
+    };
     const esistenti = [...unitaTutte];
     for (const { unita, modelli } of elementi) {
       const colore = coloreDisponibile(esercitoSelezionato, esistenti);
