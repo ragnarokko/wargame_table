@@ -20,6 +20,8 @@ import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
 import UnitaForm from './UnitaForm';
 import UnitaListItem from './UnitaListItem';
 import ErroreDatiCsv from './ErroreDatiCsv';
+import ImportaLista from './ImportaLista.jsx';
+import { datiUnitaDaCsv } from './datiUnita';
 import styles from './CreazioneEsercito.module.css';
 
 function CreazioneEsercito() {
@@ -28,6 +30,7 @@ function CreazioneEsercito() {
   const { istanze, schieraBasette, rimuoviIstanzePerTemplate } = useTavoloState();
   const [esercitoSelezionato, setEsercitoSelezionato] = useState(ESERCITI[0].id);
   const [formAperto, setFormAperto] = useState(false);
+  const [importaAperto, setImportaAperto] = useState(false);
   // Unità da mostrare in lista dopo un doppio click su una basetta: { id, n } (n cambia a ogni richiesta,
   // così anche un secondo doppio click sulla stessa unità la riporta in vista).
   const [unitaMostrata, setUnitaMostrata] = useState(null);
@@ -87,10 +90,13 @@ function CreazioneEsercito() {
   const toggleAccordion = (esercitoId) =>
     setAccordionAperti((prev) => ({ ...prev, [esercitoId]: !prev[esercitoId] }));
 
-  const handleCrea = (dati) => {
+  // Crea un'unità dell'esercito scelto (template + basette in staging). `contesto` tiene il conto di ciò che
+  // è già stato creato nella stessa operazione (lo stato React si aggiorna dopo): serve a importare più unità
+  // di fila senza nomi duplicati né basette sovrapposte.
+  const creaUnita = (dati, contesto) => {
     const dimensione = determinaFormaEDimensioni(dati.baseSize);
-    const nomiEsistenti = unitaTutte.filter((u) => u.esercito === esercitoSelezionato).map((u) => u.nome);
-    const nomeUnivoco = generaNomeUnivoco(dati.nomeBase, nomiEsistenti);
+    const nomeUnivoco = generaNomeUnivoco(dati.nomeBase, contesto.nomi);
+    contesto.nomi.push(nomeUnivoco);
     const templateData = {
       nome: nomeUnivoco,
       colore: dati.colore,
@@ -112,28 +118,50 @@ function CreazioneEsercito() {
     };
 
     const nuovoTemplate = aggiungiBasetta(templateData);
-
-    const templatesPerId = new Map(basette.map((b) => [b.id, b]));
-    const istanzeStaging = istanze.filter((i) => i.zona === 'staging');
-    // Il bordo superiore parte sotto la fascia degli indicatori (CP/Turno), che coprirebbe le basette.
-    const areaStaging = {
-      left: 0,
-      top: ALTEZZA_FASCIA_INDICATORI_PX,
-      width: campoGiocoPx.larghezza,
-      height: campoGiocoPx.altezza - ALTEZZA_FASCIA_INDICATORI_PX,
-    };
+    contesto.templatesPerId.set(nuovoTemplate.id, nuovoTemplate);
 
     const posizioni = calcolaPosizioniUnitaStaging({
       template: nuovoTemplate,
       numeroModelli: dati.numeroModelli,
-      istanzeStaging,
-      templatesPerId,
+      istanzeStaging: contesto.istanzeStaging,
+      templatesPerId: contesto.templatesPerId,
       pxPerPollice,
-      areaStaging,
+      areaStaging: contesto.areaStaging,
     });
 
     schieraBasette(nuovoTemplate.id, posizioni, 'staging');
+    contesto.istanzeStaging.push(...posizioni.map((p) => ({ templateId: nuovoTemplate.id, x: p.x, y: p.y })));
+    return nuovoTemplate;
+  };
+
+  const nuovoContesto = () => ({
+    nomi: unitaTutte.filter((u) => u.esercito === esercitoSelezionato).map((u) => u.nome),
+    templatesPerId: new Map(basette.map((b) => [b.id, b])),
+    istanzeStaging: istanze.filter((i) => i.zona === 'staging'),
+    // Il bordo superiore parte sotto la fascia degli indicatori (CP/Turno), che coprirebbe le basette.
+    areaStaging: {
+      left: 0,
+      top: ALTEZZA_FASCIA_INDICATORI_PX,
+      width: campoGiocoPx.larghezza,
+      height: campoGiocoPx.altezza - ALTEZZA_FASCIA_INDICATORI_PX,
+    },
+  });
+
+  const handleCrea = (dati) => {
+    creaUnita(dati, nuovoContesto());
     setFormAperto(false);
+  };
+
+  // Importazione di una lista (New Recruit ecc.): crea nell'esercito scelto tutte le unità riconosciute,
+  // ciascuna col suo numero di modelli e un colore diverso, una dopo l'altra in staging.
+  const handleImporta = (elementi) => {
+    const contesto = nuovoContesto();
+    const esistenti = [...unitaTutte];
+    for (const { unita, modelli } of elementi) {
+      const colore = coloreDisponibile(esercitoSelezionato, esistenti);
+      const creata = creaUnita({ ...datiUnitaDaCsv(unita, modelli), colore }, contesto);
+      esistenti.push(creata);
+    }
   };
 
   // Click sul nome di un'unità nella lista: seleziona tutte le sue basette sul campo (stesso
@@ -185,10 +213,25 @@ function CreazioneEsercito() {
           onAnnulla={() => setFormAperto(false)}
         />
       ) : (
-        <button className={styles.nuovaBtn} onClick={() => setFormAperto(true)}>
-          + Nuova unità
-        </button>
+        <div className={styles.rigaNuova}>
+          <button className={styles.nuovaBtn} onClick={() => setFormAperto(true)}>
+            + Nuova unità
+          </button>
+          <button
+            className={styles.nuovaBtn}
+            onClick={() => setImportaAperto(true)}
+            title="Importa una lista da New Recruit (o altri builder) incollandone il testo"
+          >
+            Importa
+          </button>
+        </div>
       )}
+      <ImportaLista
+        aperto={importaAperto}
+        nomeEsercito={ESERCITI.find((es) => es.id === esercitoSelezionato)?.nome ?? ''}
+        onImporta={handleImporta}
+        onChiudi={() => setImportaAperto(false)}
+      />
 
       {ESERCITI.map((es) => (
         <PannelloEspandibile

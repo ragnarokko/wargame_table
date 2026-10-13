@@ -104,8 +104,14 @@
   font-style: italic;
 }
 
+.rigaNuova {
+  display: flex;
+  gap: 6px;
+}
+
 .nuovaBtn {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .form {

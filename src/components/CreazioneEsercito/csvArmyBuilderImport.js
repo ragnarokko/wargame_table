@@ -256,6 +256,12 @@ export function modelliPredefiniti(unitaCsv) {
   return null;
 }
 
+// Id Wahapedia di una scheda dal suo nome (quello di punti.csv, cioè dell'intera scheda: 'Boyz' anche se i
+// profili di modello si chiamano 'Boy' e 'Nob'), oppure null.
+export function idSchedaPerNome(nome) {
+  return idPerNome.get(normalizza(nome)) ?? idPerNome.get(singolare(nome)) ?? null;
+}
+
 // Sotto-fazione (capitolo) di un'unità dei Space Marines, es. 'Blood Angels'; stringa vuota se è
 // generica (solo Adeptus Astartes), se non è dei Space Marines o se i dati non ci sono. Più capitoli
 // sono separati da virgola. Si trova per id Wahapedia o, per le BSData, per nome.

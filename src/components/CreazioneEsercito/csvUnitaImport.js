@@ -147,6 +147,11 @@ export function elencoFazioni() {
   return [...new Set(unitaCache.map((u) => u.fazione))].sort((a, b) => a.localeCompare(b));
 }
 
+// Tutte le unità caricate (di ogni fazione): serve alla ricerca per nome dell'importazione di una lista.
+export function tutteLeUnita() {
+  return unitaCache;
+}
+
 // Fazione di una scheda (datasheetId come in info.csv), o '' se i dati caricati non la conoscono.
 export function fazionePerDatasheetId(datasheetId) {
   if (datasheetId === undefined || datasheetId === null || datasheetId === '') return '';
