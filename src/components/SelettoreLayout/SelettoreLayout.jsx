@@ -14,44 +14,50 @@ function SelettoreLayout() {
     <div className={styles.pannello}>
       <h3>Force disposition</h3>
 
-      <label>
-        Giocatore 1
-        <select value={giocatore1} onChange={(e) => impostaSelezioneLayout({ giocatore1: e.target.value })}>
-          <option value="">Seleziona...</option>
-          {DISPOSIZIONI.map((fd) => (
-            <option key={fd.codice} value={fd.codice}>
-              {fd.nome}
-            </option>
-          ))}
-        </select>
-      </label>
+      {/* Le disposizioni si scelgono di norma dal tracker (che le riporta qui): a tendina, chiuse di default. */}
+      <details className={styles.disposizioni}>
+        <summary>Giocatore 1 e 2</summary>
+        <label>
+          Giocatore 1
+          <select value={giocatore1} onChange={(e) => impostaSelezioneLayout({ giocatore1: e.target.value })}>
+            <option value="">Seleziona...</option>
+            {DISPOSIZIONI.map((fd) => (
+              <option key={fd.codice} value={fd.codice}>
+                {fd.nome}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label>
-        Giocatore 2
-        <select value={giocatore2} onChange={(e) => impostaSelezioneLayout({ giocatore2: e.target.value })}>
-          <option value="">Seleziona...</option>
-          {DISPOSIZIONI.map((fd) => (
-            <option key={fd.codice} value={fd.codice}>
-              {fd.nome}
-            </option>
-          ))}
-        </select>
-      </label>
+        <label>
+          Giocatore 2
+          <select value={giocatore2} onChange={(e) => impostaSelezioneLayout({ giocatore2: e.target.value })}>
+            <option value="">Seleziona...</option>
+            {DISPOSIZIONI.map((fd) => (
+              <option key={fd.codice} value={fd.codice}>
+                {fd.nome}
+              </option>
+            ))}
+          </select>
+        </label>
+      </details>
 
-      <label>
-        Layout
-        <select value={numeroLayout} onChange={(e) => impostaSelezioneLayout({ numeroLayout: e.target.value })}>
-          <option value="">Seleziona...</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      </label>
+      <div className={styles.riga}>
+        <label className={styles.layout}>
+          Layout
+          <select value={numeroLayout} onChange={(e) => impostaSelezioneLayout({ numeroLayout: e.target.value })}>
+            <option value="">-</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </label>
 
-      <label className={styles.spunta}>
-        <input type="checkbox" checked={mostraQuote} onChange={alternaQuote} />
-        Quote e icone di vista (V)
-      </label>
+        <label className={styles.spunta}>
+          <input type="checkbox" checked={mostraQuote} onChange={alternaQuote} />
+          Quote e icone di vista (V)
+        </label>
+      </div>
 
       {errore && <div className={styles.errore}>{errore}</div>}
     </div>

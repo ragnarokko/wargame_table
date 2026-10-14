@@ -32,6 +32,37 @@
   gap: 6px;
 }
 
+.riga {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Etichetta e numero sulla stessa riga, accanto alla spunta. */
+.pannello .layout {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.pannello .layout select {
+  width: auto;
+}
+
+.disposizioni summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--colore-testo-secondario);
+}
+
+.disposizioni[open] summary {
+  margin-bottom: 8px;
+}
+
+.disposizioni label + label {
+  margin-top: 8px;
+}
+
 .errore {
   font-size: 12px;
   color: var(--colore-pericolo);
