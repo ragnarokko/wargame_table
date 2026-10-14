@@ -6,6 +6,9 @@
 //   per: "per ogni ..." (contatore, vp ciascuno); cum: bonus cumulativo sulla riga precedente (con
 //   `per` si conta al massimo quanti sono stati contati nella riga principale); alt: alternativa alla
 //   riga precedente (se ne sceglie una sola, di solito la versione più alta).
+// Una missione secondaria può avere anche `quandoPescata` (testo della parte "When drawn"), `azione`
+// ({ nome, righe: [[etichetta, testo], ...] }, per Cleanse e Plunder) e `nota`: sono mostrati nel
+// dialogo di punteggio sopra le condizioni.
 // Una sezione vale per i round `round: [da, a]` oppure per `'fine'` (punti di fine battaglia, 5° round);
 // `cap` limita i VP segnati in un evento. Le missioni primarie dipendono dalla coppia di disposizioni
 // (la tua `disposizione` e quella dell'avversario `contro`).
@@ -774,6 +777,7 @@ export const MISSIONI_SECONDARIE = [
     id: "a-grievous-blow",
     nome: "A Grievous Blow",
     fissabile: true,
+    quandoPescata: "Se sul campo non ci sono unità nemiche con consistenza iniziale 13+, puoi scartare questa carta e pescarne una nuova.",
     sezioniFissa: [
       {
         round: [1, 5],
@@ -797,6 +801,7 @@ export const MISSIONI_SECONDARIE = [
     id: "a-tempting-target",
     nome: "A Tempting Target",
     fissabile: false,
+    quandoPescata: "L'avversario sceglie un obiettivo nella No Man's Land (esclusi gli obiettivi di casa): è il tuo bersaglio allettante (tempting target).",
     sezioniTattica: [
       {
         round: [1, 5],
@@ -836,6 +841,7 @@ export const MISSIONI_SECONDARIE = [
     id: "beacon",
     nome: "Beacon",
     fissabile: false,
+    quandoPescata: "Scegli una tua unità sul campo, o imbarcata su un TRANSPORT sul campo: è la tua unità beacon.",
     sezioniTattica: [
       {
         round: [1, 5],
@@ -851,6 +857,7 @@ export const MISSIONI_SECONDARIE = [
     id: "behind-enemy-lines",
     nome: "Behind Enemy Lines",
     fissabile: false,
+    quandoPescata: "Se è il 1° round puoi pescare una nuova carta secondaria e rimescolare questa nel mazzo.",
     sezioniTattica: [
       {
         round: [1, 5],
@@ -866,6 +873,7 @@ export const MISSIONI_SECONDARIE = [
     id: "bring-it-down",
     nome: "Bring It Down",
     fissabile: true,
+    quandoPescata: "Se sul campo non ci sono modelli nemici con Ferite 10+, puoi scartare questa carta e pescarne una nuova.",
     sezioniFissa: [
       {
         round: [1, 5],
@@ -889,6 +897,7 @@ export const MISSIONI_SECONDARIE = [
     id: "burden-of-trust",
     nome: "Burden of Trust",
     fissabile: false,
+    quandoPescata: "(anche a inizio di ogni tuo turno) per ogni obiettivo puoi scegliere una tua unità sul campo che lo sorvegli (guard). Fino all'inizio del tuo turno successivo, finché quell'unità è in portata dell'obiettivo e tu lo controlli, l'obiettivo è sorvegliato (guarded) dal tuo esercito.",
     sezioniTattica: [
       {
         round: [1, 5],
@@ -919,6 +928,7 @@ export const MISSIONI_SECONDARIE = [
     id: "cleanse",
     nome: "Cleanse",
     fissabile: false,
+    quandoPescata: "Se la secondaria Plunder è attiva per te, puoi pescare una nuova carta secondaria e rimescolare questa nel mazzo.",
     sezioniTattica: [
       {
         round: [1, 5],
@@ -929,12 +939,22 @@ export const MISSIONI_SECONDARIE = [
         ],
       },
     ],
-    nota: "Richiede l'azione Cleanse (tua fase di tiro).",
+    azione: {
+      nome: "Cleanse",
+      righe: [
+        ["Inizia", "La tua fase di tiro."],
+        ["Unità", "Una tua unità in portata di un obiettivo (escluso il tuo di casa)."],
+        ["Limite", "Illimitato; ogni unità che inizia l'azione deve essere in portata di un obiettivo diverso."],
+        ["Completa", "Fine del tuo turno, se quell'unità sta controllando quell'obiettivo."],
+        ["Effetto", "Quell'obiettivo è purificato (cleansed) dal tuo esercito."],
+      ],
+    },
   },
   {
     id: "defend-stronghold",
     nome: "Defend Stronghold",
     fissabile: false,
+    quandoPescata: "Se è il 1° round, pesca una nuova carta secondaria e rimescola questa nel mazzo.",
     sezioniTattica: [
       {
         round: [2, 5],
@@ -953,16 +973,10 @@ export const MISSIONI_SECONDARIE = [
     sezioniTattica: [
       {
         round: [1, 5],
-        momento: "Fine del tuo turno",
+        momento: "Fine del tuo turno (2 VP) oppure fine del turno avversario (5 VP): una sola delle due",
         righe: [
-          { t: "Più tue unità che nemiche (esclusi VELIVOLI e battle-shock) interamente in No Man's Land.", vp: 2 },
-        ],
-      },
-      {
-        round: [1, 5],
-        momento: "Fine del turno avversario",
-        righe: [
-          { t: "Più tue unità che nemiche (esclusi VELIVOLI e battle-shock) interamente in No Man's Land.", vp: 5 },
+          { t: "Fine del tuo turno: più tue unità che nemiche (esclusi VELIVOLI e battle-shock) interamente in No Man's Land.", vp: 2 },
+          { t: "Fine del turno avversario: più tue unità che nemiche (esclusi VELIVOLI e battle-shock) interamente in No Man's Land.", vp: 5, alt: true },
         ],
       },
     ],
@@ -971,6 +985,7 @@ export const MISSIONI_SECONDARIE = [
     id: "engage-on-all-fronts",
     nome: "Engage on All Fronts",
     fissabile: true,
+    nota: "Presenza in un quarto di tavolo: una o più tue unità (esclusi VELIVOLI e battle-shock) sono interamente in quel quarto e a più di 6\" dal centro del campo.",
     sezioniFissa: [
       {
         round: [1, 5],
@@ -996,6 +1011,7 @@ export const MISSIONI_SECONDARIE = [
     id: "forward-position",
     nome: "Forward Position",
     fissabile: false,
+    quandoPescata: "Se è il 1° round puoi pescare una nuova carta secondaria e rimescolare questa nel mazzo.",
     sezioniTattica: [
       {
         round: [1, 5],
@@ -1030,11 +1046,12 @@ export const MISSIONI_SECONDARIE = [
         round: [1, 5],
         momento: "Fine del tuo turno",
         righe: [
-          { t: "Una o più tue unità (esclusi VELIVOLI e battle-shock) entro 6\" da un bordo del campo e fuori dal tuo territorio.", vp: 3 },
-          { t: "Due o più tue unità (esclusi VELIVOLI e battle-shock) entro 6\" da bordi opposti e almeno una fuori dal tuo territorio.", vp: 5, alt: true },
+          { t: "Almeno una tua unità è entro 6\" da un bordo del campo e non è nel tuo territorio.", vp: 3 },
+          { t: "Almeno due tue unità sono entro 6\" da bordi opposti (una vicino a ciascun bordo) e almeno una di esse non è nel tuo territorio.", vp: 5, alt: true },
         ],
       },
     ],
+    nota: "Contano solo unità non VELIVOLI e non in battle-shock. Bordi opposti: i due lati paralleli del campo (es. i due lati lunghi).",
   },
   {
     id: "overwhelming-force",
@@ -1055,6 +1072,7 @@ export const MISSIONI_SECONDARIE = [
     id: "plunder",
     nome: "Plunder",
     fissabile: false,
+    quandoPescata: "Se la secondaria Cleanse è attiva per te, puoi pescare una nuova carta secondaria e rimescolare questa nel mazzo.",
     sezioniTattica: [
       {
         round: [1, 5],
@@ -1064,7 +1082,16 @@ export const MISSIONI_SECONDARIE = [
         ],
       },
     ],
-    nota: "Richiede l'azione Plunder (tua fase di tiro).",
+    azione: {
+      nome: "Plunder",
+      righe: [
+        ["Inizia", "La tua fase di tiro."],
+        ["Unità", "Una tua unità in un'area di terreno che non è nel tuo territorio."],
+        ["Limite", "Una volta per turno."],
+        ["Completa", "Subito."],
+        ["Effetto", "Quell'area di terreno è saccheggiata (plundered)."],
+      ],
+    },
   },
   {
     id: "secure-no-man-s-land",

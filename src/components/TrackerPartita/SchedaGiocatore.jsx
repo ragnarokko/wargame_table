@@ -177,6 +177,8 @@ function SchedaGiocatore({ giocatore }) {
       {cartaAttiva && cartaMissione && (
         <DialogoPunteggio
           titolo={`${cartaMissione.nome} — ${NOME_GIOCATORE[giocatore]}, round ${round}`}
+          quandoPescata={cartaMissione.quandoPescata}
+          azione={cartaMissione.azione}
           nota={cartaMissione.nota}
           sezioni={cartaAttiva.modo === 'fissa' ? cartaMissione.sezioniFissa : cartaMissione.sezioniTattica}
           round={round}
@@ -195,6 +197,8 @@ function SchedaGiocatore({ giocatore }) {
       {voce && cartaVoce && (
         <DialogoPunteggio
           titolo={`${cartaVoce.nome} — ${NOME_GIOCATORE[giocatore]}, round ${voce.round}`}
+          quandoPescata={cartaVoce.quandoPescata}
+          azione={cartaVoce.azione}
           nota={cartaVoce.nota}
           sezioni={modoVoce === 'fissa' ? cartaVoce.sezioniFissa : cartaVoce.sezioniTattica}
           round={voce.round}

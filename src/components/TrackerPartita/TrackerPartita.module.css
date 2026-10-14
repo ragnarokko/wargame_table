@@ -371,6 +371,48 @@
   color: var(--colore-testo-secondario);
 }
 
+.quandoPescata {
+  margin: 0 0 10px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  border-left: 3px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.azioneMissione {
+  margin: 0 0 10px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  border-left: 3px solid #e0b34a;
+  background: rgba(224, 179, 74, 0.1);
+}
+
+.azioneTitolo {
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.azioneMissione dl {
+  margin: 0;
+}
+
+.azioneMissione dl > div {
+  display: flex;
+  gap: 6px;
+}
+
+.azioneMissione dt {
+  flex: 0 0 62px;
+  font-weight: 700;
+  color: var(--colore-testo-secondario);
+}
+
+.azioneMissione dd {
+  margin: 0;
+}
+
 .avviso {
   margin: 0 0 10px;
   font-size: 12px;

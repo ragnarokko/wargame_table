@@ -28,10 +28,13 @@ function Contatore({ valore, massimo, onCambia }) {
 
 // Dialogo di punteggio di una missione per un round: elenca le condizioni valide in quel round
 // (spunte, contatori "per ogni…", alternative a scelta singola, bonus cumulativi) e ne somma i VP.
+// `quandoPescata`, `azione` e `nota` sono le parti della carta che non sono punteggio (vedi missioni.js).
 // Il tetto di round vale per le sezioni di round, non per quelle di fine battaglia.
 // `onConferma` riceve { vp, scarta }: `vp` è già limitato dal tetto.
 function DialogoPunteggio({
   titolo,
+  quandoPescata,
+  azione,
   nota,
   sezioni,
   round,
@@ -136,6 +139,24 @@ function DialogoPunteggio({
 
   return (
     <Modale titolo={titolo} aperto onChiudi={onChiudi}>
+      {quandoPescata && (
+        <p className={styles.quandoPescata}>
+          <b>Quando pescata:</b> {quandoPescata}
+        </p>
+      )}
+      {azione && (
+        <div className={styles.azioneMissione}>
+          <div className={styles.azioneTitolo}>Azione {azione.nome}</div>
+          <dl>
+            {azione.righe.map(([etichetta, testo]) => (
+              <div key={etichetta}>
+                <dt>{etichetta}</dt>
+                <dd>{testo}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
       {nota && <p className={styles.notaMissione}>{nota}</p>}
       {avviso && <p className={styles.avviso}>{avviso}</p>}
       {applicabili.length === 0 ? (
