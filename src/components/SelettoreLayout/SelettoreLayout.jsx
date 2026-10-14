@@ -1,47 +1,14 @@
-import { useEffect, useState } from 'react';
 import { useTavolo } from '../../contexts/TavoloContext';
 import { DISPOSIZIONI } from '../../config/missioni';
+import { idLayout } from '../../utils/layoutTavolo';
 import styles from './SelettoreLayout.module.css';
 
-const SUFFISSI_LAYOUT = { 1: 'a', 2: 'b', 3: 'c' };
-
-// { 'RapidIngress-thdia.png': url, ... }
-const moduliImmagini = import.meta.glob('../../assets/layouts/*.png', { eager: true, import: 'default' });
-const immaginiPerNomeFile = new Map(
-  Object.entries(moduliImmagini).map(([percorso, url]) => [percorso.split('/').pop(), url]),
-);
-
-function trovaImmagineLayout(codice1, codice2, numeroLayout) {
-  const suffisso = SUFFISSI_LAYOUT[numeroLayout];
-  const combinazioni = [`${codice1}${codice2}`, `${codice2}${codice1}`];
-  for (const combinazione of combinazioni) {
-    const nomeFile = `RapidIngress-${combinazione}${suffisso}.png`;
-    if (immaginiPerNomeFile.has(nomeFile)) {
-      return immaginiPerNomeFile.get(nomeFile);
-    }
-  }
-  return null;
-}
-
+// Sceglie il layout ufficiale (coppia di disposizioni + variante 1-3): il disegno sul tavolo lo fa LayoutTavolo.
 function SelettoreLayout() {
-  const { setSfondo, selezioneLayout, impostaSelezioneLayout } = useTavolo();
+  const { selezioneLayout, impostaSelezioneLayout, mostraQuote, alternaQuote } = useTavolo();
   const { giocatore1, giocatore2, numeroLayout } = selezioneLayout;
-  const [errore, setErrore] = useState(null);
-
-  useEffect(() => {
-    if (!giocatore1 || !giocatore2 || !numeroLayout) {
-      setErrore(null);
-      return;
-    }
-
-    const immagine = trovaImmagineLayout(giocatore1, giocatore2, numeroLayout);
-    if (immagine) {
-      setSfondo(immagine);
-      setErrore(null);
-    } else {
-      setErrore('Layout non disponibile per questa combinazione');
-    }
-  }, [giocatore1, giocatore2, numeroLayout, setSfondo]);
+  const scelto = Boolean(giocatore1 && giocatore2 && numeroLayout);
+  const errore = scelto && !idLayout(giocatore1, giocatore2, numeroLayout) ? 'Layout non disponibile per questa combinazione' : null;
 
   return (
     <div className={styles.pannello}>
@@ -79,6 +46,11 @@ function SelettoreLayout() {
           <option value="2">2</option>
           <option value="3">3</option>
         </select>
+      </label>
+
+      <label className={styles.spunta}>
+        <input type="checkbox" checked={mostraQuote} onChange={alternaQuote} />
+        Quote e icone di vista (V)
       </label>
 
       {errore && <div className={styles.errore}>{errore}</div>}

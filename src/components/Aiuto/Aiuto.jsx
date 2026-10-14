@@ -25,6 +25,7 @@ const SCORCIATOIE = [
   { tasti: 'D', descrizione: 'Attiva/disattiva lo strumento righello (stesso effetto del pulsante "Strumento righello" nel menu laterale).' },
   { tasti: 'R', descrizione: "Elimina i modelli selezionati: la basetta diventa grigia (resta sul campo) e non conta più nel numero di modelli attuali/iniziali dell'unità né nel Duello. R di nuovo sui modelli grigi li riporta in vita." },
   { tasti: 'E', descrizione: "Attacco tra due unità: con un'unità selezionata premi E, poi clicca una basetta dell'unità bersaglio. Si apre la scheda Duello di Botte! (finestra separata) con la distanza minima tra le due unità, le armi dell'attaccante e il risultato complessivo (modelli uccisi e ferite sull'ultimo). E di nuovo o Esc annulla." },
+  { tasti: 'V', descrizione: "Mostra/nasconde le quote in pollici e le icone di visibilità (occhi) del layout sul tavolo; terreni, obiettivi e zone di schieramento restano visibili. Rosso con barra = aree di terreno separate, verde = area singola." },
   { tasti: 'F (tieni premuto)', descrizione: 'Misura rapida senza click: mostra una linea e la distanza in pollici dal punto in cui hai premuto F alla posizione attuale del mouse; scompare al rilascio. Funziona anche a righello non attivo.' },
   { tasti: '1 / 2 / 3', descrizione: 'Dispone le basette selezionate su 1, 2 o 3 file, molto vicine tra loro, senza sovrapporsi (richiede almeno 2 basette selezionate).' },
   { tasti: 'Canc / Backspace', descrizione: 'Seleziona una o più unità e premi Canc/Delete per eliminarle.' },

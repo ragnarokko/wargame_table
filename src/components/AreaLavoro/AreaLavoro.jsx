@@ -4,6 +4,7 @@ import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import Staging from '../Staging/Staging';
 import Tavolo from '../Tavolo/Tavolo';
+import LayoutTavolo from '../LayoutTavolo/LayoutTavolo';
 import Basetta from '../Basetta/Basetta';
 import ElementoScenico from '../ElementoScenico/ElementoScenico';
 import StrumentoRighello from '../StrumentoRighello/StrumentoRighello';
@@ -120,6 +121,7 @@ function AreaLavoro({ righelloAttivo }) {
       >
         <Staging />
         <Tavolo />
+        <LayoutTavolo />
 
         <div className={styles.livelloInterattivo}>
           <SelezioneMultipla

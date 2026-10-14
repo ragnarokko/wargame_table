@@ -4,6 +4,7 @@ import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { calcolaDimensioniBasettaPx } from '../../utils/basetta';
 import { puntoRelativoRuotato } from '../../utils/coordinate';
 import { polliciAPx } from '../../utils/scala';
+import { COLORE_ESERCITO } from '../../config/eserciti';
 import {
   EVENTO_EVIDENZIA_UNITA,
   EVENTO_FISSA_POPUP,
@@ -27,11 +28,6 @@ const DIREZIONI_FRECCE = {
   ArrowDown: { x: 0, y: 1 },
   ArrowLeft: { x: -1, y: 0 },
   ArrowRight: { x: 1, y: 0 },
-};
-
-const COLORE_SQUADRA = {
-  blu: '#3b82f6',
-  rosso: '#ef4444',
 };
 
 // Debounce condiviso tra tutte le istanze: passando da una basetta all'altra (stesso
@@ -426,7 +422,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     // successivo nell'ordine del DOM che lo sovrappone sullo schermo.
     zIndex: inTrascinamento ? 50 : (hover && ctrlPremuto) || popupFissato ? 100 : 10,
     transform: `rotate(${rotazione}deg)`,
-    '--colore-squadra': COLORE_SQUADRA[template.esercito] || 'transparent',
+    '--colore-squadra': COLORE_ESERCITO[template.esercito] || 'transparent',
   };
 
   // Hover sulla basetta: evidenzia (via EVENTO_EVIDENZIA_UNITA) la voce corrispondente

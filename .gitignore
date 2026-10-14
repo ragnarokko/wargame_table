@@ -29,3 +29,6 @@ Thumbs.db
 
 # CSV grezzi di lavoro (la fonte dei dati è il repo del calcolatore)
 wapedia/
+
+# Dati scaricati dagli script in tools/
+tools/.cache/

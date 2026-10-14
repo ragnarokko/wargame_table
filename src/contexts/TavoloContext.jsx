@@ -4,6 +4,16 @@ const TavoloContext = createContext(null);
 
 const PX_PER_POLLICE = 14;
 const MARGINE_STAGING_POLLICI = 14;
+const CHIAVE_QUOTE = 'tavolo-mostra-quote';
+
+// Quote e icone di visibilità del layout sul tavolo: visibili salvo scelta contraria (tasto V), ricordata nel browser.
+function leggiMostraQuote() {
+  try {
+    return localStorage.getItem(CHIAVE_QUOTE) !== 'no';
+  } catch {
+    return true;
+  }
+}
 
 export function TavoloProvider({ children }) {
   const [dimensioni, setDimensioniState] = useState({ larghezza: 60, altezza: 44 });
@@ -11,6 +21,19 @@ export function TavoloProvider({ children }) {
   // Scelta di "Force disposition" (codici delle due disposizioni e numero di layout): vive qui, e non
   // dentro SelettoreLayout, perché la imposta anche il tracker di partita (vedi TrackerContext).
   const [selezioneLayout, setSelezioneLayout] = useState({ giocatore1: '', giocatore2: '', numeroLayout: '1' });
+
+  const [mostraQuote, setMostraQuote] = useState(leggiMostraQuote);
+
+  const alternaQuote = useCallback(() => {
+    setMostraQuote((prev) => {
+      try {
+        localStorage.setItem(CHIAVE_QUOTE, prev ? 'no' : 'si');
+      } catch {
+        // localStorage non disponibile: la scelta vale solo per questa sessione.
+      }
+      return !prev;
+    });
+  }, []);
 
   const impostaSelezioneLayout = useCallback((patch) => {
     setSelezioneLayout((prev) => ({ ...prev, ...patch }));
@@ -68,6 +91,8 @@ export function TavoloProvider({ children }) {
       setSfondo,
       selezioneLayout,
       impostaSelezioneLayout,
+      mostraQuote,
+      alternaQuote,
       pxPerPollice: PX_PER_POLLICE,
       tavoloPx,
       tavoloRect,
@@ -81,6 +106,8 @@ export function TavoloProvider({ children }) {
       sfondo,
       selezioneLayout,
       impostaSelezioneLayout,
+      mostraQuote,
+      alternaQuote,
       tavoloPx,
       tavoloRect,
       campoGiocoPx,
