@@ -514,3 +514,54 @@
 .carta span:first-child {
   flex: 1;
 }
+
+/* OC sugli obiettivi: in fondo al corpo scorrevole, sotto a tutto il resto */
+.tabellaObiettivi {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--colore-bordo);
+}
+
+.tabellaObiettivi table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: center;
+}
+
+.tabellaObiettivi caption {
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: 6px;
+}
+
+.tabellaObiettivi th {
+  font-weight: 600;
+  color: var(--colore-testo-secondario);
+  padding: 2px 4px;
+}
+
+.tabellaObiettivi td {
+  padding: 2px 4px;
+  border-top: 1px solid var(--colore-bordo);
+}
+
+.nomeObiettivo {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.testoBlu {
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.testoRosso {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.ocPrevale {
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+}

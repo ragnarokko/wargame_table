@@ -134,6 +134,7 @@ function convertiLayout(l, quoteLayout) {
         const [x, y] = centroide(punti(t.points));
         obiettivi.push({
           numero: t.objective.number,
+          area: idArea(t.areaId),
           tipo: t.objective.type,
           proprietario: RUOLI[t.objective.owner] ?? null,
           x: arrotonda(x),

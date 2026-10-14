@@ -6,7 +6,7 @@ const LATI_ELLISSE = 32;
 // Poligono convesso (vertici in px, nelle coordinate del `containerRef`) di una basetta sul campo: ellisse
 // per le basette tonde/ovali, rettangolo per le rettangolari, ruotato di `istanza.rotazione` attorno al
 // centro (x, y). `raggio` è il raggio del cerchio che lo contiene, usato per scartare in fretta le coppie lontane.
-function poligonoBasetta(istanza, template, pxPerPollice) {
+export function poligonoBasetta(istanza, template, pxPerPollice) {
   const { larghezza, altezza } = calcolaDimensioniBasettaPx(template, pxPerPollice);
   const mx = larghezza / 2;
   const my = altezza / 2;

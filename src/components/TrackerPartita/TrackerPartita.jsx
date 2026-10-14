@@ -6,6 +6,7 @@ import PannelloDestro from '../PannelloDestro/PannelloDestro';
 import SchedaGiocatore, { NOME_GIOCATORE } from './SchedaGiocatore';
 import SetupTracker from './SetupTracker';
 import StatisticheTracker from './StatisticheTracker';
+import TabellaObiettivi from './TabellaObiettivi';
 import styles from './TrackerPartita.module.css';
 
 // Pannello laterale destro, a tutta altezza, per tracciare la partita: setup guidato (disposizioni,
@@ -79,6 +80,7 @@ function TrackerPartita({ aperto, onApri, onChiudi }) {
           </Modale>
         </div>
       )}
+      <TabellaObiettivi />
     </PannelloDestro>
   );
 }
