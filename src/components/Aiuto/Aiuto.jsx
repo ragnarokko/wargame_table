@@ -28,6 +28,7 @@ const SCORCIATOIE = [
   { tasti: 'V', descrizione: "Mostra/nasconde le quote in pollici e le icone di visibilità (occhi) del layout sul tavolo; terreni, obiettivi e zone di schieramento restano visibili. Rosso con barra = aree di terreno separate, verde = area singola." },
   { tasti: 'F (tieni premuto)', descrizione: 'Misura rapida senza click: mostra una linea e la distanza in pollici dal punto in cui hai premuto F alla posizione attuale del mouse; scompare al rilascio. Funziona anche a righello non attivo.' },
   { tasti: '1 / 2 / 3', descrizione: 'Dispone le basette selezionate su 1, 2 o 3 file, molto vicine tra loro, senza sovrapporsi (richiede almeno 2 basette selezionate).' },
+  { tasti: 'Ctrl + Z', descrizione: "Annulla l'ultimo spostamento di una basetta o di un gruppo di basette (trascinamento, frecce, formazione 1/2/3, rotazione di gruppo); si ricordano le ultime 5 azioni (limite aumentabile: costante LIMITE_ANNULLA in TavoloStateContext.jsx)." },
   { tasti: 'Canc / Backspace', descrizione: 'Seleziona una o più unità e premi Canc/Delete per eliminarle.' },
   { tasti: 'Esc', descrizione: 'Annulla un trascinamento in corso: la basetta (e l\'eventuale gruppo) torna alla posizione di partenza.' },
   { tasti: 'Ctrl + passa il mouse su una basetta', descrizione: 'Mostra il popup con immagine, statistiche, note e armi della basetta.' },

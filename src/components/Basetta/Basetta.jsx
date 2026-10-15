@@ -261,6 +261,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     const onKeyDown = (e) => {
       const tag = e.target.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return; // Ctrl+Z annulla l'ultimo spostamento (TavoloStateContext)
       if (e.key === 'z' || e.key === 'Z') {
         e.preventDefault();
         impostaAuraIstanza(istanza.id, auraOffsetPollici + 1);

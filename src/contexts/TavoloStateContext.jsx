@@ -1,11 +1,41 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { generaId } from '../utils/id';
 
 const TavoloStateContext = createContext(null);
 
+// Quanti spostamenti si possono annullare con Ctrl+Z.
+const LIMITE_ANNULLA = 5;
+
 export function TavoloStateProvider({ children }) {
   const [istanze, setIstanze] = useState([]);
   const [elementiScenici, setElementiScenici] = useState([]);
+
+  // Cronologia degli spostamenti per Ctrl+Z. Ogni voce è un "lotto": tutte le basette mosse dalla stessa azione
+  // (un trascinamento di gruppo, una pressione di freccia con più basette selezionate, una formazione 1/2/3...)
+  // con la posizione che avevano prima. Le chiamate di spostaIstanza dello stesso evento finiscono nello stesso
+  // lotto, che si chiude al macrotask successivo (i listener di un evento girano tutti prima).
+  const istanzeRef = useRef(istanze);
+  istanzeRef.current = istanze;
+  const pilaAnnullaRef = useRef([]);
+  const lottoRef = useRef(null);
+
+  const registraPosizionePrecedente = useCallback((id, x, y) => {
+    const ist = istanzeRef.current.find((i) => i.id === id);
+    if (!ist || (ist.x === x && ist.y === y)) return;
+    if (!lottoRef.current) {
+      const lotto = new Map();
+      lottoRef.current = lotto;
+      const pila = pilaAnnullaRef.current;
+      pila.push(lotto);
+      if (pila.length > LIMITE_ANNULLA) pila.shift();
+      setTimeout(() => {
+        if (lottoRef.current === lotto) lottoRef.current = null;
+      }, 0);
+    }
+    if (!lottoRef.current.has(id)) {
+      lottoRef.current.set(id, { x: ist.x, y: ist.y, zona: ist.zona, ultimaDistanza: ist.ultimaDistanza ?? null });
+    }
+  }, []);
 
   const schieraBasetta = useCallback((templateId, x, y, zona = 'staging') => {
     const nuova = { id: generaId(), templateId, x, y, zona, ultimaDistanza: null, rotazione: 0 };
@@ -29,10 +59,36 @@ export function TavoloStateProvider({ children }) {
   }, []);
 
   const spostaIstanza = useCallback((id, x, y, zona, distanza) => {
+    registraPosizionePrecedente(id, x, y);
     setIstanze((prev) =>
       prev.map((ist) => (ist.id === id ? { ...ist, x, y, zona, ultimaDistanza: distanza } : ist)),
     );
+  }, [registraPosizionePrecedente]);
+
+  // Ctrl+Z: riporta le basette dell'ultimo spostamento dov'erano prima (le già rimosse si saltano).
+  const annullaSpostamento = useCallback(() => {
+    const pila = pilaAnnullaRef.current;
+    lottoRef.current = null;
+    while (pila.length > 0) {
+      const lotto = pila.pop();
+      if (!istanzeRef.current.some((ist) => lotto.has(ist.id))) continue;
+      setIstanze((prev) => prev.map((ist) => (lotto.has(ist.id) ? { ...ist, ...lotto.get(ist.id) } : ist)));
+      return true;
+    }
+    return false;
   }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (e.key !== 'z' && e.key !== 'Z')) return;
+      e.preventDefault();
+      annullaSpostamento();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [annullaSpostamento]);
 
   // Orientamento (Q/W) della singola basetta: persistito qui (anziché come stato locale del
   // componente Basetta) così da poter essere letto da un salvataggio completo della partita.
@@ -80,6 +136,8 @@ export function TavoloStateProvider({ children }) {
   // Sostituisce interamente istanze ed elementi scenici (usato dal ripristino di un salvataggio
   // completo della partita, a differenza di impostaIstanzePerTemplates che è mirato per template).
   const ripristinaTavolo = useCallback((nuoveIstanze, nuoviElementiScenici) => {
+    pilaAnnullaRef.current = [];
+    lottoRef.current = null;
     setIstanze(nuoveIstanze);
     setElementiScenici(nuoviElementiScenici);
   }, []);
