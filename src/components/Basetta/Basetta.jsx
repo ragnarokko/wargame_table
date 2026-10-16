@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLibreria } from '../../contexts/LibreriaContext';
 import { useTavolo } from '../../contexts/TavoloContext';
 import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { calcolaDimensioniBasettaPx } from '../../utils/basetta';
 import { puntoRelativoRuotato } from '../../utils/coordinate';
+import { distanzaConSegno, poligonoBasetta } from '../../utils/geometriaBasette';
 import { polliciAPx } from '../../utils/scala';
 import { COLORE_ESERCITO } from '../../config/eserciti';
 import {
@@ -20,7 +22,11 @@ import styles from './Basetta.module.css';
 const INCREMENTO_ROTAZIONE = 15;
 const SOGLIA_CLICK_PX = 3;
 const INCREMENTO_FERITE = 1;
-const AURA_RAPIDA_POLLICI = 9;
+const AURA_RAPIDA_POLLICI = 8;
+// Etichetta della misura dell'aura: punti candidati sulla linea (ogni 15° a schermo, dall'alto) e distanza oltre
+// la quale un'altra basetta non conta più (px).
+const PASSI_ETICHETTA_AURA = 24;
+const DISTANZA_LIBERA_ETICHETTA_PX = 40;
 const PASSO_FRECCE_POLLICI = 0.25;
 // Versore (x destra, y giù) a schermo per ogni freccia direzionale.
 const DIREZIONI_FRECCE = {
@@ -40,7 +46,8 @@ const COLORE_MORTA = '#6b6b75';
 
 function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice, puntoNelTavolo } = useTavolo();
-  const { spostaIstanza, ruotaIstanza, impostaFeriteIstanza, impostaAuraIstanza } = useTavoloState();
+  const { istanze, spostaIstanza, ruotaIstanza, impostaFeriteIstanza, impostaAuraIstanza } = useTavoloState();
+  const { basette } = useLibreria();
   const [hover, setHover] = useState(false);
   const [ctrlPremuto, setCtrlPremuto] = useState(false);
   // Popup dei dettagli fissato con il tasto I: resta aperto (e diventa cliccabile, per le tendine delle
@@ -402,6 +409,48 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     transform: `rotate(${rotazione}deg)`,
   };
 
+  // Punto della linea dell'aura dove scrivere la misura: tra quelli candidati (dall'alto, poi alternando destra e
+  // sinistra) il più lontano dalle altre basette, così la scritta non finisce sotto di loro.
+  let etichettaAura = null;
+  if (auraOffsetPollici > 0) {
+    const semiL = dimensionePx.larghezza / 2 + auraOffsetPx;
+    const semiA = dimensionePx.altezza / 2 + auraOffsetPx;
+    const rad = (rotazione * Math.PI) / 180;
+    const altre = istanze
+      .filter((ist) => ist.id !== istanza.id)
+      .map((ist) => {
+        const t = basette.find((b) => b.id === ist.templateId);
+        return t ? poligonoBasetta(ist, t, pxPerPollice) : null;
+      })
+      .filter(Boolean);
+    let migliore = -Infinity;
+    for (let i = 0; i < PASSI_ETICHETTA_AURA; i++) {
+      const passo = Math.ceil(i / 2) * (i % 2 ? 1 : -1);
+      const schermo = ((-90 + (passo * 360) / PASSI_ETICHETTA_AURA - rotazioneArea) * Math.PI) / 180;
+      const locale = schermo - rad;
+      const c = Math.cos(locale);
+      const s = Math.sin(locale);
+      const [lx, ly] =
+        template.forma === 'rettangolare'
+          ? (() => {
+              const t = 1 / Math.max(Math.abs(c) / semiL, Math.abs(s) / semiA);
+              return [t * c, t * s];
+            })()
+          : [semiL * c, semiA * s];
+      const x = posizioneVisualizzata.x + lx * Math.cos(rad) - ly * Math.sin(rad);
+      const y = posizioneVisualizzata.y + lx * Math.sin(rad) + ly * Math.cos(rad);
+      let libero = DISTANZA_LIBERA_ETICHETTA_PX;
+      for (const p of altre) {
+        if (Math.hypot(x - p.x, y - p.y) - p.raggio > libero) continue;
+        libero = Math.min(libero, distanzaConSegno(x, y, p));
+      }
+      if (libero > migliore) {
+        migliore = libero;
+        etichettaAura = { x, y };
+      }
+    }
+  }
+
   const distanzaLive = inTrascinamento
     ? Math.hypot(posizioneVisualizzata.x - istanza.x, posizioneVisualizzata.y - istanza.y) / pxPerPollice
     : 0;
@@ -447,6 +496,14 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
   return (
     <>
       {auraStyle && <div className={styles.aura} style={auraStyle} />}
+      {auraStyle && etichettaAura && (
+        <div
+          className={styles.etichettaAura}
+          style={{ left: etichettaAura.x, top: etichettaAura.y, transform: `translate(-50%, -50%) rotate(${-rotazioneArea}deg)` }}
+        >
+          {auraOffsetPollici}&quot;
+        </div>
+      )}
       {inTrascinamento && (!gruppoAttivo || (isReferenzaGruppo && !rotazioneGruppoAttiva)) && (
         <MisuraDistanza
           origine={{ x: istanza.x, y: istanza.y }}
@@ -477,7 +534,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
         }}
         title={
           "Trascina per spostare (Esc per annullare). Click per selezionare, frecce per spostare di poco, " +
-          "Q/W per ruotare, +/- per le ferite, Z/X per l'aura, C per l'aura rapida da 9\". Ctrl+hover per i dettagli (I per tenerli aperti), doppio click per trovare l'unità nella lista."
+          "Q/W per ruotare, +/- per le ferite, Z/X per l'aura, C per l'aura rapida da 8\". Ctrl+hover per i dettagli (I per tenerli aperti), doppio click per trovare l'unità nella lista."
         }
       >
         <div className={styles.indicatoreFronte} />

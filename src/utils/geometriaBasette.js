@@ -33,6 +33,23 @@ export function poligonoBasetta(istanza, template, pxPerPollice) {
   };
 }
 
+// Distanza con segno di un punto dal bordo di un poligono convesso (vertici in senso orario o antiorario):
+// negativa se il punto è dentro.
+export function distanzaConSegno(px, py, { punti }) {
+  let minima = Infinity;
+  let positivi = 0;
+  let negativi = 0;
+  for (let i = 0; i < punti.length; i++) {
+    const a = punti[i];
+    const b = punti[(i + 1) % punti.length];
+    minima = Math.min(minima, distanzaPuntoSegmento(px, py, a, b));
+    const croce = (b[0] - a[0]) * (py - a[1]) - (b[1] - a[1]) * (px - a[0]);
+    if (croce > 0) positivi++;
+    else if (croce < 0) negativi++;
+  }
+  return positivi === 0 || negativi === 0 ? -minima : minima;
+}
+
 function distanzaPuntoSegmento(px, py, [ax, ay], [bx, by]) {
   const dx = bx - ax;
   const dy = by - ay;
