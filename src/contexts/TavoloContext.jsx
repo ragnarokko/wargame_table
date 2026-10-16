@@ -5,6 +5,7 @@ const TavoloContext = createContext(null);
 const PX_PER_POLLICE = 14;
 const MARGINE_STAGING_POLLICI = 14;
 const CHIAVE_QUOTE = 'tavolo-mostra-quote';
+const CHIAVE_CENTRO = 'tavolo-mostra-centro';
 
 // Quote e icone di visibilità del layout sul tavolo: visibili salvo scelta contraria (tasto V), ricordata nel browser.
 function leggiMostraQuote() {
@@ -12,6 +13,15 @@ function leggiMostraQuote() {
     return localStorage.getItem(CHIAVE_QUOTE) !== 'no';
   } catch {
     return true;
+  }
+}
+
+// Cerchi di 3" e 6" attorno al centro del tavolo (missione Centre Ground): spenti salvo scelta contraria, ricordata nel browser.
+function leggiMostraCentro() {
+  try {
+    return localStorage.getItem(CHIAVE_CENTRO) === 'si';
+  } catch {
+    return false;
   }
 }
 
@@ -28,6 +38,19 @@ export function TavoloProvider({ children }) {
     setMostraQuote((prev) => {
       try {
         localStorage.setItem(CHIAVE_QUOTE, prev ? 'no' : 'si');
+      } catch {
+        // localStorage non disponibile: la scelta vale solo per questa sessione.
+      }
+      return !prev;
+    });
+  }, []);
+
+  const [mostraCentro, setMostraCentro] = useState(leggiMostraCentro);
+
+  const alternaCentro = useCallback(() => {
+    setMostraCentro((prev) => {
+      try {
+        localStorage.setItem(CHIAVE_CENTRO, prev ? 'no' : 'si');
       } catch {
         // localStorage non disponibile: la scelta vale solo per questa sessione.
       }
@@ -93,6 +116,8 @@ export function TavoloProvider({ children }) {
       impostaSelezioneLayout,
       mostraQuote,
       alternaQuote,
+      mostraCentro,
+      alternaCentro,
       pxPerPollice: PX_PER_POLLICE,
       tavoloPx,
       tavoloRect,
@@ -108,6 +133,8 @@ export function TavoloProvider({ children }) {
       impostaSelezioneLayout,
       mostraQuote,
       alternaQuote,
+      mostraCentro,
+      alternaCentro,
       tavoloPx,
       tavoloRect,
       campoGiocoPx,

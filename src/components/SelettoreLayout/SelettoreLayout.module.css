@@ -47,8 +47,9 @@
 
 .riga {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 6px 4px;
 }
 
 /* Etichetta e numero sulla stessa riga, accanto alla spunta. */

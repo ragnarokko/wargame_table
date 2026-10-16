@@ -3,6 +3,7 @@ import { useTavolo } from '../../contexts/TavoloContext';
 import { useTracker } from '../../contexts/TrackerContext';
 import { COLORE_ESERCITO } from '../../config/eserciti';
 import { useLayoutCorrente } from '../../hooks/useLayoutCorrente';
+import CerchiCentro from './CerchiCentro';
 import { COLORE_CENTRALE, GlifoObiettivo } from './GlifoObiettivo';
 import styles from './LayoutTavolo.module.css';
 
@@ -58,62 +59,65 @@ function LayoutTavolo() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [alternaQuote]);
 
-  if (!layout) return null;
+  if (!layout) return <CerchiCentro />;
 
   const attaccante = stato.attaccante === 'rosso' ? 'rosso' : 'blu';
   const difensore = attaccante === 'blu' ? 'rosso' : 'blu';
   const coloreRuolo = (ruolo) => COLORE_ESERCITO[ruolo === 'attaccante' ? attaccante : difensore];
 
   return (
-    <svg
-      className={styles.layout}
-      style={{ left: tavoloRect.left, top: tavoloRect.top, width: tavoloRect.width, height: tavoloRect.height }}
-      viewBox={`0 0 ${layout.larghezza} ${layout.altezza}`}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      {layout.zone.map((zona) => (
-        <polygon
-          key={zona.ruolo}
-          className={styles.zona}
-          points={aPunti(zona.punti)}
-          fill={coloreRuolo(zona.ruolo)}
-          stroke={coloreRuolo(zona.ruolo)}
-        />
-      ))}
-      {layout.impronte.map((impronta, i) => (
-        <polygon key={i} className={styles.impronta} points={aPunti(impronta.punti)} />
-      ))}
-      {layout.elementi.map((elemento, i) => (
-        <polygon
-          key={i}
-          className={elemento.categoria === 'DENSE' ? styles.denso : styles.leggero}
-          points={aPunti(elemento.punti)}
-        />
-      ))}
-      {mostraQuote && (
-        <g>
-          {layout.quote.linee.map(([x1, y1, x2, y2], i) => (
-            <line key={i} className={styles.quota} x1={x1} y1={y1} x2={x2} y2={y2} />
-          ))}
-          {layout.quote.etichette.map((e, i) => (
-            <text key={i} className={styles.etichettaQuota} x={e.x} y={e.y}>
-              {e.testo}
-            </text>
-          ))}
-          {layout.occhi.map((occhio, i) => (
-            <Occhio key={i} occhio={occhio} />
-          ))}
-        </g>
-      )}
-      {layout.obiettivi.map((obiettivo) => (
-        <Obiettivo
-          key={obiettivo.numero}
-          obiettivo={obiettivo}
-          coloreProprietario={obiettivo.proprietario ? coloreRuolo(obiettivo.proprietario) : COLORE_CENTRALE}
-        />
-      ))}
-    </svg>
+    <>
+      <svg
+        className={styles.layout}
+        style={{ left: tavoloRect.left, top: tavoloRect.top, width: tavoloRect.width, height: tavoloRect.height }}
+        viewBox={`0 0 ${layout.larghezza} ${layout.altezza}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        {layout.zone.map((zona) => (
+          <polygon
+            key={zona.ruolo}
+            className={styles.zona}
+            points={aPunti(zona.punti)}
+            fill={coloreRuolo(zona.ruolo)}
+            stroke={coloreRuolo(zona.ruolo)}
+          />
+        ))}
+        {layout.impronte.map((impronta, i) => (
+          <polygon key={i} className={styles.impronta} points={aPunti(impronta.punti)} />
+        ))}
+        {layout.elementi.map((elemento, i) => (
+          <polygon
+            key={i}
+            className={elemento.categoria === 'DENSE' ? styles.denso : styles.leggero}
+            points={aPunti(elemento.punti)}
+          />
+        ))}
+        {mostraQuote && (
+          <g>
+            {layout.quote.linee.map(([x1, y1, x2, y2], i) => (
+              <line key={i} className={styles.quota} x1={x1} y1={y1} x2={x2} y2={y2} />
+            ))}
+            {layout.quote.etichette.map((e, i) => (
+              <text key={i} className={styles.etichettaQuota} x={e.x} y={e.y}>
+                {e.testo}
+              </text>
+            ))}
+            {layout.occhi.map((occhio, i) => (
+              <Occhio key={i} occhio={occhio} />
+            ))}
+          </g>
+        )}
+        {layout.obiettivi.map((obiettivo) => (
+          <Obiettivo
+            key={obiettivo.numero}
+            obiettivo={obiettivo}
+            coloreProprietario={obiettivo.proprietario ? coloreRuolo(obiettivo.proprietario) : COLORE_CENTRALE}
+          />
+        ))}
+      </svg>
+      <CerchiCentro />
+    </>
   );
 }
 

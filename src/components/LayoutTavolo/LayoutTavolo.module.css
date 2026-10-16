@@ -4,6 +4,31 @@
   overflow: hidden;
 }
 
+.cerchiCentro {
+  position: absolute;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cerchio {
+  fill: none;
+  stroke: #ffd24a;
+  stroke-width: 2px;
+  stroke-dasharray: 8 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.etichettaCerchio {
+  font-size: 0.95px;
+  font-weight: 700;
+  fill: #ffe9a8;
+  stroke: rgba(10, 14, 24, 0.85);
+  stroke-width: 0.22px;
+  paint-order: stroke;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
 .zona {
   fill-opacity: 0.14;
   stroke-opacity: 0.55;

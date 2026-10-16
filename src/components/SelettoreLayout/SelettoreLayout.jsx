@@ -6,7 +6,7 @@ import styles from './SelettoreLayout.module.css';
 
 // Sceglie il layout ufficiale (coppia di disposizioni + variante 1-3): il disegno sul tavolo lo fa LayoutTavolo.
 function SelettoreLayout() {
-  const { selezioneLayout, impostaSelezioneLayout, mostraQuote, alternaQuote } = useTavolo();
+  const { selezioneLayout, impostaSelezioneLayout, mostraQuote, alternaQuote, mostraCentro, alternaCentro } = useTavolo();
   const { stato: tracker } = useTracker();
   const { giocatore1, giocatore2, numeroLayout } = selezioneLayout;
 
@@ -83,7 +83,12 @@ function SelettoreLayout() {
 
         <label className={styles.spunta}>
           <input type="checkbox" checked={mostraQuote} onChange={alternaQuote} />
-          Quote e icone di vista (V)
+          Quote/icone (V)
+        </label>
+
+        <label className={styles.spunta} title="Cerchi di 3&quot; e 6&quot; attorno al centro del tavolo (Centre Ground)">
+          <input type="checkbox" checked={mostraCentro} onChange={alternaCentro} />
+          Centro
         </label>
       </div>
 
