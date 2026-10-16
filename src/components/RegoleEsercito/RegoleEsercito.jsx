@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { capitoloDistaccamento } from '../../config/capitoliDistaccamenti';
 import { ESERCITI } from '../../config/eserciti';
 import { useLibreria } from '../../contexts/LibreriaContext';
 import { useRegoleEsercito } from '../../contexts/RegoleEsercitoContext';
@@ -142,7 +143,10 @@ function ContenutoRegole() {
                         disabled={nonCiStaPiu}
                         onChange={(e) => impostaDistaccamento(esercitoId, d.id, e.target.checked)}
                       />
-                      <span className={styles.nomeDistaccamento}>{d.nome}</span>
+                      <span className={styles.nomeDistaccamento}>
+                        {d.nome}
+                        <Capitolo id={d.id} />
+                      </span>
                       <span className={styles.chip}>{d.dp} DP</span>
                       {d.disposizione && <span className={styles.disposizione}>{d.disposizione}</span>}
                     </label>
@@ -169,6 +173,12 @@ function ContenutoRegole() {
   );
 }
 
+// Capitolo degli Space Marines a cui appartiene il distaccamento, tra parentesi e in piccolo (nulla per gli altri).
+function Capitolo({ id }) {
+  const capitolo = capitoloDistaccamento(id);
+  return capitolo ? <small className={styles.capitolo}> ({capitolo})</small> : null;
+}
+
 function DettaglioDistaccamento({ distaccamento, versione }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const { regole, potenziamenti, stratagemmi } = useMemo(() => contenutoDistaccamento(distaccamento.id), [distaccamento.id, versione]);
@@ -176,7 +186,11 @@ function DettaglioDistaccamento({ distaccamento, versione }) {
   return (
     <section className={styles.distaccamento}>
       <h3>
-        {distaccamento.nome} <span className={styles.chip}>{distaccamento.dp} DP</span>
+        <span>
+          {distaccamento.nome}
+          <Capitolo id={distaccamento.id} />
+        </span>{' '}
+        <span className={styles.chip}>{distaccamento.dp} DP</span>
       </h3>
       <Sezione titolo="Regole del distaccamento" aperta conteggio={regole.length}>
         {regole.length === 0 && <p className={styles.vuoto}>Nessuna regola nei dati.</p>}

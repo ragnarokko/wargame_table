@@ -158,6 +158,14 @@
 
 .nomeDistaccamento {
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.capitolo {
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--colore-testo-secondario);
+  white-space: nowrap;
 }
 
 .disposizione {
@@ -165,6 +173,7 @@
   font-size: 10px;
   color: var(--colore-testo-secondario);
   text-align: right;
+  white-space: nowrap;
 }
 
 .distaccamento {
