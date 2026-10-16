@@ -171,7 +171,7 @@ function CreazioneEsercito() {
       width: campoGiocoPx.larghezza,
       height: campoGiocoPx.altezza - ALTEZZA_FASCIA_INDICATORI_PX,
     },
-    // Le basette vanno nello staging dell'esercito: il Blu sopra il tavolo (o ai lati nella metà alta), il Rosso
+    // Le basette vanno nello staging dell'esercito: il Rosso sopra il tavolo (o ai lati nella metà alta), il Blu
     // sotto (o ai lati nella metà bassa), mai sul tavolo.
     ...zoneStagingEsercito(esercitoSelezionato, {
       campoGiocoPx,

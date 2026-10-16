@@ -82,7 +82,7 @@ function Aiuto() {
             In New Recruit esporta la lista nella versione <strong>short</strong> e copia il testo. In "Creazione
             Esercito" scegli l'esercito (Blu o Rosso), premi <strong>Importa</strong> e incolla il testo nella
             finestra: vengono riconosciute fazione, unità e numero di modelli, e le basette si dispongono nello
-            staging dell'esercito.
+            staging dell'esercito (il Rosso sopra il tavolo, il Blu sotto).
           </p>
         </div>
         <div className={styles.sezione}>

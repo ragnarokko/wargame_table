@@ -13,7 +13,7 @@ const MARGINE_BORDO_POLLICI = 3;
 const MARGINE_ZONA_POLLICI = 1;
 
 // Zone di staging (rettangoli in px, in ordine di preferenza) in cui schierare un esercito:
-// il Blu sta sopra il tavolo e, se non basta, ai lati nella metà alta; il Rosso sotto il tavolo e,
+// il Rosso sta sopra il tavolo e, se non basta, ai lati nella metà alta; il Blu sotto il tavolo e,
 // se non basta, ai lati nella metà bassa. La fascia in alto sotto gli indicatori (`altezzaFascia`) è esclusa.
 // Restituisce { preferite, riserva }: la riserva (il resto dello staging, sempre fuori dal tavolo) si usa solo
 // quando le zone preferite sono piene.
@@ -35,7 +35,7 @@ export function zoneStagingEsercito(esercitoId, { campoGiocoPx, tavoloRect, alte
     width: campoGiocoPx.larghezza,
     height: campoGiocoPx.altezza - tavoloSotto,
   };
-  if (esercitoId === 'rosso') {
+  if (esercitoId === 'blu') {
     return {
       preferite: [sotto, sinistra(meta, tavoloSotto), destra(meta, tavoloSotto)],
       riserva: [sinistra(tavoloRect.top, meta), destra(tavoloRect.top, meta), sopra],
