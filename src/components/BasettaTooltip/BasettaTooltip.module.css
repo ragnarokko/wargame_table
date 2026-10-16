@@ -91,6 +91,13 @@
   white-space: pre-wrap;
 }
 
+.keywords {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: #8a8a9a;
+}
+
 .armi {
   border-top: 1px solid #3a3a46;
   margin-top: 6px;

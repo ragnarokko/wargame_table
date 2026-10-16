@@ -32,6 +32,8 @@ let composizionePerId = new Map(); // id → [{ modello, min, max }]
 let abilitaPerId = new Map(); // id → [{ nome, core, parametro, descrizione }]
 let capitoliPerId = new Map(); // id → capitoli dei Space Marines (es. 'Blood Angels')
 let capitoliPerNome = new Map(); // nome normalizzato → capitoli
+let keywordsPerId = new Map(); // id → parole chiave non di fazione
+let keywordsPerNome = new Map(); // nome normalizzato → parole chiave non di fazione
 let caricato = false;
 let promessaInCorso = null;
 let ultimoErrore = null;
@@ -137,6 +139,24 @@ function costruisciCapitoli(righe) {
   return { perId, perNome };
 }
 
+// Parole chiave non di fazione (Infantry, Fly, Imperium, ...) per scheda, nell'ordine del CSV e senza doppioni
+// (alcune compaiono una volta per modello). Quelle di fazione (es. Blood Angels) restano fuori: il capitolo
+// è già mostrato a parte.
+function costruisciKeywords(righe) {
+  const perId = new Map();
+  const perNome = new Map();
+  for (const r of righe) {
+    const parola = (r.keyword ?? '').trim();
+    if (!parola || r.is_faction_keyword === 'true') continue;
+    const id = String(r.datasheet_id);
+    const attuali = perId.get(id) ?? [];
+    if (attuali.includes(parola)) continue;
+    perId.set(id, [...attuali, parola]);
+    perNome.set(normalizza(r.name), perId.get(id));
+  }
+  return { perId, perNome };
+}
+
 async function scaricaEProcessa() {
   const [righePunti, righeComposizione] = await Promise.all([
     scaricaCsv('punti.csv'),
@@ -155,6 +175,7 @@ async function scaricaEProcessa() {
     composizione: costruisciComposizione(righeComposizione),
     abilita: costruisciAbilita(righeAbilita, righeComuni),
     capitoli: costruisciCapitoli(righeKeywords),
+    keywords: costruisciKeywords(righeKeywords),
   };
 }
 
@@ -171,6 +192,8 @@ export function caricaDatiArmyBuilderSeNecessario() {
         abilitaPerId = dati.abilita;
         capitoliPerId = dati.capitoli.perId;
         capitoliPerNome = dati.capitoli.perNome;
+        keywordsPerId = dati.keywords.perId;
+        keywordsPerNome = dati.keywords.perNome;
         caricato = true;
         ultimoErrore = null;
       })
@@ -269,6 +292,14 @@ export function sottoFazioneUnita(unitaCsv) {
   if (!unitaCsv || unitaCsv.fazione !== 'Space Marines') return '';
   const capitoli = capitoliPerId.get(String(unitaCsv.datasheetId)) ?? capitoliPerNome.get(normalizza(unitaCsv.nome));
   return capitoli ? capitoli.join(', ') : '';
+}
+
+// Parole chiave (non di fazione) di un'unità già creata, lette a ogni richiesta dal template (id Wahapedia o,
+// per le BSData e le unità vecchie, nome): così compaiono anche per le unità salvate prima di questa funzione.
+// Cambia con useVersioneDatiArmyBuilder().
+export function keywordsPerTemplate(template) {
+  if (!template) return [];
+  return keywordsPerId.get(String(template.datasheetId)) ?? keywordsPerNome.get(normalizza(template.nome)) ?? [];
 }
 
 // Le abilità con testo più lungo di così, e quelle di fazione, non finiscono nel testo di NOTE: si

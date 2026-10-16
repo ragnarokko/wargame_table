@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { nomeEsercito } from '../../config/eserciti';
 import { armiPerTemplate, useVersioneDatiArmi } from '../CreazioneEsercito/csvArmiImport';
+import { keywordsPerTemplate, useVersioneDatiArmyBuilder } from '../CreazioneEsercito/csvArmyBuilderImport';
 import AbilitaEstese from '../CreazioneEsercito/AbilitaEstese';
 import styles from './BasettaTooltip.module.css';
 
@@ -26,6 +27,9 @@ function BasettaTooltip({ template, rotazione = 0, interattivo = false }) {
   // le mostra senza bisogno di chiudere/riaprire.
   useVersioneDatiArmi();
   const armi = eUnita ? armiPerTemplate(template) : [];
+  // Idem per le parole chiave (army_builder/keywords.csv): arrivano a caricamento finito.
+  useVersioneDatiArmyBuilder();
+  const keywords = eUnita ? keywordsPerTemplate(template) : [];
 
   // Se la basetta è nella metà superiore dello schermo, il popup (che di norma si apre verso
   // l'alto) rischia di uscire dalla finestra e apparire tagliato: in quel caso lo si apre invece
@@ -131,6 +135,7 @@ function BasettaTooltip({ template, rotazione = 0, interattivo = false }) {
             })}
           </div>
         )}
+        {keywords.length > 0 && <div className={styles.keywords}>KEYWORDS: {keywords.join('; ').toUpperCase()}</div>}
         {template.statistiche && <pre className={styles.statistiche}>{template.statistiche}</pre>}
         {!haDati && <div className={styles.vuoto}>Nessun dato aggiuntivo</div>}
       </div>
