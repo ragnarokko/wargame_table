@@ -112,6 +112,14 @@
 .nuovaBtn {
   flex: 1;
   min-width: 0;
+  white-space: nowrap;
+}
+
+/* Importa ed Esporta: più stretti del tasto principale, così stanno tutti e tre su una riga. */
+.secondarioBtn {
+  flex: 0 0 auto;
+  padding: 6px 8px;
+  white-space: nowrap;
 }
 
 .form {

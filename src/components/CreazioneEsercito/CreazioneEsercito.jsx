@@ -25,6 +25,7 @@ import UnitaForm from './UnitaForm';
 import UnitaListItem from './UnitaListItem';
 import ErroreDatiCsv from './ErroreDatiCsv';
 import ImportaLista from './ImportaLista.jsx';
+import EsportaLista from './EsportaLista';
 import { datiUnitaDaCsv } from './datiUnita';
 import styles from './CreazioneEsercito.module.css';
 
@@ -35,6 +36,7 @@ function CreazioneEsercito() {
   const [esercitoSelezionato, setEsercitoSelezionato] = useState(ESERCITI[0].id);
   const [formAperto, setFormAperto] = useState(false);
   const [importaAperto, setImportaAperto] = useState(false);
+  const [esportaAperto, setEsportaAperto] = useState(false);
   // Unità da mostrare in lista dopo un doppio click su una basetta: { id, n } (n cambia a ogni richiesta,
   // così anche un secondo doppio click sulla stessa unità la riporta in vista).
   const [unitaMostrata, setUnitaMostrata] = useState(null);
@@ -43,7 +45,7 @@ function CreazioneEsercito() {
   );
 
   // Pre-carica i dati CSV all'avvio (CreazioneEsercito è sempre montato), così di norma sono
-  // già pronti quando l'utente apre "+ Nuova unità"; l'errore, se c'è, resta segnalato solo
+  // già pronti quando l'utente apre "+ Unità"; l'errore, se c'è, resta segnalato solo
   // dal pulsante "Aggiorna dati" che l'utente può premere per ritentare.
   useEffect(() => {
     caricaDatiCsvSeNecessario().catch(() => {});
@@ -73,7 +75,7 @@ function CreazioneEsercito() {
     };
   }, []);
 
-  // Fazione già presente nell'esercito scelto (quella dell'ultima unità creata): "+ Nuova unità" la
+  // Fazione già presente nell'esercito scelto (quella dell'ultima unità creata): "+ Unità" la
   // propone per prima invece della prima in elenco.
   const fazioneEsercito = unitaTutte
     .filter((u) => u.esercito === esercitoSelezionato)
@@ -90,6 +92,19 @@ function CreazioneEsercito() {
   // Totale dei punti delle unità create per un esercito (le unità senza punti non contano).
   const puntiEsercito = (esercitoId) =>
     unitaTutte.filter((u) => u.esercito === esercitoId).reduce((somma, u) => somma + (Number(u.punti) || 0), 0);
+
+  // Testo delle unità dell'esercito scelto, una riga per unità («3x Nome (80pts)»), leggibile da "Importa".
+  const testoEsportazione = () => {
+    const esercito = ESERCITI.find((es) => es.id === esercitoSelezionato);
+    const unita = unitaTutte.filter((u) => u.esercito === esercitoSelezionato);
+    const punti = puntiEsercito(esercitoSelezionato);
+    const righe = [punti > 0 ? `${esercito.nome} - ${punti}pts` : esercito.nome, ''];
+    for (const u of unita) {
+      const modelli = modelliIniziali(u);
+      righe.push(`${modelli > 0 ? `${modelli}x ` : ''}${u.nome}${Number(u.punti) > 0 ? ` (${Number(u.punti)}pts)` : ''}`);
+    }
+    return righe.join('\n');
+  };
 
   const toggleAccordion = (esercitoId) =>
     setAccordionAperti((prev) => ({ ...prev, [esercitoId]: !prev[esercitoId] }));
@@ -233,14 +248,21 @@ function CreazioneEsercito() {
       ) : (
         <div className={styles.rigaNuova}>
           <button className={styles.nuovaBtn} onClick={() => setFormAperto(true)}>
-            + Nuova unità
+            + Unità
           </button>
           <button
-            className={styles.nuovaBtn}
+            className={styles.secondarioBtn}
             onClick={() => setImportaAperto(true)}
             title="Importa una lista da New Recruit (o altri builder) incollandone il testo"
           >
             Importa
+          </button>
+          <button
+            className={styles.secondarioBtn}
+            onClick={() => setEsportaAperto(true)}
+            title="Mostra il testo delle unità dell'esercito scelto, da copiare o salvare in un file .txt"
+          >
+            Esporta
           </button>
         </div>
       )}
@@ -249,6 +271,12 @@ function CreazioneEsercito() {
         nomeEsercito={ESERCITI.find((es) => es.id === esercitoSelezionato)?.nome ?? ''}
         onImporta={handleImporta}
         onChiudi={() => setImportaAperto(false)}
+      />
+      <EsportaLista
+        aperto={esportaAperto}
+        nomeEsercito={ESERCITI.find((es) => es.id === esercitoSelezionato)?.nome ?? ''}
+        testo={esportaAperto ? testoEsportazione() : ''}
+        onChiudi={() => setEsportaAperto(false)}
       />
 
       {ESERCITI.map((es) => (

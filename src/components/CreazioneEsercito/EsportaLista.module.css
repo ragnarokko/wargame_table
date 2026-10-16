@@ -1,0 +1,17 @@
+.azioni {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.azioni button {
+  flex: 1;
+}
+
+.area {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 12px;
+}
