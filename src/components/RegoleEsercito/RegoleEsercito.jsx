@@ -76,6 +76,8 @@ function ContenutoRegole() {
   // Solo i distaccamenti scelti che esistono ancora nei dati (e nella fazione mostrata).
   const scelti = distaccamenti.filter((d) => scelte.distaccamenti.includes(d.id));
   const dpUsati = scelti.reduce((somma, d) => somma + d.dp, 0);
+  // Capitolo Space Marines già scelto (via un suo distaccamento): quelli di altri capitoli non sono più selezionabili.
+  const capitoloScelto = scelti.map((d) => capitoloDistaccamento(d.id)).find(Boolean) ?? '';
 
   const errore = erroreCaricamentoRegole();
   const colore = COLORE_GIOCATORE[esercitoId];
@@ -133,14 +135,24 @@ function ContenutoRegole() {
             <ul className={styles.elencoDistaccamenti}>
               {distaccamenti.map((d) => {
                 const scelto = scelte.distaccamenti.includes(d.id);
+                const altroCapitolo = !scelto && Boolean(capitoloScelto) && Boolean(capitoloDistaccamento(d.id)) && capitoloDistaccamento(d.id) !== capitoloScelto;
                 const nonCiStaPiu = !scelto && dpUsati + d.dp > LIMITE_DP;
+                const nonSelezionabile = nonCiStaPiu || altroCapitolo;
                 return (
-                  <li key={d.id} className={nonCiStaPiu ? styles.nonDisponibile : ''}>
-                    <label title={nonCiStaPiu ? `Servono ${d.dp} DP, ne restano ${LIMITE_DP - dpUsati}` : ''}>
+                  <li key={d.id} className={nonSelezionabile ? styles.nonDisponibile : ''}>
+                    <label
+                      title={
+                        altroCapitolo
+                          ? `Hai già scelto un distaccamento dei ${capitoloScelto}`
+                          : nonCiStaPiu
+                            ? `Servono ${d.dp} DP, ne restano ${LIMITE_DP - dpUsati}`
+                            : ''
+                      }
+                    >
                       <input
                         type="checkbox"
                         checked={scelto}
-                        disabled={nonCiStaPiu}
+                        disabled={nonSelezionabile}
                         onChange={(e) => impostaDistaccamento(esercitoId, d.id, e.target.checked)}
                       />
                       <span className={styles.nomeDistaccamento}>
