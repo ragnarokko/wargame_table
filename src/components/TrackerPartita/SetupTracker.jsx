@@ -1,5 +1,6 @@
 import { DISPOSIZIONI, LIMITI_VP, MISSIONI_SECONDARIE } from '../../config/missioni';
 import { useTracker } from '../../contexts/TrackerContext';
+import { useDisposizioniConsentite } from '../RegoleEsercito/useRegoleGiocatore';
 import { NOME_GIOCATORE } from './SchedaGiocatore';
 import styles from './TrackerPartita.module.css';
 
@@ -15,6 +16,8 @@ const GIOCATORI = ['blu', 'rosso'];
 // secondarie fisse da scegliere), chi è attaccante e chi gioca per primo.
 function SetupTracker() {
   const { stato, impostaGiocatore, impostaCampo, avviaPartita } = useTracker();
+  // Disposizioni possibili per giocatore secondo i distaccamenti scelti nel pannello Eserciti (null = nessun vincolo).
+  const consentite = { blu: useDisposizioniConsentite('blu'), rosso: useDisposizioniConsentite('rosso') };
 
   const alternaFissa = (giocatore, carta) => {
     const fisse = stato.giocatori[giocatore].fisse;
@@ -43,12 +46,23 @@ function SetupTracker() {
               Disposizione di forze
               <select value={dati.disposizione} onChange={(e) => impostaGiocatore(g, { disposizione: e.target.value })}>
                 <option value="">Seleziona…</option>
-                {DISPOSIZIONI.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.nome}
-                  </option>
-                ))}
+                {DISPOSIZIONI.map((d) => {
+                  const nonDisponibile = Boolean(consentite[g]) && !consentite[g].has(d.id);
+                  return (
+                    <option
+                      key={d.id}
+                      value={d.id}
+                      style={nonDisponibile ? { color: '#777' } : undefined}
+                    >
+                      {d.nome}
+                      {nonDisponibile ? ' (non disponibile)' : ''}
+                    </option>
+                  );
+                })}
               </select>
+              {consentite[g] && dati.disposizione && !consentite[g].has(dati.disposizione) && (
+                <span className={styles.vuoto}>Non compatibile con i distaccamenti scelti.</span>
+              )}
             </label>
             <div className={styles.campo}>
               Secondarie

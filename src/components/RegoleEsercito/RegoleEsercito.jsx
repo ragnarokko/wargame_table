@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { capitoloDistaccamento } from '../../config/capitoliDistaccamenti';
 import { ESERCITI } from '../../config/eserciti';
-import { useLibreria } from '../../contexts/LibreriaContext';
 import { useRegoleEsercito } from '../../contexts/RegoleEsercitoContext';
-import { codiceFazionePerDatasheetId, useVersioneDatiCsv } from '../CreazioneEsercito/csvUnitaImport';
 import PannelloDestro from '../PannelloDestro/PannelloDestro';
 import {
   abilitaFazione,
@@ -16,6 +14,7 @@ import {
   stratagemmiComuni,
   useVersioneDatiRegole,
 } from './csvRegoleEsercito';
+import { useFazioneEsercito } from './useRegoleGiocatore';
 import { Potenziamento, Regola, Sezione, Stratagemma } from './VociRegole';
 import styles from './RegoleEsercito.module.css';
 
@@ -36,22 +35,9 @@ function RegoleEsercito({ aperto, onApri, onChiudi }) {
   );
 }
 
-// Fazione proposta per un esercito: quella più frequente tra le sue unità create.
-function fazioneDalleUnita(basette, esercito) {
-  const conteggio = new Map();
-  for (const b of basette) {
-    if (b.esercito !== esercito) continue;
-    const codice = codiceFazionePerDatasheetId(b.datasheetId);
-    if (codice) conteggio.set(codice, (conteggio.get(codice) ?? 0) + 1);
-  }
-  return [...conteggio].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-}
-
 function ContenutoRegole() {
-  const { basette } = useLibreria();
   const { stato, impostaFazione, impostaDistaccamento } = useRegoleEsercito();
   const versioneRegole = useVersioneDatiRegole();
-  const versioneUnita = useVersioneDatiCsv();
   // Esercito mostrato (Blu/Rosso): scelta solo di vista, non fa parte della partita.
   const [esercitoId, setEsercitoId] = useState(ESERCITI[0].id);
 
@@ -61,11 +47,8 @@ function ContenutoRegole() {
 
   const scelte = stato[esercitoId];
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const proposta = useMemo(() => fazioneDalleUnita(basette, esercitoId), [basette, esercitoId, versioneUnita]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fazioni = useMemo(() => elencoFazioniRegole(), [versioneRegole]);
-  const codice = scelte.fazione || proposta;
-  const codiceValido = fazioni.some((f) => f.codice === codice) ? codice : '';
+  const { codice: codiceValido, dalleUnita } = useFazioneEsercito(esercitoId);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const distaccamenti = useMemo(() => distaccamentiFazione(codiceValido), [codiceValido, versioneRegole]);
@@ -101,12 +84,15 @@ function ContenutoRegole() {
         </label>
         <label>
           Fazione
-          <select value={codiceValido} onChange={(e) => impostaFazione(esercitoId, e.target.value)}>
-            {!codiceValido && <option value="">Scegli la fazione…</option>}
+          <select value={scelte.fazione} onChange={(e) => impostaFazione(esercitoId, e.target.value)}>
+            <option value="">
+              {dalleUnita && fazioni.some((f) => f.codice === dalleUnita)
+                ? `Automatica: ${fazioni.find((f) => f.codice === dalleUnita).nome}`
+                : 'Scegli la fazione…'}
+            </option>
             {fazioni.map((f) => (
               <option key={f.codice} value={f.codice}>
                 {f.nome}
-                {!scelte.fazione && f.codice === proposta ? ' (dalle unità)' : ''}
               </option>
             ))}
           </select>
