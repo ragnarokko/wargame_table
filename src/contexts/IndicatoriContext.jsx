@@ -17,21 +17,36 @@ export const INDICATORI_INIZIALI = {
   giocatoreAttivo: { titolo: 'Tocca a', valore: 'blu', titoloModificabile: false },
 };
 
+// Ogni cambio del Turno sposta di altrettanto i CP di Blu e Rosso (+1 al turno nuovo, -1 tornando indietro).
+// È l'unico caso in cui un CP può scendere sotto 0: i pulsanti −1 dei CP si fermano a 0.
+function conTurno(prev, nuovoTurno) {
+  const delta = nuovoTurno - prev.turno.valore;
+  if (delta === 0) return prev;
+  return {
+    ...prev,
+    turno: { ...prev.turno, valore: nuovoTurno },
+    cpBlu: { ...prev.cpBlu, valore: prev.cpBlu.valore + delta },
+    cpRosso: { ...prev.cpRosso, valore: prev.cpRosso.valore + delta },
+  };
+}
+
 export function IndicatoriProvider({ children }) {
   const [indicatori, setIndicatori] = useState(INDICATORI_INIZIALI);
 
   const incrementaIndicatore = useCallback((chiave) => {
-    setIndicatori((prev) => ({
-      ...prev,
-      [chiave]: { ...prev[chiave], valore: prev[chiave].valore + 1 },
-    }));
+    setIndicatori((prev) =>
+      chiave === 'turno'
+        ? conTurno(prev, prev.turno.valore + 1)
+        : { ...prev, [chiave]: { ...prev[chiave], valore: prev[chiave].valore + 1 } },
+    );
   }, []);
 
   const decrementaIndicatore = useCallback((chiave) => {
-    setIndicatori((prev) => ({
-      ...prev,
-      [chiave]: { ...prev[chiave], valore: Math.max(0, prev[chiave].valore - 1) },
-    }));
+    setIndicatori((prev) =>
+      chiave === 'turno'
+        ? conTurno(prev, Math.max(0, prev.turno.valore - 1))
+        : { ...prev, [chiave]: { ...prev[chiave], valore: Math.max(0, prev[chiave].valore - 1) } },
+    );
   }, []);
 
   const alternaGiocatoreAttivo = useCallback(() => {
@@ -46,7 +61,9 @@ export function IndicatoriProvider({ children }) {
 
   // Usati dal tracker di partita (TrackerContext) per tenere allineati Turno e "Tocca a".
   const impostaIndicatore = useCallback((chiave, valore) => {
-    setIndicatori((prev) => ({ ...prev, [chiave]: { ...prev[chiave], valore } }));
+    setIndicatori((prev) =>
+      chiave === 'turno' ? conTurno(prev, valore) : { ...prev, [chiave]: { ...prev[chiave], valore } },
+    );
   }, []);
 
   const impostaGiocatoreAttivo = useCallback((giocatore) => {
