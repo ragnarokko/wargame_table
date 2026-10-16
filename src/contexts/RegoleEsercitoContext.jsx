@@ -1,3 +1,4 @@
+import { capitoloDistaccamento } from '../config/capitoliDistaccamenti';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const RegoleEsercitoContext = createContext(null);
@@ -5,9 +6,9 @@ const RegoleEsercitoContext = createContext(null);
 const CHIAVE_LOCALSTORAGE = 'tavolo-regole-esercito';
 const GIOCATORI = ['blu', 'rosso'];
 
-// Per ogni esercito: fazione scelta a mano (codice `fac`, vuota = quella delle unità create) e id dei
-// distaccamenti selezionati.
-const esercitoIniziale = () => ({ fazione: '', distaccamenti: [] });
+// Per ogni esercito: fazione scelta a mano (codice `fac`, vuota = quella delle unità create), sottofazione
+// (capitolo degli Space Marines, vuota = tutti) e id dei distaccamenti selezionati.
+const esercitoIniziale = () => ({ fazione: '', sottofazione: '', distaccamenti: [] });
 
 export const REGOLE_ESERCITO_INIZIALI = { blu: esercitoIniziale(), rosso: esercitoIniziale() };
 
@@ -18,6 +19,7 @@ function unisciConIniziale(dati) {
     const letto = dati?.[g];
     stato[g] = {
       fazione: typeof letto?.fazione === 'string' ? letto.fazione : '',
+      sottofazione: typeof letto?.sottofazione === 'string' ? letto.sottofazione : '',
       distaccamenti: Array.isArray(letto?.distaccamenti) ? letto.distaccamenti.map(String) : [],
     };
   }
@@ -46,9 +48,22 @@ export function RegoleEsercitoProvider({ children }) {
     }
   }, [stato]);
 
-  // Cambiare fazione toglie i distaccamenti scelti (appartengono alla fazione precedente).
+  // Cambiare fazione toglie sottofazione e distaccamenti scelti (appartengono alla fazione precedente).
   const impostaFazione = useCallback(
-    (giocatore, fazione) => setStato((prev) => ({ ...prev, [giocatore]: { fazione, distaccamenti: [] } })),
+    (giocatore, fazione) => setStato((prev) => ({ ...prev, [giocatore]: { fazione, sottofazione: '', distaccamenti: [] } })),
+    [],
+  );
+
+  // Scegliere un capitolo toglie i distaccamenti già scelti di altri capitoli (restano i generici).
+  const impostaSottofazione = useCallback(
+    (giocatore, sottofazione) =>
+      setStato((prev) => {
+        const distaccamenti = prev[giocatore].distaccamenti.filter((id) => {
+          const capitolo = capitoloDistaccamento(id);
+          return !sottofazione || !capitolo || capitolo === sottofazione;
+        });
+        return { ...prev, [giocatore]: { ...prev[giocatore], sottofazione, distaccamenti } };
+      }),
     [],
   );
 
@@ -65,8 +80,8 @@ export function RegoleEsercitoProvider({ children }) {
   const ripristinaRegoleEsercito = useCallback((dati) => setStato(unisciConIniziale(dati)), []);
 
   const value = useMemo(
-    () => ({ stato, impostaFazione, impostaDistaccamento, ripristinaRegoleEsercito }),
-    [stato, impostaFazione, impostaDistaccamento, ripristinaRegoleEsercito],
+    () => ({ stato, impostaFazione, impostaSottofazione, impostaDistaccamento, ripristinaRegoleEsercito }),
+    [stato, impostaFazione, impostaSottofazione, impostaDistaccamento, ripristinaRegoleEsercito],
   );
 
   return <RegoleEsercitoContext.Provider value={value}>{children}</RegoleEsercitoContext.Provider>;

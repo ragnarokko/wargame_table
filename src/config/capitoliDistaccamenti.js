@@ -26,3 +26,7 @@ export const CAPITOLO_DISTACCAMENTO = {
 };
 
 export const capitoloDistaccamento = (id) => CAPITOLO_DISTACCAMENTO[id] ?? '';
+
+// Codice `fac` della fazione che ha i capitoli e capitoli disponibili (quelli della tabella, in ordine alfabetico).
+export const FAZIONE_CON_CAPITOLI = 'SM';
+export const CAPITOLI = [...new Set(Object.values(CAPITOLO_DISTACCAMENTO))].sort((a, b) => a.localeCompare(b));

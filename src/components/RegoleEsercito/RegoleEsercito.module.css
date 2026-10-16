@@ -5,13 +5,37 @@
   font-size: 12px;
 }
 
-.selettori {
+.sceltaEsercito {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
+.esercitoBtn {
+  padding: 7px 10px;
+  font-weight: 700;
+  color: var(--colore-giocatore);
+  background: transparent;
+  border: 2px solid var(--colore-giocatore);
+  border-radius: var(--radius, 6px);
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.esercitoAttivo {
+  opacity: 1;
+  color: #fff;
+  background: var(--colore-giocatore);
+}
+
+.selettori {
+  display: flex;
+  gap: 8px;
+}
+
 .selettori label {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 3px;
