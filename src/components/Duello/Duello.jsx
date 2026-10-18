@@ -81,6 +81,8 @@ function Duello() {
         const attaccantiDati = gruppo.map(({ tAtt, istAtt, distanza }) => ({
           id: tAtt.id,
           nome: tAtt.nome,
+          // Serve al calcolatore per cercare armi di serie e sostituzioni consentite dell'unità.
+          datasheetId: tAtt.datasheetId,
           esercito: tAtt.esercito,
           // Modelli attivi: basette ancora sul campo e non grigie.
           modelli: istAtt.length,
