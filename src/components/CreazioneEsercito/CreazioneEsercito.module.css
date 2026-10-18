@@ -151,6 +151,32 @@
   gap: 8px;
 }
 
+.rigaRicerca {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  gap: 8px;
+}
+
+.filtroSottofazione {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.filtroSottofazione > label:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.form .spuntaOnly {
+  flex-direction: row;
+  align-items: center;
+  gap: 3px;
+  padding-bottom: 4px;
+  white-space: nowrap;
+}
+
 .separatore {
   font-size: 11px;
   text-transform: uppercase;

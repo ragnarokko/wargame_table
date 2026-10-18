@@ -13,6 +13,7 @@ import {
   useVersioneDatiArmyBuilder,
 } from './csvArmyBuilderImport';
 import AbilitaEstese from './AbilitaEstese';
+import { CAPITOLI, FAZIONE_CON_CAPITOLI } from '../../config/capitoliDistaccamenti';
 import styles from './CreazioneEsercito.module.css';
 
 // Numero di modelli se nei dati non c'è nulla di meglio.
@@ -26,10 +27,15 @@ const normalizza = (testo) =>
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase();
 
-// Unità il cui nome o la cui sotto-fazione contiene il testo cercato (tutto se vuoto).
-function filtraUnita(unita, testo) {
+// Unità il cui nome o la cui sotto-fazione contiene il testo cercato (tutto se vuoto). Con un capitolo scelto
+// (Space Marines) restano le unità generiche e quelle di quel capitolo, o solo quelle del capitolo (`solo`).
+function filtraUnita(unita, testo, capitolo = '', solo = false) {
   const q = normalizza(testo.trim());
-  return q ? unita.filter((u) => normalizza(`${u.nomeLista} ${u.sottoFazione}`).includes(q)) : unita;
+  return unita.filter(
+    (u) =>
+      (!capitolo || (u.sottoFazione ? u.sottoFazione.split(', ').includes(capitolo) : !solo)) &&
+      (!q || normalizza(`${u.nomeLista} ${u.sottoFazione}`).includes(q)),
+  );
 }
 
 const CAMPI_STATISTICHE_CSV = [
@@ -74,6 +80,8 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   const unitaDisponibili = useMemo(() => unitaPerFazioneUnificate(fazioneCsv), [fazioneCsv, versioneDatiCsv]);
   const [chiaveScelta, setChiaveScelta] = useState('');
   const [ricerca, setRicerca] = useState('');
+  const [capitolo, setCapitolo] = useState('');
+  const [soloCapitolo, setSoloCapitolo] = useState(false);
   const chiaveUnita = chiaveScelta || unitaDisponibili[0]?.chiave || '';
   const versioneArmyBuilder = useVersioneDatiArmyBuilder();
   // Sotto-fazione (capitolo) di ogni unità dei Space Marines, mostrata accanto al nome e cercabile; per i
@@ -88,7 +96,12 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [unitaDisponibili, versioneArmyBuilder],
   );
-  const unitaFiltrate = useMemo(() => filtraUnita(elencoUnita, ricerca), [elencoUnita, ricerca]);
+  const haCapitoli = unitaDisponibili[0]?.codiceFazione === FAZIONE_CON_CAPITOLI;
+  const capitoloAttivo = haCapitoli ? capitolo : '';
+  const unitaFiltrate = useMemo(
+    () => filtraUnita(elencoUnita, ricerca, capitoloAttivo, soloCapitolo),
+    [elencoUnita, ricerca, capitoloAttivo, soloCapitolo],
+  );
   const unitaCsv = unitaDisponibili.find((u) => u.chiave === chiaveUnita) ?? unitaDisponibili[0] ?? null;
 
   // Numero di modelli e punti sono proposti dai dati dell'army builder (composizione e punti.csv) e
@@ -138,6 +151,8 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   const cambiaFazione = (nuovaFazione) => {
     statisticheInizializzate.current = true;
     setRicerca('');
+    setCapitolo('');
+    setSoloCapitolo(false);
     setModelliManuali(null);
     setPuntiManuali(null);
     setNoteManuale(null);
@@ -157,10 +172,12 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
     setStatistiche(statisticheDaUnitaCsv(trovata));
   };
 
-  // La ricerca filtra l'elenco delle unità della fazione; se l'unità scelta non corrisponde più passa alla prima trovata.
-  const cambiaRicerca = (testo) => {
+  // Ricerca e capitolo filtrano l'elenco delle unità della fazione; se l'unità scelta non corrisponde più passa alla prima trovata.
+  const cambiaFiltri = (testo, nuovoCapitolo, solo = soloCapitolo) => {
     setRicerca(testo);
-    const trovate = filtraUnita(elencoUnita, testo);
+    setCapitolo(nuovoCapitolo);
+    setSoloCapitolo(solo);
+    const trovate = filtraUnita(elencoUnita, testo, haCapitoli ? nuovoCapitolo : '', solo);
     if (trovate.length > 0 && !trovate.some((u) => u.chiave === chiaveUnita)) cambiaUnita(trovate[0].chiave);
   };
 
@@ -220,18 +237,44 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
         </label>
       </div>
 
-      <label>
-        Cerca unità
-        <input
-          type="search"
-          value={ricerca}
-          placeholder={`Cerca per nome o sotto-fazione tra le ${unitaDisponibili.length} unità…`}
-          onChange={(e) => cambiaRicerca(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') e.preventDefault();
-          }}
-        />
-      </label>
+      <div className={haCapitoli ? styles.rigaRicerca : undefined}>
+        <label>
+          Cerca unità
+          <input
+            type="search"
+            value={ricerca}
+            placeholder={`Cerca per nome o sotto-fazione tra le ${unitaDisponibili.length} unità…`}
+            onChange={(e) => cambiaFiltri(e.target.value, capitolo)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.preventDefault();
+            }}
+          />
+        </label>
+        {haCapitoli && (
+          <div className={styles.filtroSottofazione}>
+            <label>
+              Sottofazione
+              <select value={capitolo} onChange={(e) => cambiaFiltri(ricerca, e.target.value)}>
+                <option value="">Tutte</option>
+                {CAPITOLI.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.spuntaOnly} title="Solo le unità del capitolo scelto, senza le generiche">
+              <input
+                type="checkbox"
+                checked={soloCapitolo}
+                disabled={!capitolo}
+                onChange={(e) => cambiaFiltri(ricerca, capitolo, e.target.checked)}
+              />
+              only
+            </label>
+          </div>
+        )}
+      </div>
 
       <div className={styles.rigaCampi}>
         <label>
