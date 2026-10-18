@@ -18,7 +18,7 @@ import {
   calcolaPosizioniUnitaStaging,
   zoneStagingEsercito,
 } from '../../utils/posizionamentoStaging';
-import { EVENTO_MOSTRA_UNITA, EVENTO_SELEZIONE_MULTIPLA } from '../../utils/selezioneEventi';
+import { EVENTO_MOSTRA_UNITA, EVENTO_SELEZIONE_MULTIPLA, aggiungiOTogli, selezioneAttuale } from '../../utils/selezioneEventi';
 import PannelloEspandibile from '../PannelloEspandibile/PannelloEspandibile';
 import PersistenzaEserciti from '../PersistenzaEserciti/PersistenzaEserciti';
 import UnitaForm from './UnitaForm';
@@ -199,11 +199,14 @@ function CreazioneEsercito() {
 
   // Click sul nome di un'unità nella lista: seleziona tutte le sue basette sul campo (stesso
   // evento condiviso usato da Basetta/SelezioneMultipla), così frecce, Q/W, 1/2/3 e Canc
-  // agiscono subito su di esse. Senza basette sul campo non cambia la selezione corrente.
-  const handleSeleziona = (templateId) => {
+  // agiscono subito su di esse. Con Ctrl si aggiungono alla selezione corrente (o si tolgono, se c'erano già
+  // tutte). Senza basette sul campo non cambia la selezione corrente.
+  const handleSeleziona = (templateId, aggiungi = false) => {
     const ids = istanze.filter((i) => i.templateId === templateId).map((i) => i.id);
     if (ids.length === 0) return;
-    window.dispatchEvent(new CustomEvent(EVENTO_SELEZIONE_MULTIPLA, { detail: { ids } }));
+    window.dispatchEvent(
+      new CustomEvent(EVENTO_SELEZIONE_MULTIPLA, { detail: { ids: aggiungi ? aggiungiOTogli(selezioneAttuale(), ids) : ids } }),
+    );
   };
 
   const handleRimuovi = (templateId) => {
@@ -296,7 +299,7 @@ function CreazioneEsercito() {
                   numeroModelli={contaModelli(u.id)}
                   modelliIniziali={modelliIniziali(u)}
                   richiesta={unitaMostrata}
-                  onSeleziona={() => handleSeleziona(u.id)}
+                  onSeleziona={(aggiungi) => handleSeleziona(u.id, aggiungi)}
                   onRimuovi={() => handleRimuovi(u.id)}
                   onRinomina={(nuovoNome) => handleRinomina(u.id, nuovoNome)}
                 />

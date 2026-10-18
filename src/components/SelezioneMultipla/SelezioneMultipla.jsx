@@ -9,6 +9,8 @@ import {
   EVENTO_SELEZIONE_MULTIPLA,
   EVENTO_TRASCINAMENTO_GRUPPO,
   EVENTO_ROTAZIONE_GRUPPO,
+  aggiungiOTogli,
+  selezioneAttuale,
 } from '../../utils/selezioneEventi';
 import MisuraDistanza from '../MisuraDistanza/MisuraDistanza';
 import { useEliminaSelezione } from './useEliminaSelezione';
@@ -93,6 +95,7 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
   const [rotazioneGruppo, setRotazioneGruppo] = useState(null);
   const [trascinamentoLive, setTrascinamentoLive] = useState(null);
   const trascinamentoAttivoRef = useRef(false);
+  const aggiungiRef = useRef(false);
   const eliminaSelezione = useEliminaSelezione();
 
   const puntoRelativo = (clientX, clientY) =>
@@ -296,12 +299,18 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
     };
   }, [selezioneCorrente, ruotaGruppo]);
 
+  // Ctrl premuto all'inizio del rettangolo: le basette trovate si aggiungono alla selezione corrente.
+  const avviaRettangolo = (clientX, clientY, aggiungi) => {
+    aggiungiRef.current = aggiungi;
+    const punto = puntoRelativo(clientX, clientY);
+    setRettangolo({ origine: punto, corrente: punto });
+  };
+
   const onPointerDown = (e) => {
     // Solo tasto sinistro: il destro è riservato al pan dell'intera area (vedi AreaLavoro).
     if (e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
-    const punto = puntoRelativo(e.clientX, e.clientY);
-    setRettangolo({ origine: punto, corrente: punto });
+    avviaRettangolo(e.clientX, e.clientY, e.ctrlKey || e.metaKey);
   };
 
   const onPointerMove = (e) => {
@@ -310,14 +319,13 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
     setRettangolo((r) => (r ? { ...r, corrente: punto } : r));
   };
 
-  const onPointerUp = () => {
-    if (!rettangolo) return;
-    const { origine, corrente } = rettangolo;
+  const concludiRettangolo = ({ origine, corrente }) => {
     const trascinato = Math.hypot(corrente.x - origine.x, corrente.y - origine.y);
     setRettangolo(null);
 
     if (trascinato < SOGLIA_TRASCINAMENTO_PX) {
-      emettiSelezione([]);
+      // Un click su un punto vuoto toglie la selezione, a meno che Ctrl sia premuto.
+      if (!aggiungiRef.current) emettiSelezione([]);
       return;
     }
 
@@ -330,8 +338,58 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
       .filter((ist) => ist.x >= minX && ist.x <= maxX && ist.y >= minY && ist.y <= maxY)
       .map((ist) => ist.id);
 
-    emettiSelezione(selezionati);
+    emettiSelezione(aggiungiRef.current ? [...new Set([...selezioneAttuale(), ...selezionati])] : selezionati);
   };
+
+  const onPointerUp = () => {
+    if (rettangolo) concludiRettangolo(rettangolo);
+  };
+
+  // Il rettangolo può partire anche fuori dall'area di staging, dallo sfondo scuro attorno (il wrapper di
+  // AreaLavoro, genitore del campo di gioco). Su window, come il pan, perché un handler pointer* su un
+  // antenato delle basette farebbe annullare a Chromium i loro trascinamenti (vedi AreaLavoro).
+  const sfondoRef = useRef(null);
+  sfondoRef.current = { attivo, avviaRettangolo, concludiRettangolo, puntoRelativo };
+  useEffect(() => {
+    const sfondo = containerRef.current?.parentElement;
+    if (!sfondo) return undefined;
+    let corrente = null;
+    const onDown = (e) => {
+      if (e.button !== 0 || e.target !== sfondo || !sfondoRef.current.attivo) return;
+      // Le barre di scorrimento dello sfondo non sono sfondo.
+      const r = sfondo.getBoundingClientRect();
+      if (e.clientX > r.left + sfondo.clientLeft + sfondo.clientWidth || e.clientY > r.top + sfondo.clientTop + sfondo.clientHeight) return;
+      try {
+        sfondo.setPointerCapture(e.pointerId);
+      } catch {
+        // Senza cattura il rettangolo segue comunque il mouse finché resta nella finestra.
+      }
+      sfondoRef.current.avviaRettangolo(e.clientX, e.clientY, e.ctrlKey || e.metaKey);
+      const punto = sfondoRef.current.puntoRelativo(e.clientX, e.clientY);
+      corrente = { origine: punto, corrente: punto };
+    };
+    const onMove = (e) => {
+      if (!corrente) return;
+      corrente.corrente = sfondoRef.current.puntoRelativo(e.clientX, e.clientY);
+      setRettangolo({ ...corrente });
+    };
+    const onUp = () => {
+      if (!corrente) return;
+      const finale = corrente;
+      corrente = null;
+      sfondoRef.current.concludiRettangolo(finale);
+    };
+    window.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [containerRef]);
 
   const rettangoloStyle = rettangolo && {
     left: Math.min(rettangolo.origine.x, rettangolo.corrente.x),

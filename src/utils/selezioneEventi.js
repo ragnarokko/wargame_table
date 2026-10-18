@@ -7,6 +7,22 @@
 // detail: { ids: string[] } — elenco ordinato degli id delle basette selezionate.
 export const EVENTO_SELEZIONE_MULTIPLA = 'tavolo-selezione-multipla';
 
+// Ultima selezione emessa (ids delle basette selezionate): serve a chi deve aggiungere alla selezione
+// corrente (Ctrl + click su una basetta, su un'unità in lista o rettangolo di selezione) senza riceverla.
+let ultimaSelezione = [];
+if (typeof window !== 'undefined') {
+  window.addEventListener(EVENTO_SELEZIONE_MULTIPLA, (e) => {
+    ultimaSelezione = e.detail.ids;
+  });
+}
+export const selezioneAttuale = () => ultimaSelezione;
+
+// Selezione dopo un Ctrl + selezione di `nuovi`: se sono già tutti selezionati si tolgono, altrimenti si aggiungono.
+export function aggiungiOTogli(attuali, nuovi) {
+  if (nuovi.length > 0 && nuovi.every((id) => attuali.includes(id))) return attuali.filter((id) => !nuovi.includes(id));
+  return [...attuali, ...nuovi.filter((id) => !attuali.includes(id))];
+}
+
 // detail: { dx, dy, escludiId, fine } oppure { escludiId, annulla: true }
 export const EVENTO_TRASCINAMENTO_GRUPPO = 'tavolo-trascinamento-gruppo';
 

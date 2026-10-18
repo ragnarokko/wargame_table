@@ -95,8 +95,8 @@ function UnitaListItem({ unita, numeroModelli, modelliIniziali, richiesta, onSel
             <button
               type="button"
               className={styles.nomeBtn}
-              onClick={onSeleziona}
-              title="Clicca per selezionare le basette dell'unità sul tavolo (poi frecce, Q/W, ecc.); passa il mouse per evidenziarle"
+              onClick={(e) => onSeleziona(e.ctrlKey || e.metaKey)}
+              title="Clicca per selezionare le basette dell'unità sul tavolo (poi frecce, Q/W, ecc.), Ctrl + click per aggiungerle alla selezione; passa il mouse per evidenziarle"
             >
               <span className={styles.nomeTesto}>{unita.nome}</span>
             </button>

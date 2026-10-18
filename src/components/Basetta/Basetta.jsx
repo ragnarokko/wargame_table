@@ -14,6 +14,8 @@ import {
   EVENTO_SELEZIONE_MULTIPLA,
   EVENTO_TRASCINAMENTO_GRUPPO,
   EVENTO_ROTAZIONE_GRUPPO,
+  aggiungiOTogli,
+  selezioneAttuale,
 } from '../../utils/selezioneEventi';
 import BasettaTooltip from '../BasettaTooltip/BasettaTooltip';
 import MisuraDistanza from '../MisuraDistanza/MisuraDistanza';
@@ -355,7 +357,14 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
     }
   };
 
-  const selezionaBasetta = () => {
+  const selezionaBasetta = (aggiungi) => {
+    // Ctrl + click: la basetta si aggiunge alla selezione corrente (o ne esce, se c'era già).
+    if (aggiungi) {
+      window.dispatchEvent(
+        new CustomEvent(EVENTO_SELEZIONE_MULTIPLA, { detail: { ids: aggiungiOTogli(selezioneAttuale(), [istanza.id]) } }),
+      );
+      return;
+    }
     // Un click (senza trascinamento) su una basetta già nel gruppo selezionato non lo scioglie.
     if (gruppoAttivo) return;
     setSelezionata(true);
@@ -372,7 +381,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
 
     const spostamento = Math.hypot(finale.x - istanza.x, finale.y - istanza.y);
     if (spostamento < SOGLIA_CLICK_PX && offsetRotazioneGruppo.dx === 0 && offsetRotazioneGruppo.dy === 0) {
-      selezionaBasetta();
+      selezionaBasetta(e.ctrlKey || e.metaKey);
       return;
     }
     handleSposta({ x: finale.x + offsetRotazioneGruppo.dx, y: finale.y + offsetRotazioneGruppo.dy });
