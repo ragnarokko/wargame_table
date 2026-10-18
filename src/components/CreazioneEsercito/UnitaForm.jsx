@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { datiCsvCaricati, elencoFazioni, unitaPerFazione, useVersioneDatiCsv } from './csvUnitaImport';
+import { datiCsvCaricati, elencoFazioni, unitaPerFazioneUnificate, useVersioneDatiCsv } from './csvUnitaImport';
 import {
   datiArmyBuilderCaricati,
   datiPuntiUnita,
@@ -7,6 +7,7 @@ import {
   abilitaEsteseUnita,
   abilitaUnitaTesto,
   modelliPredefiniti,
+  nomeSchedaUnita,
   puntiPerNumeroModelli,
   sottoFazioneUnita,
   useVersioneDatiArmyBuilder,
@@ -28,7 +29,7 @@ const normalizza = (testo) =>
 // Unità il cui nome o la cui sotto-fazione contiene il testo cercato (tutto se vuoto).
 function filtraUnita(unita, testo) {
   const q = normalizza(testo.trim());
-  return q ? unita.filter((u) => normalizza(`${u.nome} ${u.sottoFazione}`).includes(q)) : unita;
+  return q ? unita.filter((u) => normalizza(`${u.nomeLista} ${u.sottoFazione}`).includes(q)) : unita;
 }
 
 const CAMPI_STATISTICHE_CSV = [
@@ -70,14 +71,20 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
   const [fazioneScelta, setFazioneScelta] = useState(fazioneIniziale);
   const fazioneCsv = fazioni.includes(fazioneScelta) ? fazioneScelta : fazioni[0] || '';
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const unitaDisponibili = useMemo(() => unitaPerFazione(fazioneCsv), [fazioneCsv, versioneDatiCsv]);
+  const unitaDisponibili = useMemo(() => unitaPerFazioneUnificate(fazioneCsv), [fazioneCsv, versioneDatiCsv]);
   const [chiaveScelta, setChiaveScelta] = useState('');
   const [ricerca, setRicerca] = useState('');
   const chiaveUnita = chiaveScelta || unitaDisponibili[0]?.chiave || '';
   const versioneArmyBuilder = useVersioneDatiArmyBuilder();
-  // Sotto-fazione (capitolo) di ogni unità dei Space Marines, mostrata accanto al nome e cercabile.
+  // Sotto-fazione (capitolo) di ogni unità dei Space Marines, mostrata accanto al nome e cercabile; per i
+  // profili uniti (Outrider + Sergeant) il nome è quello della scheda ("Outrider Squad").
   const elencoUnita = useMemo(
-    () => unitaDisponibili.map((u) => ({ ...u, sottoFazione: sottoFazioneUnita(u) })),
+    () =>
+      unitaDisponibili.map((u) => ({
+        ...u,
+        sottoFazione: sottoFazioneUnita(u),
+        nomeLista: (u.unito && nomeSchedaUnita(u)) || u.nome,
+      })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [unitaDisponibili, versioneArmyBuilder],
   );
@@ -135,7 +142,7 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
     setPuntiManuali(null);
     setNoteManuale(null);
     setFazioneScelta(nuovaFazione);
-    const prima = unitaPerFazione(nuovaFazione)[0];
+    const prima = unitaPerFazioneUnificate(nuovaFazione)[0];
     setChiaveScelta(prima?.chiave ?? '');
     setStatistiche(statisticheDaUnitaCsv(prima));
   };
@@ -165,7 +172,7 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
     const numero = Math.max(1, Math.round(Number(numeroModelli) || 1));
     const puntiNumero = punti === '' ? NaN : Number(punti);
     onCrea({
-      nomeBase: unitaCsv.nome,
+      nomeBase: elencoUnita.find((u) => u.chiave === unitaCsv.chiave)?.nomeLista ?? unitaCsv.nome,
       baseSize: unitaCsv.baseSize,
       datasheetId: unitaCsv.datasheetId,
       numeroModelli: numero,
@@ -205,7 +212,7 @@ function UnitaForm({ coloreDefault, fazioneIniziale = '', onCrea, onAnnulla }) {
             {unitaFiltrate.length === 0 && <option value="">Nessuna unità trovata</option>}
             {unitaFiltrate.map((u) => (
               <option key={u.chiave} value={u.chiave}>
-                {u.nome}
+                {u.nomeLista}
                 {u.sottoFazione ? ` (${u.sottoFazione})` : ''}
               </option>
             ))}

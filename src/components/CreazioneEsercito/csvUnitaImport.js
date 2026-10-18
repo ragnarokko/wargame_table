@@ -171,6 +171,39 @@ export function unitaPerFazione(fazione) {
     .sort((a, b) => a.nome.localeCompare(b.nome) || a.riga - b.riga);
 }
 
+const stessaBase = (a, b) => !a || !b || a === b;
+const stessoProfilo = (a, b) =>
+  ['mov', 'res', 'ts', 'tsPiu', 'w', 'oc', 'fnp', 'note'].every((campo) => (a[campo] ?? '') === (b[campo] ?? '')) &&
+  stessaBase(a.baseSize, b.baseSize);
+
+// Come unitaPerFazione, ma i profili della stessa scheda con le stesse statistiche (es. Outrider e Outrider
+// Sergeant: cambia solo l'equipaggiamento, che qui non si distingue) diventano una sola voce, quella della
+// prima riga, con `unito: true`. I profili con statistiche diverse (es. Boy e Nob) restano separati.
+export function unitaPerFazioneUnificate(fazione) {
+  const perScheda = new Map();
+  for (const u of unitaPerFazione(fazione)) {
+    if (!perScheda.has(u.datasheetId)) perScheda.set(u.datasheetId, []);
+    perScheda.get(u.datasheetId).push(u);
+  }
+  const risultato = [];
+  perScheda.forEach((profili) => {
+    const tenuti = [];
+    profili
+      .sort((a, b) => a.riga - b.riga)
+      .forEach((profilo) => {
+        const uguale = tenuti.find((t) => stessoProfilo(t, profilo));
+        if (!uguale) {
+          tenuti.push({ ...profilo });
+          return;
+        }
+        uguale.unito = true;
+        uguale.baseSize = uguale.baseSize || profilo.baseSize;
+      });
+    risultato.push(...tenuti);
+  });
+  return risultato.sort((a, b) => a.nome.localeCompare(b.nome) || a.riga - b.riga);
+}
+
 // Determina forma e dimensioni (mm) della basetta a partire dal campo base_size del CSV:
 // - prefisso "r_LUNGxLARGHmm" (es. "r_100x50mm") → basetta rettangolare, primo numero = lunghezza
 // - un solo numero → basetta tonda di quel diametro

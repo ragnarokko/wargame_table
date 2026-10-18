@@ -60,7 +60,7 @@ function costruisciPunti(righe) {
   for (const r of righe) {
     const id = String(r.datasheet_id);
     if (!id) continue;
-    if (!perId.has(id)) perId.set(id, { scaglioni: [], opzioni: [] });
+    if (!perId.has(id)) perId.set(id, { nome: r.name, scaglioni: [], opzioni: [] });
     const scheda = perId.get(id);
     const punti = Number(r.punti);
     if (!Number.isFinite(punti)) continue;
@@ -244,6 +244,13 @@ function idScheda(unitaCsv) {
   return idPerNome.get(normalizza(unitaCsv.nome)) ?? null;
 }
 
+// Nome dell'intera scheda (quello di punti.csv, es. 'Outrider Squad' anche se i profili sono 'Outrider' e
+// 'Outrider Sergeant'), oppure '' se i dati non la conoscono.
+export function nomeSchedaUnita(unitaCsv) {
+  const id = idScheda(unitaCsv);
+  return (id && puntiPerId.get(id)?.nome) || '';
+}
+
 // Costi dell'unità: { scaglioni: [{ codice, etichetta, tagli: [{ modelli, punti }] }], opzioni: [...] },
 // oppure null se l'unità non ha punti nei dati.
 export function datiPuntiUnita(unitaCsv) {
@@ -270,6 +277,12 @@ export function modelliPredefiniti(unitaCsv) {
   if (!id) return null;
   const righe = composizionePerId.get(id) ?? [];
   const chiave = singolare(unitaCsv.nome);
+  // Profili uniti (es. Outrider + Sergeant): l'unità è l'intera composizione.
+  if (unitaCsv.unito && righe.length > 0) {
+    const min = righe.reduce((somma, r) => somma + (r.min || 0), 0);
+    const max = righe.reduce((somma, r) => somma + (r.max || r.min || 0), 0);
+    if (min > 0) return { valore: min, min, max };
+  }
   const propria = righe.find((r) => singolare(r.modello) === chiave);
   if (propria && propria.min > 0) return { valore: propria.min, min: propria.min, max: propria.max };
   if (righe.length <= 1) {
