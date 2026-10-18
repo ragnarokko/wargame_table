@@ -11,8 +11,8 @@ import styles from './Duello.module.css';
 
 const DURATA_AVVISO_MS = 3500;
 
-// Unità (template con campo `esercito`) a cui appartengono le basette selezionate; se sono di più unità, la più
-// rappresentata. null se nessuna basetta selezionata appartiene a un'unità esercito.
+// Unità (template con campo `esercito`) a cui appartengono le basette selezionate, dalla più rappresentata alla
+// meno; vuoto se nessuna basetta selezionata appartiene a un'unità esercito.
 function unitaDaSelezione(ids, istanze, basette) {
   const conteggio = new Map();
   for (const id of ids) {
@@ -21,26 +21,27 @@ function unitaDaSelezione(ids, istanze, basette) {
       conteggio.set(templateId, (conteggio.get(templateId) ?? 0) + 1);
     }
   }
-  return [...conteggio].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  return [...conteggio].sort((a, b) => b[1] - a[1]).map(([templateId]) => templateId);
 }
 
-// Attacco tra due unità: con un'unità selezionata il tasto E "arma" l'attacco, e il click su una basetta di
-// un'altra unità apre la scheda Duello di "Botte!" (finestra separata, vedi finestraDuello.js) con le due
-// unità, la distanza minima tra le loro basette e le armi dell'attaccante. E di nuovo o Esc annulla.
+// Attacco di una o più unità contro un'altra: con le unità selezionate (anche diverse, per esempio con il
+// rettangolo di selezione) il tasto E "arma" l'attacco, e il click su una basetta di un'altra unità apre la
+// scheda Duello di "Botte!" (finestra separata, vedi finestraDuello.js) con un riquadro per ogni attaccante
+// (distanza minima dalle basette del bersaglio e armi) e il bersaglio. E di nuovo o Esc annulla.
 function Duello() {
   const { basette } = useLibreria();
   const { istanze } = useTavoloState();
   const { pxPerPollice } = useTavolo();
-  // templateId dell'unità attaccante quando l'attacco è "armato", altrimenti null.
-  const [attaccante, setAttaccante] = useState(null);
+  // templateId delle unità attaccanti quando l'attacco è "armato", altrimenti null.
+  const [attaccanti, setAttaccanti] = useState(null);
   const [avviso, setAvviso] = useState('');
   const selezioneRef = useRef([]);
-  const attaccanteRef = useRef(null);
+  const attaccantiRef = useRef(null);
   const timerAvvisoRef = useRef(null);
   // Valori correnti letti dai listener su window (registrati una volta sola) senza doverli rinnovare ad ogni render.
   const datiRef = useRef({});
   datiRef.current = { basette, istanze, pxPerPollice };
-  attaccanteRef.current = attaccante;
+  attaccantiRef.current = attaccanti;
 
   useEffect(() => {
     const mostraAvviso = (testo) => {
@@ -49,36 +50,49 @@ function Duello() {
       timerAvvisoRef.current = setTimeout(() => setAvviso(''), DURATA_AVVISO_MS);
     };
 
-    const lancia = async (idAttaccante, idDifensore) => {
+    const lancia = async (idAttaccanti, idDifensore) => {
       const { basette, istanze, pxPerPollice } = datiRef.current;
-      const tAtt = basette.find((b) => b.id === idAttaccante);
       const tDif = basette.find((b) => b.id === idDifensore);
-      if (!tAtt || !tDif) return;
+      if (!tDif) return;
       // Solo i modelli attivi: le basette grigie (eliminate con R) non contano né per il numero né per la distanza.
-      const istAtt = istanze.filter((i) => i.templateId === tAtt.id && !i.morta);
       const istDif = istanze.filter((i) => i.templateId === tDif.id && !i.morta);
-      if (!istAtt.length || !istDif.length) {
-        mostraAvviso(istAtt.length ? "L'unità bersaglio non ha più modelli." : "L'unità attaccante non ha più modelli.");
+      if (!istDif.length) {
+        mostraAvviso("L'unità bersaglio non ha più modelli.");
         return;
       }
-      // Calcolata subito, sullo stato di adesso: la finestra si apre e si riempie dopo.
-      const distanza = distanzaMinimaUnita(istAtt, tAtt, istDif, tDif, pxPerPollice);
+      // Distanze calcolate subito, sullo stato di adesso: la finestra si apre e si riempie dopo.
+      const gruppo = [];
+      for (const id of idAttaccanti) {
+        const tAtt = basette.find((b) => b.id === id);
+        const istAtt = istanze.filter((i) => i.templateId === id && !i.morta);
+        if (tAtt && istAtt.length) {
+          gruppo.push({ tAtt, istAtt, distanza: distanzaMinimaUnita(istAtt, tAtt, istDif, tDif, pxPerPollice) });
+        }
+      }
+      if (!gruppo.length) {
+        mostraAvviso(idAttaccanti.length > 1 ? 'Le unità attaccanti non hanno più modelli.' : "L'unità attaccante non ha più modelli.");
+        return;
+      }
       const wMax = Number(tDif.w);
       const feriteAttuali =
         Number.isFinite(wMax) && wMax > 0 ? istDif.map((i) => Math.min(i.ferite ?? wMax, wMax)) : undefined;
       const costruisciDati = async () => {
         await caricaDatiArmiSeNecessario().catch(() => {});
+        const attaccantiDati = gruppo.map(({ tAtt, istAtt, distanza }) => ({
+          id: tAtt.id,
+          nome: tAtt.nome,
+          esercito: tAtt.esercito,
+          // Modelli attivi: basette ancora sul campo e non grigie.
+          modelli: istAtt.length,
+          distanza,
+          armi: estraiArmi(tAtt),
+        }));
         return {
           type: 'wh40-duello',
-          distanza,
-          attaccante: {
-            id: tAtt.id,
-            nome: tAtt.nome,
-            esercito: tAtt.esercito,
-            // Modelli attivi: basette ancora sul campo e non grigie.
-            modelli: istAtt.length,
-            armi: estraiArmi(tAtt),
-          },
+          attaccanti: attaccantiDati,
+          // Campi del formato con un solo attaccante, per un calcolatore non ancora aggiornato.
+          distanza: attaccantiDati[0].distanza,
+          attaccante: attaccantiDati[0],
           difensore: {
             id: tDif.id,
             nome: tDif.nome,
@@ -101,41 +115,41 @@ function Duello() {
     const onSelezione = (e) => {
       const ids = e.detail.ids;
       selezioneRef.current = ids;
-      const armato = attaccanteRef.current;
-      if (!armato) return;
+      const armati = attaccantiRef.current;
+      if (!armati) return;
       const { istanze, basette } = datiRef.current;
-      const bersaglio = unitaDaSelezione(ids, istanze, basette);
-      // Selezione vuota, di basette senza unità o della stessa unità attaccante: si resta in attesa del bersaglio.
-      if (!bersaglio || bersaglio === armato) return;
-      setAttaccante(null);
-      lancia(armato, bersaglio);
+      const bersaglio = unitaDaSelezione(ids, istanze, basette).find((id) => !armati.includes(id));
+      // Selezione vuota, di basette senza unità o solo delle unità attaccanti: si resta in attesa del bersaglio.
+      if (!bersaglio) return;
+      setAttaccanti(null);
+      lancia(armati, bersaglio);
     };
 
     const onKeyDown = (e) => {
       const tag = e.target.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
       if (e.key === 'Escape') {
-        setAttaccante(null);
+        setAttaccanti(null);
         return;
       }
       if ((e.key !== 'e' && e.key !== 'E') || e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
-      if (attaccanteRef.current) {
-        setAttaccante(null);
+      if (attaccantiRef.current) {
+        setAttaccanti(null);
         return;
       }
       const { istanze, basette } = datiRef.current;
       const ids = selezioneRef.current;
       if (!ids.length) {
-        mostraAvviso("Seleziona prima un'unità attaccante, poi premi E.");
+        mostraAvviso('Seleziona prima una o più unità attaccanti, poi premi E.');
         return;
       }
       const unita = unitaDaSelezione(ids, istanze, basette);
-      if (!unita) {
+      if (!unita.length) {
         mostraAvviso("L'attacco funziona con le unità create in Creazione Esercito.");
         return;
       }
       setAvviso('');
-      setAttaccante(unita);
+      setAttaccanti(unita);
     };
 
     window.addEventListener(EVENTO_SELEZIONE_MULTIPLA, onSelezione);
@@ -147,13 +161,15 @@ function Duello() {
     };
   }, []);
 
-  const nomeAttaccante = attaccante ? basette.find((b) => b.id === attaccante)?.nome : null;
-  if (!nomeAttaccante && !avviso) return null;
+  const nomiAttaccanti = attaccanti
+    ? attaccanti.map((id) => basette.find((b) => b.id === id)?.nome).filter(Boolean).join(', ')
+    : '';
+  if (!nomiAttaccanti && !avviso) return null;
   return (
-    <div className={`${styles.banner} ${nomeAttaccante ? '' : styles.avviso}`} role="status">
-      {nomeAttaccante ? (
+    <div className={`${styles.banner} ${nomiAttaccanti ? '' : styles.avviso}`} role="status">
+      {nomiAttaccanti ? (
         <>
-          ⚔ Attacco con <b>{nomeAttaccante}</b>: clicca l'unità bersaglio (E o Esc per annullare)
+          ⚔ Attacco con <b>{nomiAttaccanti}</b>: clicca l'unità bersaglio (E o Esc per annullare)
         </>
       ) : (
         avviso
