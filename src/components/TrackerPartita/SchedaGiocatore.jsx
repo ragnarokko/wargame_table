@@ -4,6 +4,7 @@ import { useTracker } from '../../contexts/TrackerContext';
 import { totaliGiocatore } from '../../utils/trackerPunti';
 import Modale from '../Modale/Modale';
 import DialogoPunteggio from './DialogoPunteggio';
+import RiepilogoMissione from './RiepilogoMissione';
 import styles from './TrackerPartita.module.css';
 
 export const NOME_GIOCATORE = { blu: 'Blu', rosso: 'Rosso' };
@@ -23,6 +24,7 @@ function SchedaGiocatore({ giocatore }) {
     pescaSecondaria,
   } = useTracker();
   const [dialogoPrimaria, setDialogoPrimaria] = useState(false);
+  const [riepilogoPrimaria, setRiepilogoPrimaria] = useState(false);
   const [cartaDaSegnare, setCartaDaSegnare] = useState(null);
   // Voce di secondaria del round corrente da correggere (id della voce nel log).
   const [voceDaModificare, setVoceDaModificare] = useState(null);
@@ -73,7 +75,18 @@ function SchedaGiocatore({ giocatore }) {
         <div className={styles.bloccoTitolo}>Primaria</div>
         {primaria ? (
           <>
-            <div className={styles.nomeMissione}>{primaria.nome}</div>
+            <div className={styles.nomeMissione}>
+              {primaria.nome}
+              <button
+                type="button"
+                className={styles.iconaRegole}
+                onClick={() => setRiepilogoPrimaria(true)}
+                title="Mostra la missione: punti per ogni round"
+                aria-label="Mostra la missione primaria"
+              >
+                📖
+              </button>
+            </div>
             <button type="button" className={styles.segna} onClick={() => setDialogoPrimaria(true)}>
               Segna round {round}
               {g.primaria[round] ? ` (${g.primaria[round]} VP)` : ''}
@@ -152,6 +165,10 @@ function SchedaGiocatore({ giocatore }) {
           </>
         )}
       </div>
+
+      {riepilogoPrimaria && primaria && (
+        <RiepilogoMissione missione={primaria} round={round} onChiudi={() => setRiepilogoPrimaria(false)} />
+      )}
 
       {dialogoPrimaria && primaria && (
         <DialogoPunteggio

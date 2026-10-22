@@ -4,7 +4,7 @@ import { calcolaPunti, chiaveRiga, raggruppaRighe, sezioniDelRound } from '../..
 import Modale from '../Modale/Modale';
 import styles from './TrackerPartita.module.css';
 
-const titoloRound = (round) => {
+export const titoloRound = (round) => {
   if (round === 'fine') return 'Fine battaglia';
   const [da, a] = round;
   if (da === 1 && a === LIMITI_VP.round) return 'Qualsiasi round';
