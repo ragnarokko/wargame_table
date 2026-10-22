@@ -50,12 +50,78 @@ export function distanzaConSegno(px, py, { punti }) {
   return positivi === 0 || negativi === 0 ? -minima : minima;
 }
 
-function distanzaPuntoSegmento(px, py, [ax, ay], [bx, by]) {
+// Punto del segmento a-b più vicino a (px, py).
+function puntoSulSegmento(px, py, [ax, ay], [bx, by]) {
   const dx = bx - ax;
   const dy = by - ay;
   const lunghezza2 = dx * dx + dy * dy;
   const t = lunghezza2 === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lunghezza2));
-  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+  return [ax + t * dx, ay + t * dy];
+}
+
+function distanzaPuntoSegmento(px, py, a, b) {
+  const [qx, qy] = puntoSulSegmento(px, py, a, b);
+  return Math.hypot(px - qx, py - qy);
+}
+
+// Punto del bordo di un poligono più vicino a (px, py).
+export function puntoBordoPiuVicino(px, py, { punti }) {
+  let migliore = null;
+  let minima = Infinity;
+  for (let i = 0; i < punti.length; i++) {
+    const q = puntoSulSegmento(px, py, punti[i], punti[(i + 1) % punti.length]);
+    const d = Math.hypot(px - q[0], py - q[1]);
+    if (d < minima) {
+      minima = d;
+      migliore = q;
+    }
+  }
+  return { x: migliore[0], y: migliore[1] };
+}
+
+// Punto del bordo di un poligono convesso nella direzione dal suo centro verso (px, py): il più a bordo in quella direzione.
+export function puntoBordoVerso(px, py, poligono) {
+  let dx = px - poligono.x;
+  let dy = py - poligono.y;
+  if (dx === 0 && dy === 0) dx = 1;
+  const { punti } = poligono;
+  let migliore = 0;
+  for (let i = 0; i < punti.length; i++) {
+    const [ax, ay] = punti[i];
+    const [bx, by] = punti[(i + 1) % punti.length];
+    const ex = bx - ax;
+    const ey = by - ay;
+    const det = dx * ey - dy * ex;
+    if (det === 0) continue;
+    const t = ((ax - poligono.x) * ey - (ay - poligono.y) * ex) / det;
+    const u = ((ax - poligono.x) * dy - (ay - poligono.y) * dx) / det;
+    if (u >= -1e-9 && u <= 1 + 1e-9 && t > migliore) migliore = t;
+  }
+  return { x: poligono.x + dx * migliore, y: poligono.y + dy * migliore };
+}
+
+// Coppia di punti (uno per bordo) più vicini tra due poligoni convessi; stesso punto se si toccano o si sovrappongono.
+export function coppiaBordiPiuVicina(a, b) {
+  if (siSovrappongono(a, b)) {
+    const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    return { da: m, a: m };
+  }
+  let migliore = null;
+  let minima = Infinity;
+  for (const [pa, pb, invertita] of [
+    [a, b, false],
+    [b, a, true],
+  ]) {
+    for (const [px, py] of pa.punti) {
+      const q = puntoBordoPiuVicino(px, py, pb);
+      const d = Math.hypot(px - q.x, py - q.y);
+      if (d < minima) {
+        minima = d;
+        migliore = invertita ? { da: q, a: { x: px, y: py } } : { da: { x: px, y: py }, a: q };
+      }
+    }
+  }
+  return migliore;
 }
 
 // Due poligoni convessi disgiunti: la distanza minima è sempre tra un vertice di uno e un lato dell'altro.

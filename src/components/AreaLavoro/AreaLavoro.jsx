@@ -8,6 +8,7 @@ import LayoutTavolo from '../LayoutTavolo/LayoutTavolo';
 import Basetta from '../Basetta/Basetta';
 import ElementoScenico from '../ElementoScenico/ElementoScenico';
 import StrumentoRighello from '../StrumentoRighello/StrumentoRighello';
+import MisuraBordi from '../StrumentoRighello/MisuraBordi';
 import MisuraRapida from '../StrumentoRighello/MisuraRapida';
 import SelezioneMultipla from '../SelezioneMultipla/SelezioneMultipla';
 import IndicatoriTavolo from '../IndicatoriTavolo/IndicatoriTavolo';
@@ -154,6 +155,7 @@ function AreaLavoro({ righelloAttivo }) {
             zoom={zoom}
           />
           <MisuraRapida containerRef={containerRef} rotazioneArea={rotazioneArea} zoom={zoom} />
+          <MisuraBordi containerRef={containerRef} rotazioneArea={rotazioneArea} zoom={zoom} />
         </div>
 
         <IndicatoriTavolo />

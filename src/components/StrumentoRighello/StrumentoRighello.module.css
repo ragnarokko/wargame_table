@@ -41,3 +41,7 @@
   white-space: nowrap;
   pointer-events: none;
 }
+
+.puntoBordo {
+  fill: #ffd166;
+}
