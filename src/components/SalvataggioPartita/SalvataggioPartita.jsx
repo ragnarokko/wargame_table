@@ -6,6 +6,7 @@ import { useTracker } from '../../contexts/TrackerContext';
 import { useRegoleEsercito } from '../../contexts/RegoleEsercitoContext';
 import { useFazioneEsercito } from '../RegoleEsercito/useRegoleGiocatore';
 import { elencoFazioniRegole } from '../RegoleEsercito/csvRegoleEsercito';
+import SalvataggioGithub from './SalvataggioGithub';
 import styles from './SalvataggioPartita.module.css';
 
 const VERSIONE_SALVATAGGIO = 1;
@@ -56,7 +57,8 @@ function SalvataggioPartita() {
   const nomeFazione = (codice, predefinito) =>
     nomeFileSicuro(elencoFazioniRegole().find((f) => f.codice === codice)?.nome ?? '') || predefinito;
 
-  const handleSave = () => {
+  // Contenuto del salvataggio e nome di base del file («Fazione blu_Fazione rossa_roundN»).
+  const preparaSalvataggio = () => {
     const dati = {
       versione: VERSIONE_SALVATAGGIO,
       basette,
@@ -67,15 +69,44 @@ function SalvataggioPartita() {
       tracker,
       regoleEsercito,
     };
-    const json = JSON.stringify(dati, null, 2);
+    const base = `${nomeFazione(fazioneBlu, 'Blu')}_${nomeFazione(fazioneRossa, 'Rosso')}_round${indicatori.turno.valore}`;
+    return { json: JSON.stringify(dati, null, 2), base };
+  };
+
+  const handleSave = () => {
+    const { json, base } = preparaSalvataggio();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const base = `${nomeFazione(fazioneBlu, 'Blu')}_${nomeFazione(fazioneRossa, 'Rosso')}_round${indicatori.turno.valore}`;
     link.download = `${nomeSalvataggioUnivoco(base)}.json`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  // Ripristina la partita dal testo JSON di un salvataggio; lancia se il formato non è valido.
+  const applicaSalvataggio = (testo) => {
+    const dati = JSON.parse(testo);
+    if (
+      !Array.isArray(dati.basette) ||
+      !Array.isArray(dati.istanze) ||
+      !Array.isArray(dati.elementiScenici) ||
+      !dati.tavolo ||
+      !dati.tavolo.dimensioni
+    ) {
+      throw new Error('formato salvataggio non valido');
+    }
+    impostaBasette(dati.basette);
+    ripristinaTavolo(dati.istanze, dati.elementiScenici);
+    setDimensioni(dati.tavolo.dimensioni.larghezza, dati.tavolo.dimensioni.altezza);
+    setSfondo(dati.tavolo.sfondo ?? null);
+    // `indicatori` non esisteva nei salvataggi precedenti a questa funzionalità:
+    // ripristinaIndicatori gestisce da sé l'assenza/parzialità del campo (vedi IndicatoriContext).
+    ripristinaIndicatori(dati.indicatori);
+    // Anche `tracker` manca nei salvataggi più vecchi: in tal caso il tracker riparte dal setup.
+    ripristinaTracker(dati.tracker);
+    // Idem per `regoleEsercito` (fazione e distaccamenti scelti nel pannello Eserciti).
+    ripristinaRegoleEsercito(dati.regoleEsercito);
   };
 
   const handleLoad = (e) => {
@@ -84,27 +115,7 @@ function SalvataggioPartita() {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const dati = JSON.parse(reader.result);
-        if (
-          !Array.isArray(dati.basette) ||
-          !Array.isArray(dati.istanze) ||
-          !Array.isArray(dati.elementiScenici) ||
-          !dati.tavolo ||
-          !dati.tavolo.dimensioni
-        ) {
-          throw new Error('formato salvataggio non valido');
-        }
-        impostaBasette(dati.basette);
-        ripristinaTavolo(dati.istanze, dati.elementiScenici);
-        setDimensioni(dati.tavolo.dimensioni.larghezza, dati.tavolo.dimensioni.altezza);
-        setSfondo(dati.tavolo.sfondo ?? null);
-        // `indicatori` non esisteva nei salvataggi precedenti a questa funzionalità:
-        // ripristinaIndicatori gestisce da sé l'assenza/parzialità del campo (vedi IndicatoriContext).
-        ripristinaIndicatori(dati.indicatori);
-        // Anche `tracker` manca nei salvataggi più vecchi: in tal caso il tracker riparte dal setup.
-        ripristinaTracker(dati.tracker);
-        // Idem per `regoleEsercito` (fazione e distaccamenti scelti nel pannello Eserciti).
-        ripristinaRegoleEsercito(dati.regoleEsercito);
+        applicaSalvataggio(reader.result);
       } catch (err) {
         alert('Caricamento fallito: ' + err.message);
       }
@@ -114,14 +125,17 @@ function SalvataggioPartita() {
   };
 
   return (
-    <div className={styles.azioni}>
-      <button onClick={handleSave} title="Salva su file l'intera partita: eserciti, posizioni, mappa">
-        💾 Save
-      </button>
-      <label className={styles.importaLabel} title="Carica una partita salvata in precedenza">
-        📂 Load
-        <input type="file" accept="application/json" onChange={handleLoad} hidden />
-      </label>
+    <div className={styles.gruppo}>
+      <div className={styles.azioni}>
+        <button onClick={handleSave} title="Salva su file l'intera partita: eserciti, posizioni, mappa">
+          💾 Save
+        </button>
+        <label className={styles.importaLabel} title="Carica una partita salvata in precedenza">
+          📂 Load
+          <input type="file" accept="application/json" onChange={handleLoad} hidden />
+        </label>
+      </div>
+      <SalvataggioGithub preparaSalvataggio={preparaSalvataggio} applicaSalvataggio={applicaSalvataggio} />
     </div>
   );
 }

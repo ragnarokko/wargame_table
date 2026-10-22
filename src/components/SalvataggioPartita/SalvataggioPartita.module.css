@@ -1,8 +1,11 @@
+.gruppo {
+  border-bottom: 1px solid var(--colore-bordo);
+}
+
 .azioni {
   display: flex;
   gap: 6px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--colore-bordo);
 }
 
 .azioni button,

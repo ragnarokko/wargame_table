@@ -6,6 +6,7 @@ import {
   comandoAggiornamentoWahapedia,
   useImpostazioniDati,
 } from '../../config/datiCsv';
+import GuidaGithub from '../SalvataggioPartita/GuidaGithub';
 import styles from './Aiuto.module.css';
 
 // Elenco di tutti i tasti/interazioni usati nell'app (verificato leggendo il codice dei
@@ -86,6 +87,15 @@ function Aiuto() {
             finestra: vengono riconosciute fazione, unità e numero di modelli, e le basette si dispongono nello
             staging dell'esercito (il Rosso sopra il tavolo, il Blu sotto).
           </p>
+        </div>
+        <div className={styles.sezione}>
+          <h4 className={styles.sezioneTitolo}>Salvare le partite su GitHub</h4>
+          <p className={styles.paragrafo}>
+            ☁ GitHub Save / Load (sotto Save e Load, nel menu laterale) salvano e caricano le partite nella cartella{' '}
+            <code className={styles.codice}>savegames/</code> di un tuo repo privato. Il file si chiama
+            «fazione blu_fazione rossa_roundN», con _2, _3… se esiste già. Per collegarlo (una volta sola):
+          </p>
+          <GuidaGithub />
         </div>
         <div className={styles.sezione}>
           <h4 className={styles.sezioneTitolo}>Dati unità (CSV)</h4>

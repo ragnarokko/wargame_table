@@ -1,0 +1,85 @@
+.azioni {
+  display: flex;
+  gap: 6px;
+  padding: 0 16px 10px;
+  flex-wrap: wrap;
+}
+
+.azioni button {
+  flex: 1;
+  font-size: 12px;
+  padding: 7px 4px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.azioni .guidaBtn {
+  flex: none;
+  width: 28px;
+}
+
+.guida {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.guida li {
+  margin-bottom: 6px;
+}
+
+.guida a {
+  color: inherit;
+}
+
+.stato {
+  flex-basis: 100%;
+  font-size: 11px;
+  opacity: 0.8;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stato button {
+  flex: none;
+  padding: 0 4px;
+  font-size: 11px;
+}
+
+.errore {
+  color: #ef4444;
+}
+
+.testo {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.testo a {
+  color: inherit;
+}
+
+.campo {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.elenco button {
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  padding: 6px 8px;
+}
