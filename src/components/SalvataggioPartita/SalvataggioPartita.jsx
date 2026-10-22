@@ -4,9 +4,39 @@ import { useTavoloState } from '../../contexts/TavoloStateContext';
 import { useIndicatori } from '../../contexts/IndicatoriContext';
 import { useTracker } from '../../contexts/TrackerContext';
 import { useRegoleEsercito } from '../../contexts/RegoleEsercitoContext';
+import { useFazioneEsercito } from '../RegoleEsercito/useRegoleGiocatore';
+import { elencoFazioniRegole } from '../RegoleEsercito/csvRegoleEsercito';
 import styles from './SalvataggioPartita.module.css';
 
 const VERSIONE_SALVATAGGIO = 1;
+// Nomi dei file già scaricati da questo browser: serve a distinguere i salvataggi omonimi con un progressivo
+// (il browser non può leggere la cartella Download).
+const CHIAVE_NOMI_SALVATAGGIO = 'tavolo-nomi-salvataggio';
+
+const nomeFileSicuro = (testo) => testo.replace(/[\\/:*?"<>|]+/g, '').trim();
+
+function leggiNomiUsati() {
+  try {
+    const nomi = JSON.parse(localStorage.getItem(CHIAVE_NOMI_SALVATAGGIO));
+    return Array.isArray(nomi) ? nomi : [];
+  } catch {
+    return [];
+  }
+}
+
+// Nome del file nella forma «Fazione blu_Fazione rossa_roundN»; se già usato diventa «…_2», «…_3», ecc.
+// Registra il nome scelto.
+function nomeSalvataggioUnivoco(base) {
+  const usati = leggiNomiUsati();
+  let nome = base;
+  for (let n = 2; usati.includes(nome); n++) nome = `${base}_${n}`;
+  try {
+    localStorage.setItem(CHIAVE_NOMI_SALVATAGGIO, JSON.stringify([...usati, nome]));
+  } catch {
+    // senza localStorage il nome resta quello base
+  }
+  return nome;
+}
 
 // Salvataggio/caricamento completo della partita: eserciti (stessa struttura dati di
 // PersistenzaEserciti, di cui però NON riusa il file/la chiave localStorage — sono due
@@ -20,6 +50,11 @@ function SalvataggioPartita() {
   const { indicatori, ripristinaIndicatori } = useIndicatori();
   const { stato: tracker, ripristinaTracker } = useTracker();
   const { stato: regoleEsercito, ripristinaRegoleEsercito } = useRegoleEsercito();
+  const fazioneBlu = useFazioneEsercito('blu').codice;
+  const fazioneRossa = useFazioneEsercito('rosso').codice;
+
+  const nomeFazione = (codice, predefinito) =>
+    nomeFileSicuro(elencoFazioniRegole().find((f) => f.codice === codice)?.nome ?? '') || predefinito;
 
   const handleSave = () => {
     const dati = {
@@ -37,7 +72,8 @@ function SalvataggioPartita() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'partita.json';
+    const base = `${nomeFazione(fazioneBlu, 'Blu')}_${nomeFazione(fazioneRossa, 'Rosso')}_round${indicatori.turno.valore}`;
+    link.download = `${nomeSalvataggioUnivoco(base)}.json`;
     link.click();
     URL.revokeObjectURL(url);
   };

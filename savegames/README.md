@@ -5,7 +5,7 @@ pulsante **💾 Save** (componente `SalvataggioPartita`, vedi `CLAUDE.md`).
 
 ## Come salvare una partita qui
 
-1. In app, clicca **💾 Save**: il browser scarica un file `partita.json` nella
+1. In app, clicca **💾 Save**: il browser scarica un file chiamato `Fazione blu_Fazione rossa_roundN.json` (con `_2`, `_3`… se già salvato) nella
    cartella Download del sistema (il browser non può scrivere direttamente nel
    repository).
 2. Sposta/copia quel file qui dentro, rinominandolo se vuoi tenerne più di uno
