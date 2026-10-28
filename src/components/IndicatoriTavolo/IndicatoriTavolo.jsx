@@ -1,7 +1,9 @@
 import { useIndicatori } from '../../contexts/IndicatoriContext';
+import PulsanteDistrutti from '../Distrutti/PulsanteDistrutti';
 import styles from './IndicatoriTavolo.module.css';
 
-function Indicatore({ chiave }) {
+// `soloLettura`: il valore si vede ma non ha pulsanti −1/+1 (il Turno lo gestisce il tracker di partita).
+function Indicatore({ chiave, soloLettura = false }) {
   const { indicatori, incrementaIndicatore, decrementaIndicatore, rinominaIndicatore } = useIndicatori();
   const { titolo, valore, titoloModificabile } = indicatori[chiave];
 
@@ -17,36 +19,45 @@ function Indicatore({ chiave }) {
       ) : (
         <span className={styles.titolo}>{titolo}</span>
       )}
-      <div className={styles.stepper}>
-        <button type="button" className={styles.stepBtn} onClick={() => decrementaIndicatore(chiave)}>
-          −
-        </button>
+      {soloLettura ? (
         <span className={styles.valore}>{valore}</span>
-        <button type="button" className={styles.stepBtn} onClick={() => incrementaIndicatore(chiave)}>
-          +
-        </button>
-      </div>
+      ) : (
+        <div className={styles.stepper}>
+          <button type="button" className={styles.stepBtn} onClick={() => decrementaIndicatore(chiave)}>
+            −
+          </button>
+          <span className={styles.valore}>{valore}</span>
+          <button type="button" className={styles.stepBtn} onClick={() => incrementaIndicatore(chiave)}>
+            +
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-// Pulsante accanto al Turno: a ogni click alterna tra "BLU" e "ROSSO" per ricordare di quale
-// esercito è il turno in corso (stato in IndicatoriContext, salvato con la partita).
+// Di chi è il turno in corso ("BLU"/"ROSSO"): solo da leggere, lo imposta il tracker di partita
+// (stato in IndicatoriContext, salvato con la partita).
 function GiocatoreAttivo() {
-  const { indicatori, alternaGiocatoreAttivo } = useIndicatori();
+  const { indicatori } = useIndicatori();
   const { titolo, valore } = indicatori.giocatoreAttivo;
 
   return (
     <div className={styles.indicatore}>
       <span className={styles.titolo}>{titolo}</span>
-      <button
-        type="button"
-        className={`${styles.giocatoreBtn} ${valore === 'blu' ? styles.blu : styles.rosso}`}
-        onClick={alternaGiocatoreAttivo}
-        title="Clic per passare il turno all'altro giocatore"
-      >
+      <span className={`${styles.giocatoreBtn} ${valore === 'blu' ? styles.blu : styles.rosso}`}>
         {valore === 'blu' ? 'Blu' : 'Rosso'}
-      </button>
+      </span>
+    </div>
+  );
+}
+
+// Pulsante che apre i riquadri dei modelli distrutti di Blu e Rosso (vedi Distrutti/).
+function Distrutti() {
+  return (
+    <div className={styles.indicatore}>
+      <span className={styles.titolo}>Distrutti</span>
+      <PulsanteDistrutti />
     </div>
   );
 }
@@ -65,8 +76,9 @@ function IndicatoriTavolo() {
         <Indicatore chiave="extraBlu" />
       </div>
       <div className={styles.centro}>
-        <Indicatore chiave="turno" />
+        <Indicatore chiave="turno" soloLettura />
         <GiocatoreAttivo />
+        <Distrutti />
       </div>
       <div className={styles.gruppoDestra}>
         <Indicatore chiave="extraRosso" />

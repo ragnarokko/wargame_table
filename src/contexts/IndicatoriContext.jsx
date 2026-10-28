@@ -7,7 +7,7 @@ const IndicatoriContext = createContext(null);
 // Blu, uno vicino a CP Rosso) hanno titolo modificabile dall'utente e partono da 0. Le chiavi
 // dell'oggetto sono usate anche come id stabili per il salvataggio/ripristino della partita.
 // `giocatoreAttivo` è l'eccezione: il suo `valore` non è un numero ma l'id dell'esercito di cui
-// è il turno ('blu' | 'rosso'), e si cambia solo con `alternaGiocatoreAttivo`.
+// è il turno ('blu' | 'rosso'), e lo imposta solo il tracker (`impostaGiocatoreAttivo`).
 export const INDICATORI_INIZIALI = {
   cpBlu: { titolo: 'CP Blu', valore: 1, titoloModificabile: false },
   extraBlu: { titolo: 'Extra', valore: 0, titoloModificabile: true },
@@ -47,16 +47,6 @@ export function IndicatoriProvider({ children }) {
         ? conTurno(prev, Math.max(0, prev.turno.valore - 1))
         : { ...prev, [chiave]: { ...prev[chiave], valore: Math.max(0, prev[chiave].valore - 1) } },
     );
-  }, []);
-
-  const alternaGiocatoreAttivo = useCallback(() => {
-    setIndicatori((prev) => ({
-      ...prev,
-      giocatoreAttivo: {
-        ...prev.giocatoreAttivo,
-        valore: prev.giocatoreAttivo.valore === 'blu' ? 'rosso' : 'blu',
-      },
-    }));
   }, []);
 
   // Usati dal tracker di partita (TrackerContext) per tenere allineati Turno e "Tocca a".
@@ -100,7 +90,6 @@ export function IndicatoriProvider({ children }) {
       indicatori,
       incrementaIndicatore,
       decrementaIndicatore,
-      alternaGiocatoreAttivo,
       impostaIndicatore,
       impostaGiocatoreAttivo,
       rinominaIndicatore,
@@ -110,7 +99,6 @@ export function IndicatoriProvider({ children }) {
       indicatori,
       incrementaIndicatore,
       decrementaIndicatore,
-      alternaGiocatoreAttivo,
       impostaIndicatore,
       impostaGiocatoreAttivo,
       rinominaIndicatore,

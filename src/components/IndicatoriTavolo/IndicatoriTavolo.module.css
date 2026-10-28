@@ -93,6 +93,9 @@
 }
 
 .giocatoreBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 56px;
   height: 20px;
   padding: 0 8px;
@@ -113,10 +116,3 @@
   background: #ef4444;
 }
 
-.blu:hover {
-  background: #2563eb;
-}
-
-.rosso:hover {
-  background: #dc2626;
-}

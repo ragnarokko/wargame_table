@@ -1,0 +1,82 @@
+.pulsante {
+  min-width: 56px;
+  height: 20px;
+  padding: 0 8px;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.riquadri {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.riquadro {
+  border: 1px solid var(--colore-esercito);
+  border-radius: var(--radius);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.titolo {
+  margin: 0;
+  font-size: 13px;
+  color: var(--colore-esercito);
+}
+
+.vuoto {
+  margin: 0;
+  font-size: 12px;
+  color: var(--colore-testo-secondario);
+}
+
+.elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.elenco li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.pallino {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.nome {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.numeri {
+  flex-shrink: 0;
+  color: var(--colore-testo-secondario);
+}
+
+.distrutta .nome {
+  font-weight: 700;
+  text-decoration: line-through;
+}
+
+.totale {
+  border-top: 1px solid var(--colore-bordo);
+  padding-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
