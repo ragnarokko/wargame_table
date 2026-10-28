@@ -10,6 +10,27 @@
   overflow: hidden;
 }
 
+.quarti {
+  position: absolute;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.lineaQuarti {
+  stroke: #7fd6ff;
+  stroke-width: 2px;
+  stroke-dasharray: 10 6;
+  vector-effect: non-scaling-stroke;
+}
+
+.lineaTerritorio {
+  stroke: #ff9f43;
+  stroke-width: 2.5px;
+  stroke-dasharray: 3 7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
 .cerchio {
   fill: none;
   stroke: #ffd24a;

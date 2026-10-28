@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LIMITI_VP, MISSIONI_SECONDARIE, missionePrimaria, missioneSecondaria } from '../../config/missioni';
 import { useTracker } from '../../contexts/TrackerContext';
-import { totaliGiocatore } from '../../utils/trackerPunti';
+import { secondarieEsaurite, totaliGiocatore } from '../../utils/trackerPunti';
 import Modale from '../Modale/Modale';
 import DialogoPunteggio from './DialogoPunteggio';
 import RiepilogoMissione from './RiepilogoMissione';
@@ -35,6 +35,9 @@ function SchedaGiocatore({ giocatore }) {
   const round = stato.round;
   const primaria = missionePrimaria(g.disposizione, avversario.disposizione);
   const totali = totaliGiocatore(g);
+  // Secondarie già uscite con punti segnati: né "Pesca" né "Scegli" le riportano in gioco.
+  const esaurite = secondarieEsaurite(g);
+  const pescabili = MISSIONI_SECONDARIE.filter((m) => !esaurite.has(m.id) && !g.attive.some((a) => a.carta === m.id));
   const attivo = stato.turnoDi === giocatore && !stato.finita;
   const roundPrimaria = Object.keys(g.primaria).map(Number).sort((a, b) => a - b);
   const cartaAttiva = cartaDaSegnare && g.attive.find((a) => a.carta === cartaDaSegnare);
@@ -132,7 +135,13 @@ function SchedaGiocatore({ giocatore }) {
         })}
         <div className={styles.azioniSec}>
           {g.tipoSecondarie === 'tattiche' && (
-            <button type="button" className={styles.piccolo} onClick={() => pescaSecondaria(giocatore)}>
+            <button
+              type="button"
+              className={styles.piccolo}
+              onClick={() => pescaSecondaria(giocatore)}
+              disabled={pescabili.length === 0}
+              title={pescabili.length === 0 ? 'Nessuna secondaria da pescare: le altre sono in gioco o già segnate' : undefined}
+            >
               Pesca
             </button>
           )}
@@ -234,12 +243,13 @@ function SchedaGiocatore({ giocatore }) {
           <ul className={styles.elencoCarte}>
             {MISSIONI_SECONDARIE.map((m) => {
               const gia = g.attive.some((a) => a.carta === m.id);
+              const segnata = esaurite.has(m.id);
               return (
                 <li key={m.id}>
                   <button
                     type="button"
                     className={styles.carta}
-                    disabled={gia}
+                    disabled={gia || segnata}
                     onClick={() => {
                       attivaSecondaria(giocatore, m.id);
                       setSceltaAperta(false);
@@ -248,6 +258,7 @@ function SchedaGiocatore({ giocatore }) {
                     <span>{m.nome}</span>
                     {m.fissabile && <span className={styles.chip}>fissa/tattica</span>}
                     {gia && <span className={styles.chip}>in gioco</span>}
+                    {segnata && !gia && <span className={styles.chip}>già segnata</span>}
                   </button>
                 </li>
               );

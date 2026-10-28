@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTavolo } from '../../contexts/TavoloContext';
 import { useTracker } from '../../contexts/TrackerContext';
 import { COLORE_ESERCITO } from '../../config/eserciti';
 import { useLayoutCorrente } from '../../hooks/useLayoutCorrente';
+import { lineaTerritorio } from '../../utils/lineaTerritorio';
 import CerchiCentro from './CerchiCentro';
+import Quarti from './Quarti';
 import { COLORE_CENTRALE, GlifoObiettivo } from './GlifoObiettivo';
 import styles from './LayoutTavolo.module.css';
 
@@ -40,9 +42,10 @@ function Occhio({ occhio }) {
 // icone di visibilità. Solo visuale: non intercetta il mouse. Le zone seguono l'attaccante scelto nel
 // tracker (se manca, è il Blu); le coordinate sono in pollici, quindi si adatta alle dimensioni del tavolo.
 function LayoutTavolo() {
-  const { tavoloRect, mostraQuote, alternaQuote } = useTavolo();
+  const { tavoloRect, mostraQuote, alternaQuote, mostraTerritorio } = useTavolo();
   const { stato } = useTracker();
   const layout = useLayoutCorrente();
+  const territorio = useMemo(() => (layout && mostraTerritorio ? lineaTerritorio(layout) : null), [layout, mostraTerritorio]);
 
   // V mostra/nasconde quote e icone; Ctrl+V (incolla) e simili non contano.
   useEffect(() => {
@@ -59,7 +62,14 @@ function LayoutTavolo() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [alternaQuote]);
 
-  if (!layout) return <CerchiCentro />;
+  if (!layout) {
+    return (
+      <>
+        <Quarti />
+        <CerchiCentro />
+      </>
+    );
+  }
 
   const attaccante = stato.attaccante === 'rosso' ? 'rosso' : 'blu';
   const difensore = attaccante === 'blu' ? 'rosso' : 'blu';
@@ -93,6 +103,9 @@ function LayoutTavolo() {
             points={aPunti(elemento.punti)}
           />
         ))}
+        {territorio && (
+          <line className={styles.lineaTerritorio} x1={territorio.x1} y1={territorio.y1} x2={territorio.x2} y2={territorio.y2} />
+        )}
         {mostraQuote && (
           <g>
             {layout.quote.linee.map(([x1, y1, x2, y2], i) => (
@@ -116,6 +129,7 @@ function LayoutTavolo() {
           />
         ))}
       </svg>
+      <Quarti />
       <CerchiCentro />
     </>
   );

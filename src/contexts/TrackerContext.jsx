@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { DISPOSIZIONI, LIMITI_VP, MISSIONI_SECONDARIE, missioneSecondaria } from '../config/missioni';
 import { generaId } from '../utils/id';
+import { secondarieEsaurite } from '../utils/trackerPunti';
 import { useIndicatori } from './IndicatoriContext';
 import { useTavolo } from './TavoloContext';
 
@@ -60,11 +61,15 @@ function caricaIniziale() {
 
 function pescaCasuale(giocatore) {
   const inUso = new Set(giocatore.attive.map((a) => a.carta));
-  let disponibili = MISSIONI_SECONDARIE.filter((m) => !inUso.has(m.id) && !giocatore.scartate.includes(m.id));
+  // Le carte già uscite con punti segnati non tornano mai nel mazzo, nemmeno rimescolandolo.
+  const esaurite = secondarieEsaurite(giocatore);
+  let disponibili = MISSIONI_SECONDARIE.filter(
+    (m) => !inUso.has(m.id) && !esaurite.has(m.id) && !giocatore.scartate.includes(m.id),
+  );
   let scartate = giocatore.scartate;
   if (disponibili.length === 0) {
     // Mazzo finito: si rimescolano le scartate.
-    disponibili = MISSIONI_SECONDARIE.filter((m) => !inUso.has(m.id));
+    disponibili = MISSIONI_SECONDARIE.filter((m) => !inUso.has(m.id) && !esaurite.has(m.id));
     scartate = [];
   }
   if (disponibili.length === 0) return giocatore;
@@ -202,7 +207,7 @@ export function TrackerProvider({ children }) {
   const attivaSecondaria = useCallback(
     (giocatore, carta) =>
       aggiornaGiocatore(giocatore, (g) => {
-        if (g.attive.some((a) => a.carta === carta)) return g;
+        if (g.attive.some((a) => a.carta === carta) || secondarieEsaurite(g).has(carta)) return g;
         const fissa = g.tipoSecondarie === 'fisse' && missioneSecondaria(carta)?.fissabile;
         return {
           ...g,

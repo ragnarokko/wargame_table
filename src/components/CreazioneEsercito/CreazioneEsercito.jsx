@@ -160,8 +160,8 @@ function CreazioneEsercito() {
     return nuovoTemplate;
   };
 
-  const nuovoContesto = () => ({
-    nomi: unitaTutte.filter((u) => u.esercito === esercitoSelezionato).map((u) => u.nome),
+  const nuovoContesto = (esercitoId = esercitoSelezionato) => ({
+    nomi: unitaTutte.filter((u) => u.esercito === esercitoId).map((u) => u.nome),
     templatesPerId: new Map(basette.map((b) => [b.id, b])),
     istanzeStaging: istanze.filter((i) => i.zona === 'staging'),
     // Il bordo superiore parte sotto la fascia degli indicatori (CP/Turno), che coprirebbe le basette.
@@ -173,7 +173,7 @@ function CreazioneEsercito() {
     },
     // Le basette vanno nello staging dell'esercito: il Rosso sopra il tavolo (o ai lati nella metà alta), il Blu
     // sotto (o ai lati nella metà bassa), mai sul tavolo.
-    ...zoneStagingEsercito(esercitoSelezionato, {
+    ...zoneStagingEsercito(esercitoId, {
       campoGiocoPx,
       tavoloRect,
       altezzaFascia: ALTEZZA_FASCIA_INDICATORI_PX,
@@ -207,6 +207,26 @@ function CreazioneEsercito() {
     window.dispatchEvent(
       new CustomEvent(EVENTO_SELEZIONE_MULTIPLA, { detail: { ids: aggiungi ? aggiungiOTogli(selezioneAttuale(), ids) : ids } }),
     );
+  };
+
+  // Modelli che si possono ancora ripristinare: quelli con cui l'unità è stata creata meno le basette ancora
+  // presenti (anche grigie, tasto R: quelle si riportano in vita con R). Non si supera mai il numero iniziale.
+  const modelliRipristinabili = (u) => Math.max(0, modelliIniziali(u) - istanze.filter((i) => i.templateId === u.id).length);
+
+  // "+" in lista: riporta in staging dell'esercito un modello cancellato con Canc.
+  const handleRipristina = (unita) => {
+    if (modelliRipristinabili(unita) === 0) return;
+    const contesto = nuovoContesto(unita.esercito);
+    const parametri = {
+      template: unita,
+      numeroModelli: 1,
+      istanzeStaging: contesto.istanzeStaging,
+      templatesPerId: contesto.templatesPerId,
+      pxPerPollice,
+      areaStaging: contesto.areaStaging,
+    };
+    const posizioni = calcolaPosizioniUnitaInZone({ ...parametri, zone: contesto.preferite, zoneRiserva: contesto.riserva });
+    schieraBasette(unita.id, posizioni, 'staging');
   };
 
   const handleRimuovi = (templateId) => {
@@ -300,6 +320,8 @@ function CreazioneEsercito() {
                   modelliIniziali={modelliIniziali(u)}
                   richiesta={unitaMostrata}
                   onSeleziona={(aggiungi) => handleSeleziona(u.id, aggiungi)}
+                  ripristinabili={modelliRipristinabili(u)}
+                  onRipristina={() => handleRipristina(u)}
                   onRimuovi={() => handleRimuovi(u.id)}
                   onRinomina={(nuovoNome) => handleRinomina(u.id, nuovoNome)}
                 />

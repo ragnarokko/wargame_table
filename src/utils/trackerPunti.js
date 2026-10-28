@@ -78,3 +78,9 @@ export function totaliGiocatore(giocatore) {
   );
   return { primaria, secondaria, totale: primaria + secondaria, secondariaPerRound };
 }
+
+// Secondarie tattiche già uscite e con punti segnati (voce nel log): non si possono più pescare né scegliere.
+// Le fisse non contano: restano in gioco per tutta la partita e si segnano più volte.
+export function secondarieEsaurite(giocatore) {
+  return new Set(giocatore.log.filter((v) => v.modo !== 'fissa' && v.vp > 0).map((v) => v.carta));
+}

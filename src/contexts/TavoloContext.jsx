@@ -6,6 +6,8 @@ const PX_PER_POLLICE = 14;
 const MARGINE_STAGING_POLLICI = 14;
 const CHIAVE_QUOTE = 'tavolo-mostra-quote';
 const CHIAVE_CENTRO = 'tavolo-mostra-centro';
+const CHIAVE_QUARTI = 'tavolo-mostra-quarti';
+const CHIAVE_TERRITORIO = 'tavolo-mostra-territorio';
 
 // Quote e icone di visibilità del layout sul tavolo: visibili salvo scelta contraria (tasto V), ricordata nel browser.
 function leggiMostraQuote() {
@@ -16,13 +18,29 @@ function leggiMostraQuote() {
   }
 }
 
-// Cerchi di 3" e 6" attorno al centro del tavolo (missione Centre Ground): spenti salvo scelta contraria, ricordata nel browser.
-function leggiMostraCentro() {
+// Spunte spente salvo scelta contraria, ricordata nel browser: cerchi di 3" e 6" attorno al centro del tavolo
+// (missione Centre Ground), linee dei quarti e linea del territorio.
+function leggiSpunta(chiave) {
   try {
-    return localStorage.getItem(CHIAVE_CENTRO) === 'si';
+    return localStorage.getItem(chiave) === 'si';
   } catch {
     return false;
   }
+}
+
+function useSpuntaRicordata(chiave) {
+  const [attiva, setAttiva] = useState(() => leggiSpunta(chiave));
+  const alterna = useCallback(() => {
+    setAttiva((prev) => {
+      try {
+        localStorage.setItem(chiave, prev ? 'no' : 'si');
+      } catch {
+        // localStorage non disponibile: la scelta vale solo per questa sessione.
+      }
+      return !prev;
+    });
+  }, [chiave]);
+  return [attiva, alterna];
 }
 
 export function TavoloProvider({ children }) {
@@ -45,18 +63,9 @@ export function TavoloProvider({ children }) {
     });
   }, []);
 
-  const [mostraCentro, setMostraCentro] = useState(leggiMostraCentro);
-
-  const alternaCentro = useCallback(() => {
-    setMostraCentro((prev) => {
-      try {
-        localStorage.setItem(CHIAVE_CENTRO, prev ? 'no' : 'si');
-      } catch {
-        // localStorage non disponibile: la scelta vale solo per questa sessione.
-      }
-      return !prev;
-    });
-  }, []);
+  const [mostraCentro, alternaCentro] = useSpuntaRicordata(CHIAVE_CENTRO);
+  const [mostraQuarti, alternaQuarti] = useSpuntaRicordata(CHIAVE_QUARTI);
+  const [mostraTerritorio, alternaTerritorio] = useSpuntaRicordata(CHIAVE_TERRITORIO);
 
   const impostaSelezioneLayout = useCallback((patch) => {
     setSelezioneLayout((prev) => ({ ...prev, ...patch }));
@@ -118,6 +127,10 @@ export function TavoloProvider({ children }) {
       alternaQuote,
       mostraCentro,
       alternaCentro,
+      mostraQuarti,
+      alternaQuarti,
+      mostraTerritorio,
+      alternaTerritorio,
       pxPerPollice: PX_PER_POLLICE,
       tavoloPx,
       tavoloRect,
@@ -135,6 +148,10 @@ export function TavoloProvider({ children }) {
       alternaQuote,
       mostraCentro,
       alternaCentro,
+      mostraQuarti,
+      alternaQuarti,
+      mostraTerritorio,
+      alternaTerritorio,
       tavoloPx,
       tavoloRect,
       campoGiocoPx,
