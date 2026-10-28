@@ -6,6 +6,7 @@ import { calcolaDimensioniBasettaPx } from '../../utils/basetta';
 import { polliciAPx } from '../../utils/scala';
 import { puntoRelativoRuotato } from '../../utils/coordinate';
 import {
+  EVENTO_ANNULLA_INTERAZIONI,
   EVENTO_SELEZIONE_MULTIPLA,
   EVENTO_TRASCINAMENTO_GRUPPO,
   EVENTO_ROTAZIONE_GRUPPO,
@@ -379,15 +380,22 @@ function SelezioneMultipla({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
       corrente = null;
       sfondoRef.current.concludiRettangolo(finale);
     };
+    // Un gesto a due dita interrompe il rettangolo iniziato dal primo dito, senza selezionare nulla.
+    const onAnnulla = () => {
+      corrente = null;
+      setRettangolo(null);
+    };
     window.addEventListener('pointerdown', onDown);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onUp);
+    window.addEventListener(EVENTO_ANNULLA_INTERAZIONI, onAnnulla);
     return () => {
       window.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
+      window.removeEventListener(EVENTO_ANNULLA_INTERAZIONI, onAnnulla);
     };
   }, [containerRef]);
 

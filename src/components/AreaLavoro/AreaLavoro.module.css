@@ -1,9 +1,16 @@
+.area {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+}
+
 .wrapper {
   flex: 1;
-  overflow: auto;
+  min-width: 0;
+  overflow: hidden;
   background: #111116;
   display: flex;
-  padding: 40px;
   touch-action: none;
 }
 
@@ -21,4 +28,35 @@
 .livelloInterattivo {
   position: absolute;
   inset: 0;
+}
+
+/* Rotazione e adattamento allo schermo, raggiungibili anche senza tastiera (tablet). */
+.strumenti {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 4px;
+  z-index: 400;
+}
+
+.strumenti button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  background: var(--colore-pannello);
+  color: var(--colore-testo);
+  border: 1px solid var(--colore-bordo);
+  opacity: 0.85;
+}
+
+.strumenti button:hover {
+  background: var(--colore-accento);
+  opacity: 1;
+}
+
+.strumenti .attivo {
+  border-color: var(--colore-accento);
 }

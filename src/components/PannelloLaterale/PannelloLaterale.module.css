@@ -8,6 +8,10 @@
   flex-direction: column;
 }
 
+.chiuso {
+  display: none;
+}
+
 .titolo {
   display: flex;
   align-items: center;
@@ -16,4 +20,40 @@
   font-size: 15px;
   font-weight: 700;
   border-bottom: 1px solid var(--colore-bordo);
+}
+
+.chiudi {
+  margin-left: auto;
+  background: transparent;
+  color: var(--colore-testo-secondario);
+  padding: 2px 8px;
+}
+
+.chiudi:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--colore-testo);
+}
+
+.linguetta {
+  flex-shrink: 0;
+  width: 36px;
+  min-width: 36px;
+  align-self: stretch;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background: var(--colore-pannello);
+  color: var(--colore-testo);
+  border: 1px solid var(--colore-bordo);
+  border-radius: 0;
+  padding: 16px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.linguetta:hover {
+  background: var(--colore-accento);
 }

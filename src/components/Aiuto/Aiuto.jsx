@@ -22,6 +22,7 @@ const SCORCIATOIE = [
   { tasti: 'A / S', descrizione: "Ruota di 90° l'intera area di lavoro (tavolo + staging)." },
   { tasti: 'G / H', descrizione: "Zoom avanti / indietro sull'area di lavoro (solo aspetto visivo)." },
   { tasti: 'Tasto destro (trascina)', descrizione: "Sposta la visuale (pan) di mappa e staging, seguendo il movimento del mouse." },
+  { tasti: 'Due dita (tablet)', descrizione: "Avvicina/allontana le dita per zoom indietro/avanti, spostale insieme per muovere la visuale (pan). Un dito solo resta com'è. I pulsanti ⟲ ⟳ in basso a sinistra ruotano l'area, ⤢ la riadatta allo schermo (all'inizio e a ogni cambio di finestra si adatta da sola, finché non zoomi o sposti a mano)." },
   { tasti: 'Tasto sinistro (trascina)', descrizione: 'Sposta una basetta o un elemento scenico; su un\'area vuota (anche fuori dallo staging, sullo sfondo scuro) disegna un rettangolo di selezione multipla, oppure misura una distanza libera se lo strumento righello è attivo.' },
   { tasti: 'Ctrl + click / Ctrl + rettangolo', descrizione: "Aggiunge alla selezione corrente la basetta cliccata (o le basette del rettangolo, o le basette dell'unità se clicchi il suo nome in lista); su una basetta già selezionata la toglie dalla selezione. Utile per scegliere più unità attaccanti col tasto E." },
   { tasti: 'D', descrizione: 'Attiva/disattiva lo strumento righello (stesso effetto del pulsante "Strumento righello" nel menu laterale).' },

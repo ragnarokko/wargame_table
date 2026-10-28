@@ -4,7 +4,7 @@ import { useDraggable } from '../../hooks/useDraggable';
 import { polliciAPx } from '../../utils/scala';
 import styles from './ElementoScenico.module.css';
 
-function ElementoScenico({ elemento, containerRef }) {
+function ElementoScenico({ elemento, containerRef, rotazioneArea = 0, zoom = 1 }) {
   const { pxPerPollice } = useTavolo();
   const { modificaElementoScenico, rimuoviElementoScenico } = useTavoloState();
 
@@ -16,6 +16,8 @@ function ElementoScenico({ elemento, containerRef }) {
     containerRef,
     posizione: { x: elemento.x, y: elemento.y },
     onSposta: handleSposta,
+    rotazioneArea,
+    zoom,
   });
 
   const larghezzaPx = polliciAPx(elemento.larghezzaPollici, pxPerPollice);

@@ -38,6 +38,10 @@ export const EVENTO_EVIDENZIA_UNITA = 'tavolo-evidenzia-unita';
 // eserciti apre l'accordion giusto, seleziona l'unità, ne apre i dettagli e la porta in vista.
 export const EVENTO_MOSTRA_UNITA = 'tavolo-mostra-unita';
 
+// Nessun detail — un gesto a due dita (zoom/pan su tablet, vedi AreaLavoro) è appena iniziato: trascinamenti di
+// basette ed elementi, rettangolo di selezione e misura del righello avviati dal primo dito vengono annullati.
+export const EVENTO_ANNULLA_INTERAZIONI = 'tavolo-annulla-interazioni';
+
 // detail: { istanzaId: string } — una basetta ha fissato il proprio popup dei dettagli (tasto I): le
 // altre chiudono il proprio, così ne resta uno solo.
 export const EVENTO_FISSA_POPUP = 'tavolo-fissa-popup';

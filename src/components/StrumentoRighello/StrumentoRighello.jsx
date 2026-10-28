@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTavolo } from '../../contexts/TavoloContext';
 import { puntoRelativoRuotato } from '../../utils/coordinate';
+import { EVENTO_ANNULLA_INTERAZIONI } from '../../utils/selezioneEventi';
 import styles from './StrumentoRighello.module.css';
 
 function StrumentoRighello({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }) {
@@ -10,6 +11,13 @@ function StrumentoRighello({ containerRef, attivo, rotazioneArea = 0, zoom = 1 }
   useEffect(() => {
     if (!attivo) setMisurazione(null);
   }, [attivo]);
+
+  // Un gesto a due dita sull'area di lavoro interrompe la misura iniziata dal primo dito.
+  useEffect(() => {
+    const annulla = () => setMisurazione(null);
+    window.addEventListener(EVENTO_ANNULLA_INTERAZIONI, annulla);
+    return () => window.removeEventListener(EVENTO_ANNULLA_INTERAZIONI, annulla);
+  }, []);
 
   const puntoRelativo = useCallback(
     (clientX, clientY) => puntoRelativoRuotato(clientX, clientY, containerRef.current, rotazioneArea, zoom),

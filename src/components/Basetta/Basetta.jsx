@@ -8,6 +8,7 @@ import { distanzaConSegno, poligonoBasetta } from '../../utils/geometriaBasette'
 import { polliciAPx } from '../../utils/scala';
 import { COLORE_ESERCITO } from '../../config/eserciti';
 import {
+  EVENTO_ANNULLA_INTERAZIONI,
   EVENTO_EVIDENZIA_UNITA,
   EVENTO_FISSA_POPUP,
   EVENTO_MOSTRA_UNITA,
@@ -126,21 +127,28 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
   const gruppoAttivo = inGruppo && selezioneGruppo.length > 1;
   const isReferenzaGruppo = gruppoAttivo && selezioneGruppo[0] === istanza.id;
 
-  // Esc annulla il trascinamento in corso: la basetta (e l'eventuale gruppo) torna alla posizione iniziale.
+  // Esc (o l'inizio di un gesto a due dita) annulla il trascinamento in corso: la basetta (e l'eventuale gruppo)
+  // torna alla posizione iniziale.
   useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape' && draggingRef.current) {
-        draggingRef.current = false;
-        setPosizioneTemp(null);
-        if (gruppoAttivo) {
-          window.dispatchEvent(
-            new CustomEvent(EVENTO_TRASCINAMENTO_GRUPPO, { detail: { escludiId: istanza.id, annulla: true } }),
-          );
-        }
+    const annulla = () => {
+      if (!draggingRef.current) return;
+      draggingRef.current = false;
+      setPosizioneTemp(null);
+      if (gruppoAttivo) {
+        window.dispatchEvent(
+          new CustomEvent(EVENTO_TRASCINAMENTO_GRUPPO, { detail: { escludiId: istanza.id, annulla: true } }),
+        );
       }
     };
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') annulla();
+    };
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    window.addEventListener(EVENTO_ANNULLA_INTERAZIONI, annulla);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener(EVENTO_ANNULLA_INTERAZIONI, annulla);
+    };
   }, [gruppoAttivo, istanza.id]);
 
   // Selezione (singola o multipla): sincronizzata tra tutte le basette via evento condiviso.
