@@ -538,6 +538,7 @@ function Basetta({ istanza, template, containerRef, rotazioneArea = 0, zoom = 1 
           evidenziata ? styles.evidenziata : ''
         }`}
         style={style}
+        data-istanza-id={istanza.id}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

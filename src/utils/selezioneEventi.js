@@ -42,6 +42,10 @@ export const EVENTO_MOSTRA_UNITA = 'tavolo-mostra-unita';
 // basette ed elementi, rettangolo di selezione e misura del righello avviati dal primo dito vengono annullati.
 export const EVENTO_ANNULLA_INTERAZIONI = 'tavolo-annulla-interazioni';
 
+// Nessun detail — il tracker ha cambiato turno (blu/rosso) o round: gli stati delle unità che non sono persistenti
+// (tutti tranne Shock, vedi config/statiUnita) vengono tolti da TavoloStateContext.
+export const EVENTO_CAMBIO_TURNO = 'tavolo-cambio-turno';
+
 // detail: { istanzaId: string } — una basetta ha fissato il proprio popup dei dettagli (tasto I): le
 // altre chiudono il proprio, così ne resta uno solo.
 export const EVENTO_FISSA_POPUP = 'tavolo-fissa-popup';

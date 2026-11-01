@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { statoUnita } from '../config/statiUnita';
 import { generaId } from '../utils/id';
+import { EVENTO_CAMBIO_TURNO } from '../utils/selezioneEventi';
 
 const TavoloStateContext = createContext(null);
 
@@ -114,6 +116,38 @@ export function TavoloStateProvider({ children }) {
     setIstanze((prev) => prev.map((ist) => (ids.includes(ist.id) ? { ...ist, morta } : ist)));
   }, []);
 
+  // Stati dell'unità (avanzato, shock...): si applicano a tutte le istanze dei template indicati, così anche i
+  // modelli ripristinati dopo restano coerenti. `stati` sull'istanza è un elenco di id (vedi config/statiUnita).
+  const impostaStatoUnita = useCallback((templateIds, stato, attivo) => {
+    setIstanze((prev) =>
+      prev.map((ist) => {
+        if (!templateIds.includes(ist.templateId)) return ist;
+        const senza = (ist.stati ?? []).filter((s) => s !== stato);
+        return { ...ist, stati: attivo ? [...senza, stato] : senza };
+      }),
+    );
+  }, []);
+
+  // Cambio di turno o di round (evento del tracker): restano solo gli stati persistenti (Shock).
+  useEffect(() => {
+    const onCambioTurno = () => {
+      const persistente = (id) => statoUnita(id)?.persistente;
+      setIstanze((prev) =>
+        prev.map((ist) =>
+          ist.stati?.some((s) => !persistente(s)) ? { ...ist, stati: ist.stati.filter(persistente) } : ist,
+        ),
+      );
+    };
+    window.addEventListener(EVENTO_CAMBIO_TURNO, onCambioTurno);
+    return () => window.removeEventListener(EVENTO_CAMBIO_TURNO, onCambioTurno);
+  }, []);
+
+  const azzeraStatiUnita = useCallback((templateIds) => {
+    setIstanze((prev) =>
+      prev.map((ist) => (templateIds.includes(ist.templateId) && ist.stati?.length ? { ...ist, stati: [] } : ist)),
+    );
+  }, []);
+
   const rimuoviIstanza = useCallback((id) => {
     setIstanze((prev) => prev.filter((ist) => ist.id !== id));
   }, []);
@@ -176,6 +210,8 @@ export function TavoloStateProvider({ children }) {
       impostaFeriteIstanza,
       impostaAuraIstanza,
       impostaMortaIstanze,
+      impostaStatoUnita,
+      azzeraStatiUnita,
       rimuoviIstanza,
       rimuoviIstanze,
       rimuoviIstanzePerTemplate,
@@ -195,6 +231,8 @@ export function TavoloStateProvider({ children }) {
       impostaFeriteIstanza,
       impostaAuraIstanza,
       impostaMortaIstanze,
+      impostaStatoUnita,
+      azzeraStatiUnita,
       rimuoviIstanza,
       rimuoviIstanze,
       rimuoviIstanzePerTemplate,

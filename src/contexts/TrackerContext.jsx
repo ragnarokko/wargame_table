@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { DISPOSIZIONI, LIMITI_VP, MISSIONI_SECONDARIE, missioneSecondaria } from '../config/missioni';
 import { generaId } from '../utils/id';
+import { EVENTO_CAMBIO_TURNO } from '../utils/selezioneEventi';
 import { secondarieEsaurite } from '../utils/trackerPunti';
 import { useIndicatori } from './IndicatoriContext';
 import { useTavolo } from './TavoloContext';
@@ -144,6 +145,7 @@ export function TrackerProvider({ children }) {
   const nuovaPartita = useCallback(() => setStato(TRACKER_INIZIALE), []);
 
   const avanzaTurno = useCallback(() => {
+    if (!statoRef.current.finita) window.dispatchEvent(new CustomEvent(EVENTO_CAMBIO_TURNO));
     setStato((prev) => {
       if (prev.finita) return prev;
       if (prev.turnoDi === prev.primo) return { ...prev, turnoDi: altro(prev.primo) };
@@ -153,6 +155,7 @@ export function TrackerProvider({ children }) {
   }, []);
 
   const tornaIndietro = useCallback(() => {
+    window.dispatchEvent(new CustomEvent(EVENTO_CAMBIO_TURNO));
     setStato((prev) => {
       if (prev.finita) return { ...prev, finita: false };
       if (prev.turnoDi !== prev.primo) return { ...prev, turnoDi: prev.primo };

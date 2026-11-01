@@ -13,6 +13,8 @@ import MisuraBordi from '../StrumentoRighello/MisuraBordi';
 import MisuraRapida from '../StrumentoRighello/MisuraRapida';
 import SelezioneMultipla from '../SelezioneMultipla/SelezioneMultipla';
 import IndicatoriTavolo from '../IndicatoriTavolo/IndicatoriTavolo';
+import MenuContestuale from '../MenuContestuale/MenuContestuale';
+import TokenStati from '../MenuContestuale/TokenStati';
 import styles from './AreaLavoro.module.css';
 
 const INCREMENTO_ROTAZIONE_AREA = 90;
@@ -21,6 +23,9 @@ const ZOOM_MIN = 0.15;
 const ZOOM_MAX = 3;
 // Spazio lasciato libero attorno al campo di gioco quando lo si adatta allo schermo.
 const MARGINE_ADATTA_PX = 12;
+
+// Spostamento (px) oltre il quale il tasto destro premuto è un pan e non un clic che apre il menu.
+const SOGLIA_CLICK_DESTRO_PX = 4;
 
 const limitaZoom = (z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
 
@@ -40,6 +45,11 @@ function AreaLavoro({ righelloAttivo }) {
   const [adattaAuto, setAdattaAuto] = useState(true);
   const panAttivoRef = useRef(false);
   const panRef = useRef({ ultimoX: 0, ultimoY: 0 });
+  // Quanto si è mosso il mouse dall'ultima pressione: distingue il clic destro (menu) dal pan.
+  const spostamentoPanRef = useRef(0);
+  // Menu del tasto destro su una basetta: { x, y, istanzaId } in coordinate schermo, o null.
+  const [menu, setMenu] = useState(null);
+  const chiudiMenu = useCallback(() => setMenu(null), []);
   const zoomStatoRef = useRef(zoom);
   const panStatoRef = useRef(pan);
   const campoRef = useRef(campoGiocoPx);
@@ -127,6 +137,7 @@ function AreaLavoro({ righelloAttivo }) {
   // ignorano già il tasto destro, quindi nessuno lo cattura in esclusiva.
   useEffect(() => {
     const onPointerDown = (e) => {
+      spostamentoPanRef.current = 0;
       if (e.button !== 2) return;
       if (!wrapperRef.current?.contains(e.target)) return;
       e.preventDefault();
@@ -140,6 +151,9 @@ function AreaLavoro({ righelloAttivo }) {
       const dx = e.clientX - panRef.current.ultimoX;
       const dy = e.clientY - panRef.current.ultimoY;
       panRef.current = { ultimoX: e.clientX, ultimoY: e.clientY };
+      spostamentoPanRef.current += Math.hypot(dx, dy);
+      // Sotto soglia è ancora un clic: il campo non si muove, così il menu si apre dove si è cliccato.
+      if (spostamentoPanRef.current <= SOGLIA_CLICK_DESTRO_PX) return;
       setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
     };
     const onPointerUp = () => {
@@ -234,7 +248,18 @@ function AreaLavoro({ righelloAttivo }) {
       <div
         ref={wrapperRef}
         className={`${styles.wrapper} ${inPan ? styles.inPan : ''}`}
-        onContextMenu={(e) => e.preventDefault()}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          // Clic destro senza trascinare (o pressione lunga su un tablet) su una basetta: apre il menu.
+          const mosso = spostamentoPanRef.current > SOGLIA_CLICK_DESTRO_PX;
+          spostamentoPanRef.current = 0;
+          const istanzaId = e.target.closest?.('[data-istanza-id]')?.dataset.istanzaId;
+          if (mosso || !istanzaId) {
+            setMenu(null);
+            return;
+          }
+          setMenu({ x: e.clientX, y: e.clientY, istanzaId });
+        }}
       >
         <div
           ref={containerRef}
@@ -280,6 +305,7 @@ function AreaLavoro({ righelloAttivo }) {
                 />
               );
             })}
+            <TokenStati rotazioneArea={rotazioneArea} />
             <StrumentoRighello
               containerRef={containerRef}
               attivo={righelloAttivo}
@@ -293,6 +319,8 @@ function AreaLavoro({ righelloAttivo }) {
           <IndicatoriTavolo />
         </div>
       </div>
+
+      {menu && <MenuContestuale {...menu} onChiudi={chiudiMenu} />}
 
       <div className={styles.strumenti}>
         <button
