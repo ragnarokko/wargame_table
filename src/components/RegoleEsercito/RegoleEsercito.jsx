@@ -3,7 +3,10 @@ import { CAPITOLI, FAZIONE_CON_CAPITOLI, capitoloDistaccamento } from '../../con
 import { ESERCITI } from '../../config/eserciti';
 import { useRegoleEsercito } from '../../contexts/RegoleEsercitoContext';
 import PannelloDestro from '../PannelloDestro/PannelloDestro';
+import { URL_REGOLE } from '../../config/regole';
+import { REGOLE_ARMI, REGOLE_TERRENO } from '../../config/regoleArmi';
 import {
+  abilitaBase,
   abilitaFazione,
   caricaDatiRegoleSeNecessario,
   contenutoDistaccamento,
@@ -16,7 +19,7 @@ import {
 } from './csvRegoleEsercito';
 import { FASI, valeInFase } from './fasiStratagemmi';
 import { useFazioneEsercito } from './useRegoleGiocatore';
-import { Potenziamento, Regola, Sezione, Stratagemma } from './VociRegole';
+import { Potenziamento, Regola, Sezione, Stratagemma, VoceGlossario } from './VociRegole';
 import styles from './RegoleEsercito.module.css';
 
 // Punti distaccamento (DP) spendibili da un esercito: la somma dei DP dei distaccamenti scelti non li supera.
@@ -59,6 +62,7 @@ function ContenutoRegole() {
   const tuttiDistaccamenti = useMemo(() => distaccamentiFazione(codiceValido), [codiceValido, versioneRegole]);
   const abilita = useMemo(() => abilitaFazione(codiceValido), [codiceValido, versioneRegole]);
   const comuni = useMemo(() => stratagemmiComuni(), [versioneRegole]);
+  const regoleUnita = useMemo(() => abilitaBase(), [versioneRegole]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   // Space Marines: con una sottofazione (capitolo) scelta restano i distaccamenti generici e quelli di quel capitolo.
@@ -255,6 +259,26 @@ function ContenutoRegole() {
           ))}
         </Sezione>
       )}
+
+      <Sezione titolo="Regole" conteggio={REGOLE_ARMI.length + regoleUnita.length + REGOLE_TERRENO.length}>
+        <Sezione titolo="Armi" conteggio={REGOLE_ARMI.length}>
+          {REGOLE_ARMI.map((r) => (
+            <VoceGlossario key={r.nome} nome={r.nome} descrizione={r.descrizione} link={r.ancora ? `${URL_REGOLE}#${r.ancora}` : undefined} />
+          ))}
+        </Sezione>
+
+        <Sezione titolo="Unità" conteggio={regoleUnita.length}>
+          {regoleUnita.map((a) => (
+            <Regola key={a.nome} nome={a.nome} descrizione={a.descrizione} />
+          ))}
+        </Sezione>
+
+        <Sezione titolo="Terreno e altre parole chiave" conteggio={REGOLE_TERRENO.length}>
+          {REGOLE_TERRENO.map((r) => (
+            <VoceGlossario key={r.nome} nome={r.nome} descrizione={r.descrizione} link={r.ancora ? `${URL_REGOLE}#${r.ancora}` : undefined} />
+          ))}
+        </Sezione>
+      </Sezione>
     </div>
   );
 }

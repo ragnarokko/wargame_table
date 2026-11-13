@@ -31,6 +31,7 @@ function vuoti() {
     stratagemmiPerDistaccamento: new Map(),
     stratagemmiComuni: [],
     abilitaPerFazione: new Map(), // codice → [{ nome, descrizione }]
+    abilitaBase: [], // abilità "Core" senza fazione (Deep Strike, Stealth, …): vedi `abilitaBase()` sotto
   };
 }
 
@@ -90,16 +91,25 @@ function costruisci(righeDistaccamenti, righePotenziamenti, righeRegole, righeSt
   }
   d.stratagemmiComuni.sort(perNome);
 
-  // Le abilità senza fazione (Core) sono quelle delle singole unità: qui servono solo quelle di fazione.
+  // Le abilità senza fazione sono quelle "Core" (comuni a più schede, es. Deep Strike, Stealth): vanno nel
+  // glossario di base (abilitaBase), le altre nella lista per fazione.
   const viste = new Set();
+  const visteBase = new Set();
   for (const r of righeAbilita) {
-    if (!r.fac || !r.ability) continue;
+    if (!r.ability) continue;
+    if (!r.fac) {
+      if (visteBase.has(r.ability)) continue;
+      visteBase.add(r.ability);
+      d.abilitaBase.push({ nome: r.ability, descrizione: r.descrizione });
+      continue;
+    }
     const chiave = `${r.fac}|${r.ability}`;
     if (viste.has(chiave)) continue;
     viste.add(chiave);
     aggiungi(d.abilitaPerFazione, r.fac, { nome: r.ability, descrizione: r.descrizione });
   }
   d.abilitaPerFazione.forEach((lista) => lista.sort(perNome));
+  d.abilitaBase.sort(perNome);
   return d;
 }
 
@@ -164,6 +174,9 @@ export const distaccamentiFazione = (codice) => dati.distaccamentiPerFazione.get
 export const distaccamentoPerId = (id) => dati.distaccamentoPerId.get(id) ?? null;
 export const abilitaFazione = (codice) => dati.abilitaPerFazione.get(codice) ?? [];
 export const stratagemmiComuni = () => dati.stratagemmiComuni;
+// Abilità "Core" comuni a più schede (Deep Strike, Stealth, Scouts, Feel No Pain, …), testo da Wahapedia
+// (`abilita_comuni.csv`, righe senza `fac`): per il gruppo "Regole" del pannello Eserciti.
+export const abilitaBase = () => dati.abilitaBase;
 
 // Regole, potenziamenti e stratagemmi di un distaccamento.
 export function contenutoDistaccamento(id) {

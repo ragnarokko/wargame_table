@@ -49,6 +49,24 @@ export function Regola({ nome, descrizione, aperta = false }) {
   );
 }
 
+// Voce del glossario di regole (src/config/regoleArmi.js): come Regola, con un link opzionale al testo
+// ufficiale completo (quando la regola ha una sezione dedicata nelle Core Rules).
+export function VoceGlossario({ nome, descrizione, link }) {
+  return (
+    <details className={styles.voce}>
+      <summary>{nome}</summary>
+      <Testo testo={descrizione} />
+      {link && (
+        <div className={styles.meta}>
+          <a href={link} target="_blank" rel="noreferrer">
+            Testo ufficiale completo ↗
+          </a>
+        </div>
+      )}
+    </details>
+  );
+}
+
 export function Potenziamento({ potenziamento }) {
   return (
     <details className={styles.voce}>
