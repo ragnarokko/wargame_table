@@ -14,6 +14,7 @@ import {
   stratagemmiComuni,
   useVersioneDatiRegole,
 } from './csvRegoleEsercito';
+import { FASI, valeInFase } from './fasiStratagemmi';
 import { useFazioneEsercito } from './useRegoleGiocatore';
 import { Potenziamento, Regola, Sezione, Stratagemma } from './VociRegole';
 import styles from './RegoleEsercito.module.css';
@@ -22,6 +23,8 @@ import styles from './RegoleEsercito.module.css';
 export const LIMITE_DP = 3;
 
 const COLORE_GIOCATORE = { blu: '#3b82f6', rosso: '#ef4444' };
+// Classe colore (colore_blu / colore_rosso) di ciascun esercito: l'id dell'esercito coincide col nome del colore.
+const COLORE_GIOCATORE_ID = { blu: 'blu', rosso: 'rosso' };
 
 // Pannello laterale destro "Eserciti": per l'esercito Blu o Rosso mostra le abilità d'esercito della fazione e
 // permette di scegliere i distaccamenti (fino a LIMITE_DP punti), sotto i quali compaiono regole, potenziamenti
@@ -40,6 +43,8 @@ function ContenutoRegole() {
   const versioneRegole = useVersioneDatiRegole();
   // Esercito mostrato (Blu/Rosso): scelta solo di vista, non fa parte della partita.
   const [esercitoId, setEsercitoId] = useState(ESERCITI[0].id);
+  // Fase scelta nel filtro degli stratagemmi ('tutto' o l'id di una fase di FASI).
+  const [faseFiltro, setFaseFiltro] = useState('tutto');
 
   useEffect(() => {
     caricaDatiRegoleSeNecessario().catch(() => {});
@@ -68,6 +73,13 @@ function ContenutoRegole() {
   const dpUsati = scelti.reduce((somma, d) => somma + d.dp, 0);
   // Capitolo Space Marines già scelto (via un suo distaccamento): quelli di altri capitoli non sono più selezionabili.
   const capitoloScelto = scelti.map((d) => capitoloDistaccamento(d.id)).find(Boolean) ?? '';
+
+  // Stratagemmi di tutti i distaccamenti scelti più quelli comuni, in un'unica lista (filtrabile per fase).
+  const stratagemmi = [
+    ...scelti.flatMap((d) => contenutoDistaccamento(d.id).stratagemmi.map((s) => ({ ...s, origine: d.nome }))),
+    ...comuni.map((s) => ({ ...s, origine: 'Comune (sempre valido)' })),
+  ];
+  const stratagemmiVisibili = stratagemmi.filter((s) => valeInFase(s, faseFiltro));
 
   const errore = erroreCaricamentoRegole();
 
@@ -174,16 +186,72 @@ function ContenutoRegole() {
             </ul>
           </Sezione>
 
-          {scelti.map((d) => (
-            <DettaglioDistaccamento key={d.id} distaccamento={d} versione={versioneRegole} />
-          ))}
+          {scelti.length > 0 && (
+            <>
+              <Sezione titolo="Bonus distaccamento" conteggio={scelti.length}>
+                {scelti.map((d) => (
+                  <BoxDistaccamento key={d.id} distaccamento={d}>
+                    {contenutoDistaccamento(d.id).regole.length === 0 && <p className={styles.vuoto}>Nessuna regola nei dati.</p>}
+                    {contenutoDistaccamento(d.id).regole.map((r) => (
+                      <Regola key={r.id} nome={r.nome} descrizione={r.descrizione} aperta />
+                    ))}
+                  </BoxDistaccamento>
+                ))}
+              </Sezione>
+
+              <Sezione titolo="Potenziamenti" conteggio={scelti.reduce((n, d) => n + contenutoDistaccamento(d.id).potenziamenti.length, 0)}>
+                {scelti.map((d) => {
+                  const potenziamenti = contenutoDistaccamento(d.id).potenziamenti;
+                  return (
+                    <BoxDistaccamento key={d.id} distaccamento={d}>
+                      {potenziamenti.length === 0 && <p className={styles.vuoto}>Nessun potenziamento nei dati.</p>}
+                      {potenziamenti.map((p) => (
+                        <Potenziamento key={p.id} potenziamento={p} />
+                      ))}
+                    </BoxDistaccamento>
+                  );
+                })}
+              </Sezione>
+            </>
+          )}
         </>
       )}
 
-      {comuni.length > 0 && (
-        <Sezione titolo="Stratagemmi comuni (sempre validi)" conteggio={comuni.length}>
-          {comuni.map((s) => (
-            <Stratagemma key={s.id} stratagemma={s} />
+      {stratagemmi.length > 0 && (
+        <Sezione
+          titolo="Stratagemmi"
+          conteggio={faseFiltro === 'tutto' ? stratagemmi.length : `${stratagemmiVisibili.length}/${stratagemmi.length}`}
+        >
+          <div className={styles.filtroFasi} role="group" aria-label="Fase di attivazione">
+            <button
+              type="button"
+              className={`${styles.filtroFase} ${faseFiltro === 'tutto' ? styles.filtroFaseAttivo : ''}`}
+              aria-pressed={faseFiltro === 'tutto'}
+              onClick={() => setFaseFiltro('tutto')}
+            >
+              Tutto
+            </button>
+            {FASI.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className={`${styles.filtroFase} ${faseFiltro === f.id ? styles.filtroFaseAttivo : ''}`}
+                aria-pressed={faseFiltro === f.id}
+                title={`Stratagemmi usabili in fase ${f.nome.toLowerCase()} (compresi quelli di qualsiasi fase)`}
+                onClick={() => setFaseFiltro(f.id)}
+              >
+                <span aria-hidden="true">{f.simbolo}</span> {f.nome}
+              </button>
+            ))}
+          </div>
+          <div className={styles.legendaTurni}>
+            <span><i className={`${styles.pallino} ${styles[`colore_${COLORE_GIOCATORE_ID[esercitoId]}`]}`} /> tuo turno</span>
+            <span><i className={`${styles.pallino} ${styles[`colore_${COLORE_GIOCATORE_ID[esercitoId] === 'blu' ? 'rosso' : 'blu'}`]}`} /> turno avversario</span>
+            <span><i className={`${styles.pallino} ${styles.colore_verde}`} /> qualsiasi</span>
+          </div>
+          {stratagemmiVisibili.length === 0 && <p className={styles.vuoto}>Nessuno stratagemma per questa fase.</p>}
+          {stratagemmiVisibili.map((s) => (
+            <Stratagemma key={s.id} stratagemma={s} colorePropria={COLORE_GIOCATORE_ID[esercitoId]} origine={s.origine} />
           ))}
         </Sezione>
       )}
@@ -197,10 +265,8 @@ function Capitolo({ id }) {
   return capitolo ? <small className={styles.capitolo}> ({capitolo})</small> : null;
 }
 
-function DettaglioDistaccamento({ distaccamento, versione }) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const { regole, potenziamenti, stratagemmi } = useMemo(() => contenutoDistaccamento(distaccamento.id), [distaccamento.id, versione]);
-
+// Riquadro di un distaccamento scelto (nome e DP in testa) con il suo contenuto dentro uno dei tre gruppi.
+function BoxDistaccamento({ distaccamento, children }) {
   return (
     <section className={styles.distaccamento}>
       <h3>
@@ -210,24 +276,7 @@ function DettaglioDistaccamento({ distaccamento, versione }) {
         </span>{' '}
         <span className={styles.chip}>{distaccamento.dp} DP</span>
       </h3>
-      <Sezione titolo="Regole del distaccamento" aperta conteggio={regole.length}>
-        {regole.length === 0 && <p className={styles.vuoto}>Nessuna regola nei dati.</p>}
-        {regole.map((r) => (
-          <Regola key={r.id} nome={r.nome} descrizione={r.descrizione} aperta />
-        ))}
-      </Sezione>
-      <Sezione titolo="Potenziamenti" conteggio={potenziamenti.length}>
-        {potenziamenti.length === 0 && <p className={styles.vuoto}>Nessun potenziamento nei dati.</p>}
-        {potenziamenti.map((p) => (
-          <Potenziamento key={p.id} potenziamento={p} />
-        ))}
-      </Sezione>
-      <Sezione titolo="Stratagemmi" conteggio={stratagemmi.length}>
-        {stratagemmi.length === 0 && <p className={styles.vuoto}>Nessuno stratagemma nei dati.</p>}
-        {stratagemmi.map((s) => (
-          <Stratagemma key={s.id} stratagemma={s} />
-        ))}
-      </Sezione>
+      {children}
     </section>
   );
 }

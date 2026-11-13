@@ -1,3 +1,4 @@
+import { fasiStratagemma, tipoTurno } from './fasiStratagemmi';
 import styles from './RegoleEsercito.module.css';
 
 // Etichette in testa ai capoversi degli stratagemmi ("WHEN: …"), messe in grassetto.
@@ -114,14 +115,36 @@ function SottotitoloStratagemma({ tipo, turno, fase }) {
   );
 }
 
-export function Stratagemma({ stratagemma }) {
+// Pallino del turno: blu se è il turno del giocatore dell'esercito mostrato, rosso se è quello dell'avversario,
+// verde se vale in entrambi (colori dei due eserciti: `colorePropria` e `coloreAvversario` sono 'blu' | 'rosso').
+function PallinoTurno({ turno, colorePropria }) {
+  const tipo = tipoTurno(turno);
+  if (!tipo) return null;
+  const coloreAvversario = colorePropria === 'blu' ? 'rosso' : 'blu';
+  const colore = tipo === 'proprio' ? colorePropria : tipo === 'avversario' ? coloreAvversario : 'verde';
+  const titolo = tipo === 'proprio' ? 'Nel tuo turno' : tipo === 'avversario' ? 'Nel turno avversario' : 'In qualsiasi turno';
+  return <span className={`${styles.pallino} ${styles[`colore_${colore}`]}`} title={titolo} aria-label={titolo} />;
+}
+
+// `origine`: nome del distaccamento (o "Comune") mostrato sotto il nome quando l'elenco mescola più fonti.
+export function Stratagemma({ stratagemma, colorePropria = 'blu', origine }) {
   const { nome, cp, tipo, turno, fase, descrizione } = stratagemma;
+  const fasi = fasiStratagemma(fase);
   return (
     <details className={styles.voce}>
       <summary>
-        {nome}
-        <span className={styles.chip}>{cp} CP</span>
+        <PallinoTurno turno={turno} colorePropria={colorePropria} />
+        <span>{nome}</span>
+        {fasi.length > 0 && (
+          <span className={styles.simboli} title={fasi.map((f) => f.nome).join(' / ')}>
+            {fasi.map((f) => (
+              <span key={f.id}>{f.simbolo}</span>
+            ))}
+          </span>
+        )}
+        <span className={`${styles.chip} ${styles.chipDestra}`}>{cp} CP</span>
       </summary>
+      {origine && <div className={styles.meta}>{origine}</div>}
       <SottotitoloStratagemma tipo={tipo} turno={turno} fase={fase} />
       <Testo testo={descrizione} />
     </details>

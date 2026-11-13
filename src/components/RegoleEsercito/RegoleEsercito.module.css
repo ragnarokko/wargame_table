@@ -216,3 +216,63 @@
   align-items: center;
   gap: 8px;
 }
+
+/* Pallino del turno e simboli della fase accanto al nome di uno stratagemma */
+.pallino {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.simboli {
+  display: inline-flex;
+  gap: 1px;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.chipDestra {
+  margin-left: auto;
+}
+
+/* Filtro per fase in cima al gruppo Stratagemmi */
+.filtroFasi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+
+.filtroFase {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--colore-testo-secondario);
+  background: transparent;
+  border: 1px solid var(--colore-bordo);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.filtroFaseAttivo {
+  color: #fff;
+  background: var(--colore-accento);
+  border-color: var(--colore-accento);
+}
+
+.legendaTurni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 4px;
+  font-size: 10px;
+  color: var(--colore-testo-secondario);
+}
+
+.legendaTurni span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
