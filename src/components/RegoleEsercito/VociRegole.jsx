@@ -144,7 +144,8 @@ function PallinoTurno({ turno, colorePropria }) {
   return <span className={`${styles.pallino} ${styles[`colore_${colore}`]}`} title={titolo} aria-label={titolo} />;
 }
 
-// `origine`: nome del distaccamento (o "Comune") mostrato sotto il nome quando l'elenco mescola più fonti.
+// `origine`: nome del distaccamento, o "Core" per i comuni, mostrato accanto al nome (dopo i simboli di fase)
+// quando l'elenco mescola più fonti.
 export function Stratagemma({ stratagemma, colorePropria = 'blu', origine }) {
   const { nome, cp, tipo, turno, fase, descrizione } = stratagemma;
   const fasi = fasiStratagemma(fase);
@@ -160,9 +161,9 @@ export function Stratagemma({ stratagemma, colorePropria = 'blu', origine }) {
             ))}
           </span>
         )}
+        {origine && <span className={styles.origine}>{origine}</span>}
         <span className={`${styles.chip} ${styles.chipDestra}`}>{cp} CP</span>
       </summary>
-      {origine && <div className={styles.meta}>{origine}</div>}
       <SottotitoloStratagemma tipo={tipo} turno={turno} fase={fase} />
       <Testo testo={descrizione} />
     </details>

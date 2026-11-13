@@ -81,7 +81,7 @@ function ContenutoRegole() {
   // Stratagemmi di tutti i distaccamenti scelti più quelli comuni, in un'unica lista (filtrabile per fase).
   const stratagemmi = [
     ...scelti.flatMap((d) => contenutoDistaccamento(d.id).stratagemmi.map((s) => ({ ...s, origine: d.nome }))),
-    ...comuni.map((s) => ({ ...s, origine: 'Comune (sempre valido)' })),
+    ...comuni.map((s) => ({ ...s, origine: 'Core' })),
   ];
   const stratagemmiVisibili = stratagemmi.filter((s) => valeInFase(s, faseFiltro));
 

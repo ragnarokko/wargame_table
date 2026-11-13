@@ -276,3 +276,12 @@
   align-items: center;
   gap: 4px;
 }
+
+/* Origine di uno stratagemma (nome distaccamento o "Core") accanto al nome, dopo i simboli di fase */
+.origine {
+  font-size: 10px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--colore-testo-secondario);
+  white-space: nowrap;
+}
